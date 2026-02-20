@@ -83,10 +83,10 @@ export function LoginForm() {
 
   const fillDemoCredentials = (role: 'admin' | 'lider') => {
     if (role === 'admin') {
-      form.setValue('email', 'admin@polimetrics.com');
+      form.setValue('email', 'admin@polimetrics.com.br');
       form.setValue('password', 'password123');
     } else {
-      form.setValue('email', 'lider@polimetrics.com');
+      form.setValue('email', 'lider@polimetrics.com.br');
       form.setValue('password', 'password123');
     }
     // Opcional: já acionar o submit automaticamente
