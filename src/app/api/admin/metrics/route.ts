@@ -3,6 +3,8 @@ import { isAuthenticated } from '@/lib/auth/server-side';
 import { resolveUserRole } from '@/lib/user-role';
 import { getAdminCompactMetrics } from '@/services/admin/getAdminCompactMetrics';
 
+export const dynamic = 'force-dynamic'; // EVITA FALHA NO BUILD DO APP HOSTING
+
 export async function GET() {
   const user = await isAuthenticated();
   if (!user) {

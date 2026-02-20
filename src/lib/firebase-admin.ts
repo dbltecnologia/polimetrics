@@ -19,7 +19,11 @@ function initializeAdminApp(): App {
     } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
       serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
     } else {
-      throw new Error('Não foi possível encontrar o arquivo firebase-admin.json ou a variável de ambiente FIREBASE_SERVICE_ACCOUNT_KEY.');
+      // FALHA SILENCIOSA NO BUILD DO NEXT.JS CI: Retorna inicialização nula para não quebrar 
+      // o 'next build' no Firebase App Hosting (que pré-roda o código de rotas back-end sem credenciais injetadas).
+      // Se a rota for chamada no runtime real, falhará.
+      console.warn('⚠️ [Firebase Admin] Nenhuma credencial encontrada. Assumindo modo de Build (App Hosting). App inicializado vazio.');
+      return initializeApp();
     }
 
     // Inicializa o SDK do Admin
