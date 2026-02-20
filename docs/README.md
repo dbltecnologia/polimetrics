@@ -1,5 +1,7 @@
 # PoliMetrics: A Arquitetura da Inteligência Política
 
+![Version](https://img.shields.io/badge/version-1.0.0_Bootstrap-003366?style=for-the-badge&logo=appveyor)
+![Status](https://img.shields.io/badge/status-Production_Ready-success?style=for-the-badge)
 Bem-vindo ao repositório central de documentação da **PoliMetrics** (anteriormente Mapa Político / Estratégia Política Inteligente). Este diretório atua como o **cérebro** do projeto, contendo as informações necessárias para as equipes de **Marketing, Comercial, Estratégia e Operação**.
 
 A PoliMetrics foi purificada e reestruturada para focar estritamente em **6 Pilares** de conversão eleitoral e gestão de mandato, removendo ruídos de antigas funcionalidades (gamificação, rankings vazios) que não traziam dados concretos para a mesa de decisão.
