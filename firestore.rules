@@ -1,0 +1,37 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Regra Geral: Nega acesso por padrão para documentos não especificados.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Permite leitura de cidades por qualquer usuário autenticado.
+    match /cities/{cityId} {
+      allow read: if request.auth != null;
+    }
+
+    // CORREÇÃO: Usuários podem ler e escrever (criar/atualizar) seus próprios perfis.
+    // Isso resolve o bloqueio silencioso no fluxo de onboarding.
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Líderes podem ser lidos por qualquer usuário autenticado.
+    match /leaders/{leaderId} {
+        allow read: if request.auth != null;
+    }
+
+    // Um apoiador só pode ser lido/escrito pelo seu líder direto.
+    match /members/{memberId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.leaderId;
+    }
+
+    // Um usuário (líder) só pode ler ou criar atividades para si mesmo.
+    match /activities/{activityId} {
+        allow read, create: if request.auth != null && request.auth.uid == resource.data.leaderId;
+    }
+  }
+}

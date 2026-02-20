@@ -1,0 +1,87 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-montserrat: "Montserrat", sans-serif;
+    /* Paleta de Cores Oficial - Mapa Político */
+    --background: 240 10% 98%; /* Cinza muito claro, quase branco */
+    --foreground: 222 47% 11%; /* Tom de preto suave */
+
+    --card: 0 0% 100%; /* Branco */
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Cores Primárias */
+    --primary: 209 100% 37%; /* Azul Principal #005DBC */
+    --primary-foreground: 0 0% 100%; /* Branco */
+
+    /* Cores Secundárias */
+    --secondary: 209 100% 28%; /* Azul Secundário #005091 */
+    --secondary-foreground: 0 0% 100%; /* Branco */
+
+    /* Cores de Alerta */
+    --destructive: 353 97% 43%; /* Vermelho Institucional #D8031D */
+    --destructive-foreground: 0 0% 100%; /* Branco */
+
+    /* Cores de Destaque e Neutras */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    /* Bordas e Inputs */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 209 100% 37%;
+
+    /* Raio da Borda */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark Mode - Mantendo consistência com a paleta */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 209 100% 37%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 209 100% 28%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 353 97% 43%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 209 100% 37%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-montserrat), sans-serif;
+  }
+}

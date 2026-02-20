@@ -1,0 +1,25 @@
+src/app/api/chamados/route.ts(50,28): error TS2339: Property 'FieldValue' does not exist on type 'Firestore'.
+src/app/dashboard/(leader)/content/create/page.tsx(4,40): error TS2307: Cannot find module '@/services/missionService' or its corresponding type declarations.
+src/app/dashboard/(leader)/content/create/page.tsx(5,10): error TS2305: Module '"@/types/event"' has no exported member 'Mission'.
+src/app/dashboard/(leader)/content/create/page.tsx(23,20): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/app/dashboard/admin/members/[memberId]/_components/MemberProfile.tsx(3,24): error TS2307: Cannot find module '@/services/leader/getMyMembers' or its corresponding type declarations.
+src/app/dashboard/admin/supporters/page.tsx(49,37): error TS2345: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/app/dashboard/admin/supporters/page.tsx(50,40): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/app/dashboard/admin/supporters/page.tsx(53,27): error TS2345: Argument of type '{ city: City | undefined; leader: Leader | undefined; id: string; name: string; phone: string | null; address: string; leaderName: string; status: "ativo" | "inativo" | "potencial"; leaderId: string | null; cityId?: string | ... 1 more ... | undefined; cityName?: string | ... 1 more ... | undefined; votePotential?: ...' is not assignable to parameter of type 'SetStateAction<PopulatedMember[]>'.
+  Type '{ city: City | undefined; leader: Leader | undefined; id: string; name: string; phone: string | null; address: string; leaderName: string; status: "ativo" | "inativo" | "potencial"; leaderId: string | null; cityId?: string | ... 1 more ... | undefined; cityName?: string | ... 1 more ... | undefined; votePotential?: ...' is not assignable to type 'PopulatedMember[]'.
+    Type '{ city: City | undefined; leader: Leader | undefined; id: string; name: string; phone: string | null; address: string; leaderName: string; status: "ativo" | "inativo" | "potencial"; leaderId: string | null; cityId?: string | ... 1 more ... | undefined; cityName?: string | ... 1 more ... | undefined; votePotential?: ...' is missing the following properties from type 'PopulatedMember': experience, createdAt
+src/app/dashboard/admin/supporters/page.tsx(54,32): error TS2345: Argument of type '{ city: City | undefined; leader: Leader | undefined; id: string; name: string; phone: string | null; address: string; leaderName: string; status: "ativo" | "inativo" | "potencial"; leaderId: string | null; cityId?: string | ... 1 more ... | undefined; cityName?: string | ... 1 more ... | undefined; votePotential?: ...' is not assignable to parameter of type 'SetStateAction<PopulatedMember[]>'.
+  Type '{ city: City | undefined; leader: Leader | undefined; id: string; name: string; phone: string | null; address: string; leaderName: string; status: "ativo" | "inativo" | "potencial"; leaderId: string | null; cityId?: string | ... 1 more ... | undefined; cityName?: string | ... 1 more ... | undefined; votePotential?: ...' is not assignable to type 'PopulatedMember[]'.
+    Type '{ city: City | undefined; leader: Leader | undefined; id: string; name: string; phone: string | null; address: string; leaderName: string; status: "ativo" | "inativo" | "potencial"; leaderId: string | null; cityId?: string | ... 1 more ... | undefined; cityName?: string | ... 1 more ... | undefined; votePotential?: ...' is missing the following properties from type 'PopulatedMember': experience, createdAt
+src/components/ai/FloatingAiChat.tsx(20,30): error TS2339: Property 'avatar' does not exist on type 'User'.
+src/components/dashboard/notifications.tsx(17,33): error TS2307: Cannot find module '@/types/notification' or its corresponding type declarations.
+src/components/forms/CreateEventForm.tsx(18,29): error TS2307: Cannot find module '@/services/eventService' or its corresponding type declarations.
+src/components/leader/LeaderPerformance.tsx(5,34): error TS2307: Cannot find module '@/app/dashboard/admin/leaders/[leaderId]/_components/LeaderStatsCards' or its corresponding type declarations.
+src/components/leader/LeaderProfileForm.tsx(92,9): error TS2322: Type '"success"' is not assignable to type '"destructive" | "default" | null | undefined'.
+src/components/leader/MemberList.tsx(4,30): error TS2307: Cannot find module '@/services/leader/getMyMembers' or its corresponding type declarations.
+src/components/leader/MemberList.tsx(5,36): error TS2307: Cannot find module '@/app/dashboard/admin/leaders/[leaderId]/_components/LeaderMembersTable' or its corresponding type declarations.
+src/services/auth/getCurrentUser.ts(21,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/auth/logout.ts(7,15): error TS2339: Property 'delete' does not exist on type 'Promise<ReadonlyRequestCookies>'.

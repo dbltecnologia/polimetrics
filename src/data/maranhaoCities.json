@@ -1,0 +1,17 @@
+[
+  { "id": "sao-luis", "name": "São Luís" },
+  { "id": "imperatriz", "name": "Imperatriz" },
+  { "id": "sao-jose-de-ribamar", "name": "São José de Ribamar" },
+  { "id": "timon", "name": "Timon" },
+  { "id": "caxias", "name": "Caxias" },
+  { "id": "bacabal", "name": "Bacabal" },
+  { "id": "codo", "name": "Codó" },
+  { "id": "acailandia", "name": "Açailândia" },
+  { "id": "balsas", "name": "Balsas" },
+  { "id": "santa-ines", "name": "Santa Inês" },
+  { "id": "barra-do-corda", "name": "Barra do Corda" },
+  { "id": "pinheiro", "name": "Pinheiro" },
+  { "id": "chapadinha", "name": "Chapadinha" },
+  { "id": "pedreiras", "name": "Pedreiras" },
+  { "id": "presidente-dutra", "name": "Presidente Dutra" }
+]
