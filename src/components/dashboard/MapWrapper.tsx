@@ -28,18 +28,17 @@ export default function MapWrapper({ leaders }: { leaders: AppUser[] }) {
     const center = validLeaders.length > 0 ? [validLeaders[0].lat!, validLeaders[0].lng!] as [number, number] : defaultCenter;
 
     // React Leaflet ODEIA o React Strict Mode (ocorre o erro 'Map container is already initialized').
-    // O trambique ofial da comunidade é injetar uma Key baseada num estado para forçar a remontagem segura
-    // quando o HMR do Next.js bate, ou engolir as recriações. 
-    // Outra alternativa mais simples é atar a Key ao `center` atual, resolvendo remounts em fast-refresh.
-    const mapKey = center ? `${center[0]}-${center[1]}` : 'default-map-key';
-
-    // Evita hidratação inicial quebrada (diferença server-client) aguardando o mount
+    // Geramos um ID de componente randômico apenas na montagem no cliente para ele forçar a recriação do map 
+    // sempre que o HMR recarregar ou houver navegações bruscas, criando um remount higienizado.
+    const [mapKey, setMapKey] = useState<string>('');
     const [mounted, setMounted] = useState(false);
+
     useEffect(() => {
+        setMapKey(Math.random().toString(36).substring(7));
         setMounted(true);
     }, []);
 
-    if (!mounted) return <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400">Carregando mapa...</div>;
+    if (!mounted || !mapKey) return <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400">Carregando mapa...</div>;
 
     return (
         <MapContainer key={mapKey} center={center} zoom={12} className="h-full w-full relative z-0">
