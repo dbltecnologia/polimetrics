@@ -1,6 +1,7 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    reactStrictMode: false, // Desativa dupla inicialização do React 18 (Causa erros no Leaflet 'is already initialized')
     typescript: {
         ignoreBuildErrors: true,
     },
