@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { AppUser } from '@/types/user';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Users, FileText } from 'lucide-react';
 
@@ -27,8 +27,22 @@ export default function MapWrapper({ leaders }: { leaders: AppUser[] }) {
     // Ajusta o centro do mapa para o primeiro líder se houver, ou mantém São Luís
     const center = validLeaders.length > 0 ? [validLeaders[0].lat!, validLeaders[0].lng!] as [number, number] : defaultCenter;
 
+    // React Leaflet ODEIA o React Strict Mode (ocorre o erro 'Map container is already initialized').
+    // O trambique ofial da comunidade é injetar uma Key baseada num estado para forçar a remontagem segura
+    // quando o HMR do Next.js bate, ou engolir as recriações. 
+    // Outra alternativa mais simples é atar a Key ao `center` atual, resolvendo remounts em fast-refresh.
+    const mapKey = center ? `${center[0]}-${center[1]}` : 'default-map-key';
+
+    // Evita hidratação inicial quebrada (diferença server-client) aguardando o mount
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400">Carregando mapa...</div>;
+
     return (
-        <MapContainer center={center} zoom={12} className="h-full w-full relative z-0">
+        <MapContainer key={mapKey} center={center} zoom={12} className="h-full w-full relative z-0">
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
