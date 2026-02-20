@@ -28,15 +28,13 @@ type AdminMetrics = {
 
 const mainLinks = [
   { name: 'Dashboard Político', href: '/dashboard/admin', icon: LayoutDashboard },
-  { name: 'Cidades', href: '/dashboard/admin/cities', icon: Building },
   { name: 'Mapa Político', href: '/dashboard/admin/mapa-politico', icon: Target },
-
   { name: 'Líderes Políticos', href: '/dashboard/admin/leaders', icon: Users },
-  { name: 'Apoiadores da Base', href: '/dashboard/admin/members', icon: UsersRound },
   { name: 'Chamados', href: '/dashboard/admin/chamados', icon: FileText },
   { name: 'Minivotações', href: '/dashboard/admin/votacoes', icon: Vote },
   { name: 'Eleições e Análise', href: '/dashboard/admin/eleicoes', icon: TrendingUp },
 ];
+
 
 interface AdminSidebarProps {
   variant?: 'desktop' | 'mobile';
