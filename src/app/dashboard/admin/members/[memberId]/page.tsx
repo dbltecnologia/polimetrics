@@ -35,7 +35,7 @@ export default async function MemberDetailsPage({ params }: { params: { memberId
             {/* Header com Navegação e Ações */}
             <div className="flex items-center justify-between">
                 <Button asChild variant="outline" size="sm">
-                    <Link href="/dashboard/admin/community">
+                    <Link href="/dashboard/admin/members">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Voltar para a Comunidade
                     </Link>

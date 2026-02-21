@@ -50,7 +50,7 @@ export function WelcomeSlider() {
     };
 
     const finishWelcome = () => {
-        router.push('/dashboard/leader/community');
+        router.push('/dashboard/leader-panel');
     };
 
     const CurrentIcon = slides[currentSlide].icon;
