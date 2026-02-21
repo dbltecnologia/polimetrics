@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 // Itens de navegação para o Líder
 const leaderNavItems = [
     { href: '/dashboard', icon: Home, label: 'Início' },
-    { href: '/dashboard/leader/community', icon: Users, label: 'Minha Rede' },
+    { href: '/dashboard/leader-panel', icon: Users, label: 'Minha Rede' },
     { href: '/dashboard/leader/chamados', icon: MessageSquare, label: 'Chamados' },
     { href: '/dashboard/profile', icon: UserCircle, label: 'Perfil' },
 ];
@@ -48,8 +48,10 @@ const Sidebar = () => {
             <aside className="hidden h-full w-64 flex-col bg-primary border-r border-primary-dark lg:flex">
                 <div className="flex h-20 items-center border-b border-primary-dark px-6">
                     <Link href="/dashboard" className="flex items-center gap-3">
-                        <Image src="/Logo.png" alt="Mapa Político" width={32} height={32} />
-                        <span className="text-xl font-bold text-neutral-white">Mapa Político</span>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-slate-200/50">
+                            <Image src="/PoliMetrics.png" alt="PoliMetrics Logo" width={32} height={32} className="object-contain" />
+                        </div>
+                        <span className="text-xl font-bold text-neutral-white">PoliMetrics</span>
                     </Link>
                 </div>
                 <div className="flex flex-1 flex-col justify-between p-4">

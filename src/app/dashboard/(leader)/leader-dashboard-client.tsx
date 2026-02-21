@@ -82,9 +82,9 @@ export default function LeaderDashboardClient() {
                         </p>
                     </div>
                     <Button variant="outline" asChild size="sm" className="self-start">
-                        <Link href="/dashboard/leader/community" className="flex items-center gap-2">
+                        <Link href="/dashboard/leader-panel" className="flex items-center gap-2">
                             <Users className="h-4 w-4" />
-                            Adicionar membro
+                            Minha Rede
                         </Link>
                     </Button>
                 </div>
