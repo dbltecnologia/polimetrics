@@ -69,8 +69,8 @@ const Header = () => {
     const { user } = useSession();
     const { user: profile } = useUser();
     const { handleLogout, isLoggingOut } = useLogout();
-    const avatarSrc = profile?.image || (profile as any)?.avatarUrl || (profile as any)?.avatar || (profile?.role === 'admin' ? '/deputado1.jpg' : '/Logo.png');
-    const avatarAlt = profile?.name ? `Avatar de ${profile.name}` : (profile?.role === 'admin' ? 'Foto do administrador' : 'Logo Mapa Político');
+    const avatarSrc = profile?.image || (profile as any)?.avatarUrl || (profile as any)?.avatar || '/PoliMetrics.png';
+    const avatarAlt = profile?.name ? `Avatar de ${profile.name}` : 'Logo PoliMetrics';
 
     return (
         <header className="flex h-14 items-center justify-end gap-4 border-b bg-background px-6 sticky top-0 z-10">

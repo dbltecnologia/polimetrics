@@ -17,8 +17,8 @@ type ChatMessage = {
 
 export function FloatingAiChat() {
   const { user: profile } = useUser();
-  const avatarSrc = (profile as any)?.avatarUrl || (profile as any)?.avatar || (profile?.role === 'admin' ? '/deputado1.jpg' : '/Logo.png');
-  const avatarAlt = profile?.role === 'admin' ? 'Foto do administrador' : 'Avatar do usuário';
+  const avatarSrc = (profile as any)?.avatarUrl || (profile as any)?.avatar || '/PoliMetrics.png';
+  const avatarAlt = 'Avatar do usuário';
 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
