@@ -5,9 +5,10 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, Users, CalendarClock, Trophy, User, FileText, CheckSquare } from 'lucide-react';
 
-{ href: '/dashboard', label: 'Início', icon: LayoutDashboard },
-{ href: '/dashboard/leader-panel', label: 'Minha Rede', icon: Users },
-{ href: '/dashboard/profile', label: 'Perfil', icon: User },
+const links = [
+  { href: '/dashboard', label: 'Início', icon: LayoutDashboard },
+  { href: '/dashboard/leader-panel', label: 'Minha Rede', icon: Users },
+  { href: '/dashboard/profile', label: 'Perfil', icon: User },
 ];
 
 export function LeaderSidebar() {

@@ -4,11 +4,12 @@ import { isAuthenticated } from "@/lib/auth/server-side";
 import { resolveUserRole } from "@/lib/user-role";
 import { LeaderCompactMetrics } from "./_components/LeaderCompactMetrics";
 import { LeaderQuickAccess } from "./_components/LeaderQuickAccess";
-import { AddMemberForm } from "@/components/forms/AddMemberForm";
+import { Button } from "@/components/ui/button";
 import { getLeaderProfile } from "@/services/leader/getLeaderProfile";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DashboardPage() {
   const user = await isAuthenticated();
@@ -44,16 +45,22 @@ export default async function DashboardPage() {
       <LeaderQuickAccess />
 
       {role === "leader" && (
-        <section className="rounded-2xl border bg-card p-4 shadow-sm md:p-6">
+        <section className="rounded-2xl border bg-card p-4 shadow-sm md:p-6 border-primary/20 bg-primary/5">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Cadastrar apoiador</h2>
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              Expandir sua Rede
+            </h2>
             <p className="text-sm text-muted-foreground">
-              Cadastre um novo apoiador vinculado à sua base.
+              Gerencie sua base de contatos, avalie seu potencial de votos e adicione novos apoiadores lado a lado na sua lista.
             </p>
           </div>
           <div className="mt-4">
             {resolvedCityId ? (
-              <AddMemberForm leaderId={leader?.id || user.uid} cityId={resolvedCityId} />
+              <Button asChild>
+                <Link href="/dashboard/leader-panel">
+                  Acessar Minha Rede e Cadastrar
+                </Link>
+              </Button>
             ) : (
               <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
                 Complete o cadastro da sua cidade em{" "}

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 const leaderNavItems = [
     { href: '/dashboard', icon: Home, label: 'Início' },
     { href: '/dashboard/leader-panel', icon: Users, label: 'Minha Rede' },
-    { href: '/dashboard/leader/chamados', icon: MessageSquare, label: 'Chamados' },
+    { href: '/dashboard/chamados', icon: MessageSquare, label: 'Chamados' },
     { href: '/dashboard/profile', icon: UserCircle, label: 'Perfil' },
 ];
 

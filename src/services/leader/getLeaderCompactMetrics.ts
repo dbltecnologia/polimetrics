@@ -28,7 +28,7 @@ export async function getLeaderCompactMetrics(leaderId: string): Promise<LeaderC
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
   const oneWeekAgoTs = Timestamp.fromDate(oneWeekAgo);
 
-  const membersRef = firestore.collection('community-members');
+  const membersRef = firestore.collection('members');
   const activitiesRef = firestore.collection('activities');
   const meetingsRef = firestore.collection('meetings');
 

@@ -55,9 +55,10 @@ const formSchema = z.object({
 interface AddMemberFormProps {
   leaderId: string;
   cityId: string; // Adicionado
+  onSuccess?: () => void;
 }
 
-export function AddMemberForm({ leaderId, cityId }: AddMemberFormProps) {
+export function AddMemberForm({ leaderId, cityId, onSuccess }: AddMemberFormProps) {
   const { user } = useSession(); // Pegar o usuário da sessão
   const { toast } = useToast();
   const router = useRouter();
@@ -79,7 +80,11 @@ export function AddMemberForm({ leaderId, cityId }: AddMemberFormProps) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) return;
+    console.log("Submit Iniciado. Valores:", values);
+    if (!user) {
+      console.error("Usuário não encontrado na sessão. Abortando submit.");
+      return;
+    }
 
     try {
       const newMember = {
@@ -126,7 +131,12 @@ export function AddMemberForm({ leaderId, cityId }: AddMemberFormProps) {
         facebook: '',
         cityId,
       });
-      router.refresh();
+
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.refresh(); // Fallback para pages nativas Server-Side
+      }
 
     } catch (error) {
       console.error("Erro ao cadastrar apoiador:", error);
@@ -138,9 +148,13 @@ export function AddMemberForm({ leaderId, cityId }: AddMemberFormProps) {
     }
   }
 
+  function onError(errors: any) {
+    console.error("Erros de Validação do Zod:", errors);
+  }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"

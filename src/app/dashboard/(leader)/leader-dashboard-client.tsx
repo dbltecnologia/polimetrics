@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Users } from 'lucide-react';
 import Link from "next/link";
 import { useUser } from "@/contexts/UserContext";
-import { AddMemberForm } from "@/components/forms/AddMemberForm";
+import { useState, useEffect } from "react";
 
 const QuickLink = ({ href, icon: Icon, title, description, isVisible }: any) => {
     if (!isVisible) return null;
@@ -39,6 +39,26 @@ export default function LeaderDashboardClient() {
     const isLeader = profile?.role === 'leader';
     const displayName = profile?.name || user?.displayName || 'Líder';
 
+    const [memberCount, setMemberCount] = useState<number | null>(null);
+
+    useEffect(() => {
+        let isMounted = true;
+        const fetchCount = async () => {
+            if (!user?.uid) return;
+            try {
+                const res = await fetch(`/api/leader/member-count?uid=${user.uid}`);
+                if (res.ok && isMounted) {
+                    const data = await res.json();
+                    setMemberCount(data.count);
+                }
+            } catch (error) {
+                console.error('Falha ao buscar contagem da base:', error);
+            }
+        };
+        fetchCount();
+        return () => { isMounted = false; };
+    }, [user?.uid]);
+
 
     return (
         <div className="flex flex-col gap-8">
@@ -59,10 +79,14 @@ export default function LeaderDashboardClient() {
                     <Card className="flex-1 bg-slate-50 px-5 py-4 shadow-inner shadow-slate-200">
                         <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold text-slate-600">Sua base</p>
-                            <span className="text-xs text-muted-foreground">Atualizado agora</span>
+                            <span className="text-xs text-muted-foreground">Em tempo real</span>
                         </div>
-                        <p className="mt-3 text-3xl font-bold text-primary tracking-tight">—</p>
-                        <p className="text-xs text-muted-foreground">Sem dados recentes</p>
+                        <p className="mt-3 text-3xl font-bold text-primary tracking-tight">
+                            {memberCount !== null ? memberCount : '—'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            {memberCount !== null ? 'Apoiadores cadastrados' : 'Carregando...'}
+                        </p>
                     </Card>
                     <Card className="flex-1 bg-slate-50 px-5 py-4 shadow-inner shadow-slate-200">
                         <p className="text-sm font-semibold text-slate-600">Próximos passos</p>
@@ -101,18 +125,22 @@ export default function LeaderDashboardClient() {
             </section>
 
             {profile?.role === 'leader' && profile?.leader?.cityId && (
-                <section className="border rounded-2xl bg-white p-6 shadow">
+                <section className="col-span-1 border rounded-2xl bg-white p-6 shadow-sm border-primary/20 bg-primary/5">
                     <div className="flex flex-col gap-2">
-                        <h2 className="text-xl font-semibold">Cadastrar novo membro</h2>
+                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                            <Users className="h-5 w-5 text-primary" />
+                            Expandir sua Rede
+                        </h2>
                         <p className="text-sm text-muted-foreground">
-                            Registre um apoiador e vincule-o automaticamente à sua base.
+                            Gerencie sua base de contatos, avalie seu potencial de votos e adicione novos apoiadores de forma rápida.
                         </p>
                     </div>
-                    <div className="mt-4">
-                        <AddMemberForm
-                            leaderId={profile.leader.id}
-                            cityId={profile.leader.cityId}
-                        />
+                    <div className="mt-6 flex">
+                        <Button asChild className="w-full sm:w-auto">
+                            <Link href="/dashboard/leader-panel">
+                                Acessar Minha Rede e Cadastrar
+                            </Link>
+                        </Button>
                     </div>
                 </section>
             )}
