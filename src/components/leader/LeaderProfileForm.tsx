@@ -119,7 +119,7 @@ export function LeaderProfileForm({
       await refresh();
 
       if (isFirstTime) {
-        router.push('/dashboard/leader/community?welcome=1');
+        router.push('/dashboard/leader-panel?welcome=1');
       }
     } catch (error) {
       console.error('[LeaderProfileForm]', error);
