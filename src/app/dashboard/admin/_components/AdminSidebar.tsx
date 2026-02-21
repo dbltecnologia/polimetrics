@@ -97,10 +97,9 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
         variant === 'desktop' ? 'hidden md:flex' : 'flex'
       )}
     >
-      <div className="flex h-20 items-center border-b border-primary-dark px-6">
-        <Link href="/dashboard/admin" className="flex items-center gap-3">
-          <Image src="/Logo.png" alt="Logo Mapa Político" width={40} height={40} />
-          <span className="text-xl font-bold text-neutral-white">Mapa Político</span>
+      <div className="flex h-20 items-center justify-center border-b border-primary-dark px-6">
+        <Link href="/dashboard/admin" className="flex items-center justify-center gap-3 w-full">
+          <Image src="/PoliMetrics.png" alt="Logo PoliMetrics" width={160} height={120} className="object-contain" />
         </Link>
       </div>
       <div className="flex flex-1 flex-col justify-between p-4">

@@ -39,10 +39,9 @@ const MobileNavigation = ({ items }: { items: typeof leaderMobileLinks | typeof 
 
     return (
         <div className="flex h-full flex-col bg-primary border-r border-primary-dark">
-            <div className="flex h-20 items-center border-b border-primary-dark px-6">
-                <Link href="/dashboard" className="flex items-center gap-3">
-                    <Image src="/Logo.png" alt="Mapa Político" width={32} height={32} />
-                    <span className="text-xl font-bold text-neutral-white">Mapa Político</span>
+            <div className="flex h-20 items-center justify-center border-b border-primary-dark px-6">
+                <Link href="/dashboard" className="flex items-center justify-center gap-3 w-full">
+                    <Image src="/PoliMetrics.png" alt="PoliMetrics" width={180} height={180} className="object-contain" />
                 </Link>
             </div>
             <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
