@@ -97,9 +97,12 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
         variant === 'desktop' ? 'hidden md:flex' : 'flex'
       )}
     >
-      <div className="flex h-20 items-center justify-center border-b border-primary-dark px-6">
-        <Link href="/dashboard/admin" className="flex items-center justify-center gap-3 w-full">
-          <Image src="/PoliMetrics.png" alt="Logo PoliMetrics" width={160} height={120} className="object-contain" />
+      <div className="flex h-20 items-center border-b border-primary-dark px-6">
+        <Link href="/dashboard/admin" className="flex items-center gap-3">
+          <div className="bg-white p-1.5 rounded-lg shadow-sm flex items-center justify-center">
+            <Image src="/PoliMetrics.png" alt="Logo PoliMetrics" width={32} height={32} className="object-contain mix-blend-multiply" />
+          </div>
+          <span className="text-xl font-bold text-neutral-white tracking-wide">PoliMetrics</span>
         </Link>
       </div>
       <div className="flex flex-1 flex-col justify-between p-4">
