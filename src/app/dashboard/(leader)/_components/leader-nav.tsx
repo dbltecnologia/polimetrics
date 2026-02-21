@@ -5,12 +5,9 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, Users, CalendarClock, Trophy, User, FileText, CheckSquare } from 'lucide-react';
 
-const links = [
-  { href: '/dashboard', label: 'Início', icon: LayoutDashboard },
-  { href: '/dashboard/gabinete', label: 'Gabinete Virtual', icon: CheckSquare },
-  { href: '/dashboard/leader-panel', label: 'Pessoas', icon: Users },
-  { href: '/dashboard/profile', label: 'Perfil', icon: User },
-  { href: '/dashboard/content', label: 'Conteúdos', icon: FileText },
+{ href: '/dashboard', label: 'Início', icon: LayoutDashboard },
+{ href: '/dashboard/leader-panel', label: 'Minha Rede', icon: Users },
+{ href: '/dashboard/profile', label: 'Perfil', icon: User },
 ];
 
 export function LeaderSidebar() {

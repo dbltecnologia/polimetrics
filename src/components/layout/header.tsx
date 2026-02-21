@@ -23,7 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const leaderMobileLinks = [
     { href: '/dashboard', icon: Home, label: 'Início' },
-    { href: '/dashboard/leader/community', icon: Users, label: 'Membros' },
+    { href: '/dashboard/leader-panel', icon: Users, label: 'Minha Rede' },
 ];
 
 const memberMobileLinks = [
@@ -95,9 +95,9 @@ const Header = () => {
 
             {profile?.role === 'leader' && (
                 <Button variant="ghost" size="sm" className="hidden lg:flex" asChild>
-                    <Link href="/dashboard/leader/community" className="flex items-center gap-2">
+                    <Link href="/dashboard/leader-panel" className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
-                        <span>Membros</span>
+                        <span>Minha Rede</span>
                     </Link>
                 </Button>
             )}

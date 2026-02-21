@@ -31,9 +31,9 @@ const adminNavItems = [
         label: 'Líderes',
     },
     {
-        href: '/dashboard/admin/community',
+        href: '/dashboard/admin/members',
         icon: Users,
-        label: 'Membros',
+        label: 'Apoiadores da Base',
     },
     // Adicionado o link para Ação Parlamentar removido
     // Recompensas removido
