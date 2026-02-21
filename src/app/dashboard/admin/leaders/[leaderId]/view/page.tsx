@@ -38,7 +38,7 @@ async function getLeaderMembersTotals(leaderId: string): Promise<{ totalMembers:
           const agg = await (baseQuery as any).count().get();
           return Number(agg.data()?.count) || 0;
         }
-      } catch {}
+      } catch { }
       const snap = await baseQuery.select('leaderId').get();
       return snap.size;
     })();
@@ -54,7 +54,7 @@ async function getLeaderMembersTotals(leaderId: string): Promise<{ totalMembers:
           const value = agg.data?.()?.total ?? agg.data?.().total;
           return Number(value) || 0;
         }
-      } catch {}
+      } catch { }
 
       const snap = await baseQuery.select('votePotential').get();
       let sum = 0;
@@ -86,8 +86,9 @@ const formatDate = (value?: any) => {
   return new Intl.DateTimeFormat('pt-BR').format(date);
 };
 
-export default async function ViewLeaderPage({ params }: { params: { leaderId: string } }) {
-  const leader = await getLeaderById(params.leaderId);
+export default async function ViewLeaderPage({ params }: { params: Promise<{ leaderId: string }> }) {
+  const { leaderId } = await params;
+  const leader = await getLeaderById(leaderId);
 
   if (!leader) {
     return (
@@ -98,8 +99,8 @@ export default async function ViewLeaderPage({ params }: { params: { leaderId: s
   }
 
   const [members, totals] = await Promise.all([
-    getMembers(params.leaderId),
-    getLeaderMembersTotals(params.leaderId),
+    getMembers(leaderId),
+    getLeaderMembersTotals(leaderId),
   ]);
 
   return (
@@ -136,7 +137,7 @@ export default async function ViewLeaderPage({ params }: { params: { leaderId: s
           </div>
           <div className="mt-6 flex gap-3">
             <Link
-              href={`/dashboard/admin/leaders/${params.leaderId}`}
+              href={`/dashboard/admin/leaders/${leaderId}`}
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-[1px] hover:bg-primary/90"
             >
               Editar líder

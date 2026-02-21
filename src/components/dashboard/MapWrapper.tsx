@@ -19,8 +19,11 @@ export default function MapWrapper({ leaders }: { leaders: AppUser[] }) {
         });
     }, []);
 
-    // Coordenadas padrão (São Luís, MA)
-    const defaultCenter: [number, number] = [-2.53, -44.30];
+    // Coordenadas padrão via Env ou fallback para São Luís, MA
+    const defaultCenter: [number, number] = [
+        Number(process.env.NEXT_PUBLIC_MAP_DEFAULT_LAT || -2.53),
+        Number(process.env.NEXT_PUBLIC_MAP_DEFAULT_LNG || -44.30)
+    ];
 
     const validLeaders = leaders.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number');
 

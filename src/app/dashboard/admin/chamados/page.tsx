@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
 import { CalendarClock, MessageSquare, User } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ChamadoActions } from './_components/ChamadoActions';
 
 export default async function ChamadosPage() {
   const chamados = await getAllChamados();
@@ -53,6 +54,9 @@ export default async function ChamadosPage() {
                   <span>{formatDate((c as any).createdAt) || 'Sem data'}</span>
                 </div>
               </div>
+              <div className="-mt-1 -mr-1">
+                <ChamadoActions id={c.id} />
+              </div>
             </div>
             {c.message && (
               <p className="mt-3 text-sm text-muted-foreground whitespace-pre-wrap">
@@ -79,6 +83,7 @@ export default async function ChamadosPage() {
                     <TableHead>Remetente</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Mensagem</TableHead>
+                    <TableHead className="text-right w-[80px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -91,6 +96,9 @@ export default async function ChamadosPage() {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-pre-wrap">
                         {c.message || '—'}
+                      </TableCell>
+                      <TableCell className="text-right align-top">
+                        <ChamadoActions id={c.id} />
                       </TableCell>
                     </TableRow>
                   ))}

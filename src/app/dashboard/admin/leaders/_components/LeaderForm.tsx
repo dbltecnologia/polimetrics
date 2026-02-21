@@ -191,7 +191,6 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
                 <SelectItem value="master">Master</SelectItem>
                 <SelectItem value="sub">Subordinado</SelectItem>
                 <SelectItem value="leader">Líder</SelectItem>
-                <SelectItem value="lider">Líder (legado)</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
