@@ -37,11 +37,6 @@ const adminNavItems = [
     },
     // Adicionado o link para Ação Parlamentar removido
     // Recompensas removido
-    {
-        href: '/dashboard/admin/users',
-        icon: Users,
-        label: 'Usuários',
-    },
 ];
 
 const AdminSidebar = () => {
