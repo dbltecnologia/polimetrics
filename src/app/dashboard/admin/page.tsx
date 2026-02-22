@@ -59,30 +59,35 @@ export default async function AdminDashboardPage() {
           value={stats.totalCities}
           icon={Building}
           description="Atuação ativa"
+          href="/dashboard/admin/cities"
         />
         <AdminStatCard
           title="Líderes"
           value={stats.totalLeaders}
           icon={Users}
           description="Mobilizadores"
+          href="/dashboard/admin/leaders"
         />
         <AdminStatCard
           title="Apoiadores"
           value={stats.totalMembers}
           icon={UsersRound}
           description="Base cadastrada"
+          href="/dashboard/admin/members"
         />
         <AdminStatCard
           title="Potencial Votos"
           value={stats.totalVotePotential}
           icon={Star}
           description="Votos esperados"
+          href="/dashboard/admin/members" // Na falta de rota específica inicial, listamos membros filtráveis
         />
         <AdminStatCard
           title="Minivotações"
           value={stats.activePolls}
           icon={Vote}
           description="Enquetes ativas"
+          href="/dashboard/admin/gabinete" // Temporariamente apontado para gabinete ou mantido sem href (usarei placeholder vazio ou omitirei para ele não errar caso mudei gabinete)
         />
       </div>
 

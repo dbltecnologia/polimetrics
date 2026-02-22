@@ -34,7 +34,7 @@ export default async function DashboardPage() {
     <div className="p-3 md:p-8 space-y-6">
       <section className="rounded-2xl border bg-card p-4 shadow-sm md:p-6">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Dashboard</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight">{name}</h1>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight">Líder</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Visão rápida do seu dia e atalhos para as áreas principais.
         </p>

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AdminSidebar } from "@/app/dashboard/admin/_components/AdminSidebar";
-import { CircleUser, FileText, Home, LogOut, Menu, Users } from "lucide-react";
+import { CircleUser, FileText, Home, LogOut, Menu, Users, MessageSquare } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useLogout } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const leaderMobileLinks = [
     { href: '/dashboard', icon: Home, label: 'Início' },
     { href: '/dashboard/leader-panel', icon: Users, label: 'Minha Rede' },
+    { href: '/dashboard/chamados', icon: MessageSquare, label: 'Chamados' },
 ];
 
 const memberMobileLinks = [

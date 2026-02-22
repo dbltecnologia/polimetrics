@@ -1,32 +1,12 @@
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
 import { firestore } from '@/lib/firebase-admin';
 import { getLeaderById } from '@/services/admin/leaders/getLeaderById';
+import { getAllMembers } from '@/services/admin/members/getAllMembers';
+import MembersAdminTable from '@/components/admin/members/MembersAdminTable';
 import { CalendarDays, ChevronLeft, Users, Vote } from 'lucide-react';
 import Link from 'next/link';
 
 export const revalidate = 0;
-
-type Member = {
-  id: string;
-  name?: string;
-  votePotential?: number;
-  city?: string;
-  neighborhood?: string;
-};
-
-async function getMembers(leaderId: string) {
-  const snapshot = await firestore
-    .collection('members')
-    .where('leaderId', '==', leaderId)
-    .orderBy('name')
-    .limit(50)
-    .get();
-
-  return snapshot.docs.map((doc) => {
-    const data = doc.data() as Member;
-    return { ...data, id: doc.id };
-  });
-}
 
 async function getLeaderMembersTotals(leaderId: string): Promise<{ totalMembers: number; totalVotePotential: number }> {
   try {
@@ -98,16 +78,20 @@ export default async function ViewLeaderPage({ params }: { params: Promise<{ lea
     );
   }
 
-  const [members, totals] = await Promise.all([
-    getMembers(leaderId),
+  // Busca de dados da célula e totais em paralelo
+  const [allSystemMembers, totals] = await Promise.all([
+    getAllMembers(),
     getLeaderMembersTotals(leaderId),
   ]);
+
+  // Filtra apenas membros vinculados a este líder formandos ua Célula
+  const leaderCellMembers = allSystemMembers.filter(member => member.leaderId === leaderId);
 
   return (
     <main>
       <AdminHeader
         title={`Líder: ${leader.name ?? 'Sem nome'}`}
-        subtitle="Dados do líder, membros e potencial de votos."
+        subtitle="Dados do líder, célula operativa e potencial de votos."
       >
         <Link
           href="/dashboard/admin/leaders"
@@ -151,14 +135,14 @@ export default async function ViewLeaderPage({ params }: { params: Promise<{ lea
             <div className="rounded-xl bg-primary/5 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                 <Users className="h-4 w-4" />
-                Membros
+                Componentes da Célula
               </div>
               <p className="mt-2 text-2xl font-bold text-foreground">{totals.totalMembers}</p>
             </div>
             <div className="rounded-xl bg-emerald-50 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
                 <Vote className="h-4 w-4" />
-                Potencial de votos
+                Potencial da Célula
               </div>
               <p className="mt-2 text-2xl font-bold text-emerald-900">
                 {totals.totalVotePotential.toLocaleString('pt-BR')}
@@ -168,28 +152,22 @@ export default async function ViewLeaderPage({ params }: { params: Promise<{ lea
         </section>
       </div>
 
-      <div className="p-6 md:p-8">
+      <div className="p-6 md:p-8 pt-0">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">Membros do líder</h3>
-              <p className="text-sm text-muted-foreground">Primeiros 50 membros associados.</p>
+              <h3 className="text-lg font-semibold text-foreground">Célula de Apoiadores ({leaderCellMembers.length})</h3>
+              <p className="text-sm text-muted-foreground">Lista completa dos apoiadores e lideranças vinculadas a este líder.</p>
             </div>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {members.map((member) => (
-              <div key={member.id} className="rounded-xl border border-border bg-background px-4 py-3">
-                <p className="text-sm font-semibold text-foreground">{member.name ?? 'Sem nome'}</p>
-                <p className="text-xs text-muted-foreground">
-                  {member.city ?? 'Cidade não informada'} {member.neighborhood ? `• ${member.neighborhood}` : ''}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Potencial de voto: {Number(member.votePotential) || 0}
-                </p>
+
+          <div className="mt-6 border rounded-lg overflow-hidden">
+            {leaderCellMembers.length > 0 ? (
+              <MembersAdminTable members={leaderCellMembers} />
+            ) : (
+              <div className="p-8 text-center text-muted-foreground">
+                Nenhum apoiador vinculado a esta célula.
               </div>
-            ))}
-            {members.length === 0 && (
-              <p className="text-sm text-muted-foreground">Nenhum membro encontrado para este líder.</p>
             )}
           </div>
         </div>

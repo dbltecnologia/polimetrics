@@ -1,9 +1,11 @@
 import { Calendar, CheckCircle2, MessageSquare, Users } from "lucide-react";
 import { getAdminCompactMetrics } from "@/services/admin/getAdminCompactMetrics";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const items = [
-  { key: "meetingsToday", label: "Reuniões hoje", icon: Calendar },
-  { key: "openChamados", label: "Demandas em aberto", icon: MessageSquare },
+  { key: "meetingsToday", label: "Reuniões hoje", icon: Calendar, href: "/dashboard/admin/meetings" },
+  { key: "openChamados", label: "Demandas em aberto", icon: MessageSquare, href: "/dashboard/admin/chamados" },
 ] as const;
 
 export async function AdminCompactMetrics() {
@@ -12,21 +14,32 @@ export async function AdminCompactMetrics() {
   return (
     <section className="px-3 md:px-8">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-4">
-        {items.map(({ key, label, icon: Icon }) => (
-          <div key={key} className="rounded-2xl border bg-card p-3 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {label}
-              </p>
-              <div className="rounded-xl bg-primary/10 p-2 text-primary">
-                <Icon className="h-4 w-4" />
+        {items.map(({ key, label, icon: Icon, href }) => {
+          const CardContent = (
+            <div key={key} className={cn(
+              "rounded-2xl border bg-card p-3 shadow-sm",
+              href && "hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer"
+            )}>
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {label}
+                </p>
+                <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                  <Icon className="h-4 w-4" />
+                </div>
               </div>
+              <p className="mt-2 text-2xl font-bold tracking-tight">
+                {metrics[key as keyof typeof metrics]}
+              </p>
             </div>
-            <p className="mt-2 text-2xl font-bold tracking-tight">
-              {metrics[key]}
-            </p>
-          </div>
-        ))}
+          );
+
+          return href ? (
+            <Link key={key} href={href} className="block">
+              {CardContent}
+            </Link>
+          ) : CardContent;
+        })}
       </div>
     </section>
   );

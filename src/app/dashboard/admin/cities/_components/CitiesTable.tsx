@@ -4,6 +4,7 @@ import { City } from "@/models/City";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CityOverviewStats } from "@/services/admin/cities/getCitiesOverview";
+import Link from 'next/link';
 
 interface CitiesTableProps {
   cities: City[];
@@ -44,17 +45,19 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
               };
 
               return (
-                <TableRow key={city.id}>
-                  <TableCell className="font-medium">{city.name}</TableCell>
-                  <TableCell>{city.state}</TableCell>
-                  <TableCell className="text-right font-semibold">{formatNumber(stats.votePotential)}</TableCell>
-                  <TableCell className="text-right">{stats.leaders}</TableCell>
-                  <TableCell className="text-right">{stats.supporters}</TableCell>
-                  <TableCell className="text-right">
-                    {stats.demandasAbertas}/{stats.demandasTotal}
-                  </TableCell>
-                  <TableCell className="text-right">{stats.engajamento7d}</TableCell>
-                </TableRow>
+                <Link key={city.id} href={`/dashboard/admin/cities/${city.id}`} passHref legacyBehavior>
+                  <TableRow className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <TableCell className="font-medium">{city.name}</TableCell>
+                    <TableCell>{city.state}</TableCell>
+                    <TableCell className="text-right font-semibold">{formatNumber(stats.votePotential)}</TableCell>
+                    <TableCell className="text-right">{stats.leaders}</TableCell>
+                    <TableCell className="text-right">{stats.supporters}</TableCell>
+                    <TableCell className="text-right">
+                      {stats.demandasAbertas}/{stats.demandasTotal}
+                    </TableCell>
+                    <TableCell className="text-right">{stats.engajamento7d}</TableCell>
+                  </TableRow>
+                </Link>
               );
             })}
           </TableBody>
@@ -75,36 +78,38 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
             };
 
             return (
-              <Card key={city.id}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="rounded-xl border bg-muted/30 p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Votos</p>
-                    <p className="mt-1 text-lg font-bold">{formatNumber(stats.votePotential)}</p>
-                  </div>
-                  <div className="rounded-xl border bg-muted/30 p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Engaj. 7d</p>
-                    <p className="mt-1 text-lg font-bold">{stats.engajamento7d}</p>
-                  </div>
-                  <div className="rounded-xl border bg-muted/30 p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Líderes</p>
-                    <p className="mt-1 text-lg font-bold">{stats.leaders}</p>
-                  </div>
-                  <div className="rounded-xl border bg-muted/30 p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Apoiadores</p>
-                    <p className="mt-1 text-lg font-bold">{stats.supporters}</p>
-                  </div>
-                  <div className="col-span-2 rounded-xl border bg-muted/30 p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Demandas</p>
-                    <p className="mt-1 text-sm">
-                      <span className="font-semibold">{stats.demandasAbertas}</span> abertas ·{" "}
-                      <span className="font-semibold">{stats.demandasTotal}</span> total
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <Link key={city.id} href={`/dashboard/admin/cities/${city.id}`} className="block">
+                <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Votos</p>
+                      <p className="mt-1 text-lg font-bold">{formatNumber(stats.votePotential)}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Engaj. 7d</p>
+                      <p className="mt-1 text-lg font-bold">{stats.engajamento7d}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Líderes</p>
+                      <p className="mt-1 text-lg font-bold">{stats.leaders}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Apoiadores</p>
+                      <p className="mt-1 text-lg font-bold">{stats.supporters}</p>
+                    </div>
+                    <div className="col-span-2 rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Demandas</p>
+                      <p className="mt-1 text-sm">
+                        <span className="font-semibold">{stats.demandasAbertas}</span> abertas ·{" "}
+                        <span className="font-semibold">{stats.demandasTotal}</span> total
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
