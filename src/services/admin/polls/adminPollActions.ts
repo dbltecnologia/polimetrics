@@ -35,7 +35,7 @@ export async function createPoll(formData: FormData) {
 
         await firestore.collection('polls').add(payload);
         revalidatePath('/dashboard/admin/votacoes');
-        revalidatePath('/dashboard/gabinete');
+        revalidatePath('/dashboard/chamados');
 
         return { success: true, message: 'Votação criada com sucesso!' };
     } catch (error: any) {
@@ -50,7 +50,7 @@ export async function closePoll(pollId: string) {
             status: 'closed'
         });
         revalidatePath('/dashboard/admin/votacoes');
-        revalidatePath('/dashboard/gabinete');
+        revalidatePath('/dashboard/chamados');
         return { success: true };
     } catch (error) {
         return { success: false };

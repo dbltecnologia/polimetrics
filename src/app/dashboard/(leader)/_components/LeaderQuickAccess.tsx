@@ -3,7 +3,7 @@ import { Calendar, MessageSquare, Target, Trophy, UsersRound, UserPlus } from "l
 
 const quickLinks = [
   { href: "/dashboard", label: "Dashboard", icon: Target },
-  { href: "/dashboard/gabinete", label: "Gabinete", icon: MessageSquare },
+  { href: "/dashboard/chamados", label: "Gabinete", icon: MessageSquare },
   { href: "/dashboard/profile", label: "Meu Perfil", icon: UsersRound },
 ] as const;
 

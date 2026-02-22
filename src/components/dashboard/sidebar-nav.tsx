@@ -29,7 +29,7 @@ const masterLinks = [
 
 const leaderLinks = [
     { href: '/dashboard', icon: Home, text: 'Meu Painel' },
-    { href: '/dashboard/gabinete', icon: Send, text: 'Gabinete Virtual' },
+    { href: '/dashboard/chamados', icon: Send, text: 'Gabinete Virtual' },
     { href: '/dashboard/profile', icon: User, text: 'Meu Perfil' },
 ];
 
