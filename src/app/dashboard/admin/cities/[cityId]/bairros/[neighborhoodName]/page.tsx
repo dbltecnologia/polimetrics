@@ -81,7 +81,6 @@ export default async function ViewNeighborhoodPage({ params }: { params: Promise
                     Voltar para {city.name}
                 </Link>
             </AdminHeader>
-
             <div className="grid gap-6 p-6 md:grid-cols-2 md:p-8">
                 <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                     <h2 className="text-lg font-semibold text-foreground">Desempenho no Bairro</h2>
@@ -105,7 +104,6 @@ export default async function ViewNeighborhoodPage({ params }: { params: Promise
                     </div>
                 </section>
             </div>
-
             <div className="p-6 md:p-8 pt-0">
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
@@ -118,19 +116,22 @@ export default async function ViewNeighborhoodPage({ params }: { params: Promise
                     <div className="grid gap-3 md:grid-cols-3">
                         {streets.length > 0 ? (
                             streets.map((st) => (
-                                <Link key={st.name} href={`/dashboard/admin/cities/${cityId}/bairros/${neighborhoodName}/ruas/${encodeURIComponent(st.name)}`} passHref legacyBehavior>
-                                    <a className="block">
-                                        <div className="rounded-xl border border-border bg-background px-4 py-4 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <MapPin className="h-4 w-4 text-primary" />
-                                                <h4 className="text-base font-semibold text-foreground line-clamp-1">{st.name}</h4>
-                                            </div>
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-muted-foreground">{st.memberCount} apoiadores</span>
-                                                <span className="font-semibold text-emerald-700">{st.votePotential.toLocaleString('pt-BR')} pct</span>
-                                            </div>
+                                <Link
+                                    key={st.name}
+                                    href={`/dashboard/admin/cities/${cityId}/bairros/${neighborhoodName}/ruas/${encodeURIComponent(st.name)}`}
+                                    className="block">
+
+                                    <div className="rounded-xl border border-border bg-background px-4 py-4 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <MapPin className="h-4 w-4 text-primary" />
+                                            <h4 className="text-base font-semibold text-foreground line-clamp-1">{st.name}</h4>
                                         </div>
-                                    </a>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-muted-foreground">{st.memberCount} apoiadores</span>
+                                            <span className="font-semibold text-emerald-700">{st.votePotential.toLocaleString('pt-BR')} pct</span>
+                                        </div>
+                                    </div>
+
                                 </Link>
                             ))
                         ) : (

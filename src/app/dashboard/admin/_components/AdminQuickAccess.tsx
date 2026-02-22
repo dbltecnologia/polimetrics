@@ -35,17 +35,15 @@ export function AdminQuickAccess() {
             <Link
               key={href}
               href={href}
-              passHref
-              legacyBehavior
-            >
-              <a className="flex flex-col items-center justify-center group rounded-2xl border bg-background p-3 sm:p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
-                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
-                </div>
-                <p className="mt-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground leading-tight">
-                  {label}
-                </p>
-              </a>
+              className="flex flex-col items-center justify-center group rounded-2xl border bg-background p-3 sm:p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
+
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+              </div>
+              <p className="mt-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground leading-tight">
+                {label}
+              </p>
+
             </Link>
           ))}
         </div>

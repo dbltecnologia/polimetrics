@@ -30,10 +30,10 @@ export function AdminStatCard({ title, value, icon: Icon, description, href }: A
   );
 
   return href ? (
-    <Link href={href} passHref legacyBehavior>
-      <a className="block">
-        {CardContainer}
-      </a>
+    <Link href={href} className="block">
+
+      {CardContainer}
+
     </Link>
   ) : (
     CardContainer

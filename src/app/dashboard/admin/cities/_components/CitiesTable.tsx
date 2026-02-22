@@ -45,7 +45,9 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
               };
 
               return (
-                <Link key={city.id} href={`/dashboard/admin/cities/${city.id}`} passHref legacyBehavior>
+                <Link key={city.id} href={`/dashboard/admin/cities/${city.id}`}>
+                  {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
+                  }
                   <TableRow className="cursor-pointer hover:bg-muted/50 transition-colors">
                     <TableCell className="font-medium">{city.name}</TableCell>
                     <TableCell>{city.state}</TableCell>
@@ -63,7 +65,6 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
           </TableBody>
         </Table>
       </div>
-
       {/* Visualização em Cartões para Dispositivos Móveis e Tablets (abaixo de lg) */}
       <div className="block lg:hidden">
         <div className="space-y-4">
@@ -78,39 +79,42 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
             };
 
             return (
-              <Link key={city.id} href={`/dashboard/admin/cities/${city.id}`} passHref legacyBehavior>
-                <a className="block">
-                  <Card className="cursor-pointer hover:border-primary/50 transition-colors">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-3 text-sm">
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Votos</p>
-                        <p className="mt-1 text-lg font-bold">{formatNumber(stats.votePotential)}</p>
-                      </div>
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Engaj. 7d</p>
-                        <p className="mt-1 text-lg font-bold">{stats.engajamento7d}</p>
-                      </div>
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Líderes</p>
-                        <p className="mt-1 text-lg font-bold">{stats.leaders}</p>
-                      </div>
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Apoiadores</p>
-                        <p className="mt-1 text-lg font-bold">{stats.supporters}</p>
-                      </div>
-                      <div className="col-span-2 rounded-xl border bg-muted/30 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Demandas</p>
-                        <p className="mt-1 text-sm">
-                          <span className="font-semibold">{stats.demandasAbertas}</span> abertas ·{" "}
-                          <span className="font-semibold">{stats.demandasTotal}</span> total
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </a>
+              <Link
+                key={city.id}
+                href={`/dashboard/admin/cities/${city.id}`}
+                className="block">
+
+                <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Votos</p>
+                      <p className="mt-1 text-lg font-bold">{formatNumber(stats.votePotential)}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Engaj. 7d</p>
+                      <p className="mt-1 text-lg font-bold">{stats.engajamento7d}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Líderes</p>
+                      <p className="mt-1 text-lg font-bold">{stats.leaders}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Apoiadores</p>
+                      <p className="mt-1 text-lg font-bold">{stats.supporters}</p>
+                    </div>
+                    <div className="col-span-2 rounded-xl border bg-muted/30 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Demandas</p>
+                      <p className="mt-1 text-sm">
+                        <span className="font-semibold">{stats.demandasAbertas}</span> abertas ·{" "}
+                        <span className="font-semibold">{stats.demandasTotal}</span> total
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
               </Link>
             );
           })}

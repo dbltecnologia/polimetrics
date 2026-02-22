@@ -35,10 +35,10 @@ export async function AdminCompactMetrics() {
           );
 
           return href ? (
-            <Link key={key} href={href} passHref legacyBehavior>
-              <a className="block">
-                {CardContent}
-              </a>
+            <Link key={key} href={href} className="block">
+
+              {CardContent}
+
             </Link>
           ) : CardContent;
         })}

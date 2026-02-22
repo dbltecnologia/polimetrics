@@ -109,83 +109,82 @@ export default async function LeadersPage() {
           </Link>
         </Button>
       </AdminHeader>
-
       <div className="p-3 md:p-8 space-y-5">
         <div className="grid gap-3 md:grid-cols-5">
-          <Link href="/dashboard/admin/leaders" passHref legacyBehavior>
-            <a className="block">
-              <Card className="shadow-sm border-primary/20 bg-white hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Total de líderes</CardTitle>
-                </CardHeader>
-                <CardContent className="flex items-center justify-between">
-                  <p className="text-2xl font-bold text-foreground">{totalLeaders}</p>
-                  <div className="rounded-full bg-primary/10 p-2">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+          <Link href="/dashboard/admin/leaders" className="block">
+
+            <Card className="shadow-sm border-primary/20 bg-white hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">Total de líderes</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <p className="text-2xl font-bold text-foreground">{totalLeaders}</p>
+                <div className="rounded-full bg-primary/10 p-2">
+                  <Users className="h-5 w-5 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
           </Link>
-          <Link href="/dashboard/admin/members" passHref legacyBehavior>
-            <a className="block">
-              <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Apoiadores vinculados</CardTitle>
-                </CardHeader>
-                <CardContent className="flex items-center justify-between">
-                  <p className="text-2xl font-bold text-foreground">{totalMembers}</p>
-                  <div className="rounded-full bg-emerald-50 p-2">
-                    <Users2 className="h-5 w-5 text-emerald-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+          <Link href="/dashboard/admin/members" className="block">
+
+            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">Apoiadores vinculados</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <p className="text-2xl font-bold text-foreground">{totalMembers}</p>
+                <div className="rounded-full bg-emerald-50 p-2">
+                  <Users2 className="h-5 w-5 text-emerald-600" />
+                </div>
+              </CardContent>
+            </Card>
+
           </Link>
-          <Link href="/dashboard/admin/members" passHref legacyBehavior>
-            <a className="block">
-              <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Potencial de votos</CardTitle>
-                </CardHeader>
-                <CardContent className="flex items-center justify-between">
-                  <p className="text-2xl font-bold text-foreground">{totalVotePotential.toLocaleString('pt-BR')}</p>
-                  <div className="rounded-full bg-emerald-50 p-2">
-                    <Vote className="h-5 w-5 text-emerald-700" />
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+          <Link href="/dashboard/admin/members" className="block">
+
+            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">Potencial de votos</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <p className="text-2xl font-bold text-foreground">{totalVotePotential.toLocaleString('pt-BR')}</p>
+                <div className="rounded-full bg-emerald-50 p-2">
+                  <Vote className="h-5 w-5 text-emerald-700" />
+                </div>
+              </CardContent>
+            </Card>
+
           </Link>
-          <Link href="/dashboard/admin/leaders" passHref legacyBehavior>
-            <a className="block">
-              <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Masters</CardTitle>
-                </CardHeader>
-                <CardContent className="flex items-center justify-between">
-                  <p className="text-2xl font-bold text-foreground">{totalMasters}</p>
-                  <div className="rounded-full bg-blue-50 p-2">
-                    <BadgeCheck className="h-5 w-5 text-blue-700" />
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+          <Link href="/dashboard/admin/leaders" className="block">
+
+            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">Masters</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <p className="text-2xl font-bold text-foreground">{totalMasters}</p>
+                <div className="rounded-full bg-blue-50 p-2">
+                  <BadgeCheck className="h-5 w-5 text-blue-700" />
+                </div>
+              </CardContent>
+            </Card>
+
           </Link>
-          <Link href="/dashboard/admin/leaders" passHref legacyBehavior>
-            <a className="block">
-              <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Subordinados</CardTitle>
-                </CardHeader>
-                <CardContent className="flex items-center justify-between">
-                  <p className="text-2xl font-bold text-foreground">{totalSubs}</p>
-                  <div className="rounded-full bg-amber-50 p-2">
-                    <Target className="h-5 w-5 text-amber-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+          <Link href="/dashboard/admin/leaders" className="block">
+
+            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">Subordinados</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <p className="text-2xl font-bold text-foreground">{totalSubs}</p>
+                <div className="rounded-full bg-amber-50 p-2">
+                  <Target className="h-5 w-5 text-amber-600" />
+                </div>
+              </CardContent>
+            </Card>
+
           </Link>
         </div>
 
