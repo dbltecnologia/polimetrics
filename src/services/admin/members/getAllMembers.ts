@@ -15,6 +15,8 @@ export interface Member {
     cityId?: string | null;
     cityName?: string | null;
     votePotential?: number;
+    neighborhood?: string | null;
+    street?: string | null;
 }
 
 function chunkArray<T>(items: T[], size: number) {
@@ -78,6 +80,8 @@ export async function getAllMembers(): Promise<Member[]> {
                 cityId,
                 cityName: cityId ? (cityById.get(cityId) || null) : null,
                 votePotential,
+                neighborhood: data.neighborhood || data.bairro || null,
+                street: data.street || data.rua || null,
             } as Member;
         });
 

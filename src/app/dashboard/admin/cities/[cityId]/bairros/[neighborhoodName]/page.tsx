@@ -1,12 +1,25 @@
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
 import { firestore } from '@/lib/firebase-admin';
 import { getCityById } from '@/services/admin/cities/getCityById';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, MapPin, Users, Vote } from 'lucide-react';
 import Link from 'next/link';
-import MembersAdminTable from '@/components/admin/members/MembersAdminTable';
-import { Member } from '@/services/admin/members/getAllMembers';
 
 export const revalidate = 0;
+
+type Member = {
+    id: string;
+    name?: string;
+    votePotential?: number;
+    cityId?: string;
+    neighborhood?: string;
+    street?: string;
+};
+
+type StreetStats = {
+    name: string;
+    memberCount: number;
+    votePotential: number;
+};
 
 async function getMembersByNeighborhood(cityId: string, neighborhoodName: string) {
     const snapshot = await firestore
@@ -36,11 +49,29 @@ export default async function ViewNeighborhoodPage({ params }: { params: Promise
 
     const members = await getMembersByNeighborhood(cityId, decodedNeighborhood);
 
+    const streetMap = new Map<string, StreetStats>();
+    let totalVotePotential = 0;
+
+    members.forEach(member => {
+        const rua = member.street || 'Rua Não Informada';
+        const potential = Number(member.votePotential) || 0;
+
+        totalVotePotential += potential;
+
+        const current = streetMap.get(rua) || { name: rua, memberCount: 0, votePotential: 0 };
+        current.memberCount += 1;
+        current.votePotential += potential;
+
+        streetMap.set(rua, current);
+    });
+
+    const streets = Array.from(streetMap.values()).sort((a, b) => b.votePotential - a.votePotential);
+
     return (
         <main>
             <AdminHeader
                 title={`Bairro: ${decodedNeighborhood}`}
-                subtitle={`Visão territorial e listagem de eleitores do bairro (${city.name})`}
+                subtitle={`Visão territorial por ruas do bairro (${city.name})`}
             >
                 <Link
                     href={`/dashboard/admin/cities/${cityId}`}
@@ -51,21 +82,60 @@ export default async function ViewNeighborhoodPage({ params }: { params: Promise
                 </Link>
             </AdminHeader>
 
-            <div className="p-6 md:p-8 pt-0 mt-6">
+            <div className="grid gap-6 p-6 md:grid-cols-2 md:p-8">
+                <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <h2 className="text-lg font-semibold text-foreground">Desempenho no Bairro</h2>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-xl bg-primary/5 p-4">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                                <Users className="h-4 w-4" />
+                                Apoiadores Totais
+                            </div>
+                            <p className="mt-2 text-2xl font-bold text-foreground">{members.length}</p>
+                        </div>
+                        <div className="rounded-xl bg-emerald-50 p-4">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                                <Vote className="h-4 w-4" />
+                                Potencial Estimado
+                            </div>
+                            <p className="mt-2 text-2xl font-bold text-emerald-900">
+                                {totalVotePotential.toLocaleString('pt-BR')}
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div className="p-6 md:p-8 pt-0">
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-lg font-semibold text-foreground">Apoiadores na Região do Bairro</h3>
-                            <p className="text-sm text-muted-foreground">Listagem focada para planejamento de rua ou visitas estruturais.</p>
+                            <h3 className="text-lg font-semibold text-foreground">Distribuição por Ruas</h3>
+                            <p className="text-sm text-muted-foreground">Clique em uma rua para listar os eleitores locais (Drill-down).</p>
                         </div>
                     </div>
 
-                    <div className="border rounded-lg overflow-hidden">
-                        {members.length > 0 ? (
-                            <MembersAdminTable members={members} />
+                    <div className="grid gap-3 md:grid-cols-3">
+                        {streets.length > 0 ? (
+                            streets.map((st) => (
+                                <Link key={st.name} href={`/dashboard/admin/cities/${cityId}/bairros/${neighborhoodName}/ruas/${encodeURIComponent(st.name)}`} passHref legacyBehavior>
+                                    <a className="block">
+                                        <div className="rounded-xl border border-border bg-background px-4 py-4 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <MapPin className="h-4 w-4 text-primary" />
+                                                <h4 className="text-base font-semibold text-foreground line-clamp-1">{st.name}</h4>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-muted-foreground">{st.memberCount} apoiadores</span>
+                                                <span className="font-semibold text-emerald-700">{st.votePotential.toLocaleString('pt-BR')} pct</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </Link>
+                            ))
                         ) : (
-                            <div className="p-8 text-center text-muted-foreground">
-                                Nenhum apoiador com registros correspondentes a este bairro.
+                            <div className="col-span-3 p-8 text-center text-muted-foreground">
+                                Nenhuma rua com apoiadores registrada neste bairro.
                             </div>
                         )}
                     </div>

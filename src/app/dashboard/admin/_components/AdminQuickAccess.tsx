@@ -14,8 +14,8 @@ const quickLinks = [
   { href: "/dashboard/admin/leaders", label: "Líderes", icon: Users },
   { href: "/dashboard/admin/members", label: "Apoiadores", icon: UsersRound },
   { href: "/dashboard/admin/chamados", label: "Demandas", icon: MessageSquareText },
-  { href: "/dashboard/admin/missions", label: "Comando Central", icon: Target },
-  { href: "/dashboard/admin/ranking", label: "Engajamento", icon: Trophy },
+  { href: "/dashboard/admin/mapa-politico", label: "Mapa Político", icon: Target },
+  { href: "/dashboard/admin/eleicoes", label: "Eleições", icon: Trophy },
   { href: "/dashboard/admin/ai", label: "Painel IA", icon: Bot },
 ];
 
@@ -35,14 +35,17 @@ export function AdminQuickAccess() {
             <Link
               key={href}
               href={href}
-              className="group rounded-2xl border bg-background p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+              passHref
+              legacyBehavior
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
-                <Icon className="h-6 w-6" />
-              </div>
-              <p className="mt-3 text-sm font-semibold tracking-wide text-foreground">
-                {label}
-              </p>
+              <a className="flex flex-col items-center justify-center group rounded-2xl border bg-background p-3 sm:p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                </div>
+                <p className="mt-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground leading-tight">
+                  {label}
+                </p>
+              </a>
             </Link>
           ))}
         </div>

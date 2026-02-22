@@ -16,10 +16,10 @@ export function AdminStatCard({ title, value, icon: Icon, description, href }: A
       "rounded-xl border bg-white p-4 shadow-sm",
       href && "hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer"
     )}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">{title}</h3>
-        <div className="rounded-lg bg-blue-50 p-1.5">
-          <Icon className="h-5 w-5 text-blue-700" />
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-500 truncate" title={title}>{title}</h3>
+        <div className="shrink-0 rounded-lg bg-blue-50 p-1.5">
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-700" />
         </div>
       </div>
       <div className="mt-2">
@@ -30,8 +30,10 @@ export function AdminStatCard({ title, value, icon: Icon, description, href }: A
   );
 
   return href ? (
-    <Link href={href} className="block">
-      {CardContainer}
+    <Link href={href} passHref legacyBehavior>
+      <a className="block">
+        {CardContainer}
+      </a>
     </Link>
   ) : (
     CardContainer

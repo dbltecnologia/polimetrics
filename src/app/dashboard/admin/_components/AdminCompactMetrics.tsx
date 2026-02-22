@@ -20,11 +20,11 @@ export async function AdminCompactMetrics() {
               "rounded-2xl border bg-card p-3 shadow-sm",
               href && "hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer"
             )}>
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-muted-foreground truncate" title={label}>
                   {label}
                 </p>
-                <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                <div className="shrink-0 rounded-xl bg-primary/10 p-2 text-primary">
                   <Icon className="h-4 w-4" />
                 </div>
               </div>
@@ -35,8 +35,10 @@ export async function AdminCompactMetrics() {
           );
 
           return href ? (
-            <Link key={key} href={href} className="block">
-              {CardContent}
+            <Link key={key} href={href} passHref legacyBehavior>
+              <a className="block">
+                {CardContent}
+              </a>
             </Link>
           ) : CardContent;
         })}

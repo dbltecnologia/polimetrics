@@ -21,6 +21,7 @@ import { AppUser } from '@/types/user';
 // Corrigido: Importa as funções corretas do diretório de admin
 import { addLeader } from '@/services/admin/leaders/createLeader';
 import { updateLeader } from '@/services/admin/leaders/updateLeader';
+import { CheckCircle2, MessageCircle } from 'lucide-react';
 
 // Schema de validação unificado para criação e edição
 const formSchema = z.object({
@@ -51,6 +52,7 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [createdLeader, setCreatedLeader] = useState<{ name: string; email: string; password?: string } | null>(null);
 
   const isEditing = !!leader;
 
@@ -128,7 +130,15 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
       if (result.success) {
         toast({ title: result.message });
         router.refresh(); // Garante que a lista de líderes seja atualizada
-        router.push('/dashboard/admin/leaders');
+        if (!isEditing) {
+          setCreatedLeader({
+            name: values.name,
+            email: values.email,
+            password: values.password
+          });
+        } else {
+          router.push('/dashboard/admin/leaders');
+        }
       } else {
         throw new Error(result.message);
       }
@@ -143,6 +153,46 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (createdLeader) {
+    const loginUrl = typeof window !== 'undefined' ? `${window.location.origin}/login` : 'https://mapa-politico.web.app/login';
+    const message = `Olá, ${createdLeader.name}! Seu acesso à plataforma Inteligência Política foi criado.\n\nAcesso: ${loginUrl}\nLogin: ${createdLeader.email}\nSenha: ${createdLeader.password}\n\nGuarde bem essas informações!`;
+    const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    return (
+      <div className="flex flex-col items-center justify-center space-y-5 p-8 border rounded-2xl bg-white text-center shadow-sm max-w-2xl">
+        <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-bold text-slate-900">Líder Criado com Sucesso!</h3>
+          <p className="mt-2 text-muted-foreground max-w-sm mx-auto">
+            O acesso foi gerado e a célula está pronta para vincular novos Apoiadores.
+          </p>
+        </div>
+
+        <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl w-full max-w-sm text-left space-y-2">
+          <p className="text-sm"><span className="font-semibold text-slate-700">Login:</span> <span className="text-slate-900">{createdLeader.email}</span></p>
+          <p className="text-sm"><span className="font-semibold text-slate-700">Senha:</span> <span className="text-slate-900">{createdLeader.password}</span></p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 w-full justify-center">
+          <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4" />
+              Enviar Credenciais
+            </a>
+          </Button>
+          <Button variant="outline" onClick={() => router.push('/dashboard/admin/leaders')}>
+            Ver todos os Líderes
+          </Button>
+          <Button variant="ghost" onClick={() => { setCreatedLeader(null); form.reset(); }}>
+            Criar Outro Líder
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

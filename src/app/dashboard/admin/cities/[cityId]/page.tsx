@@ -118,17 +118,19 @@ export default async function ViewCityPage({ params }: { params: Promise<{ cityI
                     <div className="grid gap-3 md:grid-cols-3">
                         {neighborhoods.length > 0 ? (
                             neighborhoods.map((nb) => (
-                                <Link key={nb.name} href={`/dashboard/admin/cities/${cityId}/bairros/${encodeURIComponent(nb.name)}`} className="block">
-                                    <div className="rounded-xl border border-border bg-background px-4 py-4 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <MapPin className="h-4 w-4 text-primary" />
-                                            <h4 className="text-base font-semibold text-foreground line-clamp-1">{nb.name}</h4>
+                                <Link key={nb.name} href={`/dashboard/admin/cities/${cityId}/bairros/${encodeURIComponent(nb.name)}`} passHref legacyBehavior>
+                                    <a className="block">
+                                        <div className="rounded-xl border border-border bg-background px-4 py-4 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <MapPin className="h-4 w-4 text-primary" />
+                                                <h4 className="text-base font-semibold text-foreground line-clamp-1">{nb.name}</h4>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-muted-foreground">{nb.memberCount} apoiadores</span>
+                                                <span className="font-semibold text-emerald-700">{nb.votePotential.toLocaleString('pt-BR')} pct</span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-muted-foreground">{nb.memberCount} apoiadores</span>
-                                            <span className="font-semibold text-emerald-700">{nb.votePotential.toLocaleString('pt-BR')} pct</span>
-                                        </div>
-                                    </div>
+                                    </a>
                                 </Link>
                             ))
                         ) : (
