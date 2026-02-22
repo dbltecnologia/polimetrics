@@ -3,10 +3,17 @@ import { getAdminCompactMetrics } from "@/services/admin/getAdminCompactMetrics"
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const items = [
-  { key: "meetingsToday", label: "Reuniões hoje", icon: Calendar, href: "/dashboard/admin/meetings" },
+type MetricItem = {
+  key: string;
+  label: string;
+  icon: any;
+  href?: string;
+};
+
+const items: MetricItem[] = [
+  { key: "meetingsToday", label: "Reuniões hoje", icon: Calendar },
   { key: "openChamados", label: "Demandas em aberto", icon: MessageSquare, href: "/dashboard/admin/chamados" },
-] as const;
+];
 
 export async function AdminCompactMetrics() {
   const metrics = await getAdminCompactMetrics();

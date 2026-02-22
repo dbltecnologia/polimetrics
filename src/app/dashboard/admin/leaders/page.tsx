@@ -111,9 +111,8 @@ export default async function LeadersPage() {
       </AdminHeader>
       <div className="p-3 md:p-8 space-y-5">
         <div className="grid gap-3 md:grid-cols-5">
-          <Link href="/dashboard/admin/leaders" className="block">
-
-            <Card className="shadow-sm border-primary/20 bg-white hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+          <div className="block">
+            <Card className="shadow-sm border-primary/20 bg-white transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm text-muted-foreground">Total de líderes</CardTitle>
               </CardHeader>
@@ -124,8 +123,7 @@ export default async function LeadersPage() {
                 </div>
               </CardContent>
             </Card>
-
-          </Link>
+          </div>
           <Link href="/dashboard/admin/members" className="block">
 
             <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
@@ -156,9 +154,8 @@ export default async function LeadersPage() {
             </Card>
 
           </Link>
-          <Link href="/dashboard/admin/leaders" className="block">
-
-            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+          <div className="block">
+            <Card className="shadow-sm transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm text-muted-foreground">Masters</CardTitle>
               </CardHeader>
@@ -169,11 +166,9 @@ export default async function LeadersPage() {
                 </div>
               </CardContent>
             </Card>
-
-          </Link>
-          <Link href="/dashboard/admin/leaders" className="block">
-
-            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+          </div>
+          <div className="block">
+            <Card className="shadow-sm transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm text-muted-foreground">Subordinados</CardTitle>
               </CardHeader>
@@ -184,8 +179,7 @@ export default async function LeadersPage() {
                 </div>
               </CardContent>
             </Card>
-
-          </Link>
+          </div>
         </div>
 
         {/* Lista mobile */}
