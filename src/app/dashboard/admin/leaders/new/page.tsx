@@ -6,12 +6,17 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { LeaderForm } from '@/app/dashboard/admin/leaders/_components/LeaderForm';
 import { getAllCities } from '@/services/admin/cities/getAllCities';
+import { getLeaders } from '@/services/admin/getLeaders';
 
 /**
  * Página de criação de líder (Admin).
  */
 export default async function NewLeaderPage() {
-  const cities = await getAllCities();
+  const [cities, leaders] = await Promise.all([
+    getAllCities(),
+    getLeaders()
+  ]);
+
   return (
     <main>
       <AdminHeader
@@ -27,7 +32,7 @@ export default async function NewLeaderPage() {
         </Link>
       </AdminHeader>
       <div className="p-6 md:p-8">
-        <LeaderForm cities={cities} />
+        <LeaderForm cities={cities} leaders={leaders} />
       </div>
     </main>
   );

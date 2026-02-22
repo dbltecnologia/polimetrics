@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppUser } from '@/types/user';
 // Corrigido: Importa as funções corretas do diretório de admin
 import { addLeader } from '@/services/admin/leaders/createLeader';
@@ -31,6 +31,7 @@ const formSchema = z.object({
   role: z.enum(['master', 'sub', 'lider', 'leader'], { required_error: 'O tipo de líder é obrigatório.' }),
   status: z.enum(['ativo', 'inativo']).default('ativo'),
   cityId: z.string().optional(),
+  parentLeaderId: z.string().optional(),
   birthdate: z.string().optional(),
   experience: z.string().optional(),
   notes: z.string().optional(),
@@ -46,13 +47,25 @@ const formSchema = z.object({
 interface LeaderFormProps {
   leader?: AppUser; // O líder existente para o modo de edição
   cities?: { id: string; name: string; state: string }[];
+  leaders?: AppUser[]; // Lista de todos os líderes para hierarquia
 }
 
-export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
+export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [createdLeader, setCreatedLeader] = useState<{ name: string; email: string; password?: string } | null>(null);
+
+  const [selectedState, setSelectedState] = useState<string>('');
+  const uniqueStates = Array.from(new Set(cities.map(c => c.state))).sort();
+  const filteredCities = selectedState ? cities.filter(c => c.state === selectedState) : cities;
+
+  useEffect(() => {
+    if (leader?.cityId && !selectedState) {
+      const city = cities.find(c => c.id === (leader as any).cityId);
+      if (city) setSelectedState(city.state);
+    }
+  }, [leader, cities]);
 
   const isEditing = !!leader;
 
@@ -65,6 +78,7 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
       role: (leader?.role as any) || undefined,
       status: ((leader as any)?.status as any) || 'ativo',
       cityId: (leader as any)?.cityId || '',
+      parentLeaderId: (leader as any)?.parentLeaderId || '',
       birthdate: (leader as any)?.birthdate || '',
       experience: (leader as any)?.experience || '',
       notes: (leader as any)?.notes || '',
@@ -92,6 +106,7 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
           role: values.role,
           status: values.status,
           cityId: values.cityId || null,
+          parentLeaderId: values.parentLeaderId || null,
           birthdate: values.birthdate || '',
           experience: values.experience || '',
           notes: values.notes || '',
@@ -114,6 +129,7 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
         formData.append('role', values.role);
         formData.append('status', values.status);
         formData.append('cityId', values.cityId || '');
+        if (values.parentLeaderId) formData.append('parentLeaderId', values.parentLeaderId);
         formData.append('birthdate', values.birthdate || '');
         formData.append('experience', values.experience || '');
         formData.append('notes', values.notes || '');
@@ -261,26 +277,60 @@ export function LeaderForm({ leader, cities = [] }: LeaderFormProps) {
           </FormItem>
         )} />
 
-        <FormField control={form.control} name="cityId" render={({ field }) => (
+        {/* Lógica para parentLeaderId */}
+        {form.watch('role') && ['sub', 'leader', 'lider'].includes(form.watch('role') as string) && (
+          <FormField control={form.control} name="parentLeaderId" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Vincular a um Superior (Master / Líder)</FormLabel>
+              <Select onValueChange={(value) => field.onChange(value === "no_selection" ? "" : value)} defaultValue={field.value || "no_selection"}>
+                <FormControl><SelectTrigger><SelectValue placeholder="Selecione o superior" /></SelectTrigger></FormControl>
+                <SelectContent>
+                  <SelectItem value="no_selection">Não definido</SelectItem>
+                  {leaders.filter(l => l.role === 'master' || l.role === 'sub' || l.role === 'leader').map((l) => (
+                    <SelectItem key={l.id} value={l.id}>{l.name} ({l.role})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )} />
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormItem>
-            <FormLabel>Município</FormLabel>
-            <Select
-              onValueChange={(value) => field.onChange(value === "no_selection" ? "" : value)}
-              defaultValue={field.value || "no_selection"}
-            >
-              <FormControl><SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger></FormControl>
+            <FormLabel>Estado</FormLabel>
+            <Select onValueChange={setSelectedState} value={selectedState || "no_selection"}>
+              <FormControl><SelectTrigger><SelectValue placeholder="Selecione o estado" /></SelectTrigger></FormControl>
               <SelectContent>
-                <SelectItem value="no_selection">Não definido</SelectItem>
-                {cities.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name} - {c.state}
-                  </SelectItem>
+                <SelectItem value="no_selection">Todos os estados</SelectItem>
+                {uniqueStates.map(state => (
+                  <SelectItem key={state} value={state}>{state}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <FormMessage />
           </FormItem>
-        )} />
+
+          <FormField control={form.control} name="cityId" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Município</FormLabel>
+              <Select
+                onValueChange={(value) => field.onChange(value === "no_selection" ? "" : value)}
+                defaultValue={field.value || "no_selection"}
+              >
+                <FormControl><SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger></FormControl>
+                <SelectContent>
+                  <SelectItem value="no_selection">Não definido</SelectItem>
+                  {filteredCities.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} - {c.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )} />
+        </div>
 
         <FormField control={form.control} name="birthdate" render={({ field }) => (
           <FormItem>

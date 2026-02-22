@@ -19,6 +19,8 @@ import { addMember } from '@/services/memberService';
 import { addActivity } from '@/services/activityService';
 import { useSession } from '@/context/session-context';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
@@ -62,6 +64,7 @@ export function AddMemberForm({ leaderId, cityId, onSuccess }: AddMemberFormProp
   const { user } = useSession(); // Pegar o usuário da sessão
   const { toast } = useToast();
   const router = useRouter();
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -119,18 +122,7 @@ export function AddMemberForm({ leaderId, cityId, onSuccess }: AddMemberFormProp
         description: "Novo apoiador cadastrado e atividade registrada.",
       });
 
-      form.reset({
-        name: '',
-        email: '',
-        whatsapp: '',
-        votePotential: 0,
-        cep: '',
-        address: '',
-        bairro: '',
-        instagram: '',
-        facebook: '',
-        cityId,
-      });
+      setIsSuccess(true);
 
       if (onSuccess) {
         onSuccess();
@@ -150,6 +142,31 @@ export function AddMemberForm({ leaderId, cityId, onSuccess }: AddMemberFormProp
 
   function onError(errors: any) {
     console.error("Erros de Validação do Zod:", errors);
+  }
+
+  if (isSuccess) {
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 p-6 text-center h-full min-h-[350px]">
+        <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-2">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-900">Apoiador Cadastrado!</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">
+          O perfil foi salvo com sucesso e já contabiliza na sua rede.
+        </p>
+        <Button
+          className="mt-4"
+          onClick={() => {
+            form.reset({
+              name: '', email: '', whatsapp: '', votePotential: 0, cep: '', address: '', bairro: '', instagram: '', facebook: '', cityId,
+            });
+            setIsSuccess(false);
+          }}
+        >
+          Fazer Novo Cadastro
+        </Button>
+      </div>
+    );
   }
 
   return (

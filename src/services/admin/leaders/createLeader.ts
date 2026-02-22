@@ -21,6 +21,7 @@ export async function addLeader(formData: FormData) {
     const role = (formData.get('role') as string) || 'sub';
     const status = (formData.get('status') as string) || 'ativo';
     const cityId = (formData.get('cityId') as string) || null;
+    const parentLeaderId = (formData.get('parentLeaderId') as string) || null;
     const experience = (formData.get('experience') as string) || '';
     const birthdate = (formData.get('birthdate') as string) || '';
     const notes = (formData.get('notes') as string) || '';
@@ -55,6 +56,7 @@ export async function addLeader(formData: FormData) {
             role,
             status,
             cityId,
+            parentLeaderId,
             experience,
             birthdate,
             notes,

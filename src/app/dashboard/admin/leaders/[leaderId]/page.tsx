@@ -3,6 +3,7 @@ import { getLeaderById } from '@/services/admin/leaders/getLeaderById';
 import { LeaderForm } from '@/app/dashboard/admin/leaders/_components/LeaderForm';
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
 import { getAllCities } from '@/services/admin/cities/getAllCities';
+import { getLeaders } from '@/services/admin/getLeaders';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -12,9 +13,10 @@ export const revalidate = 0;
 export default async function EditLeaderPage({ params }: { params: Promise<{ leaderId: string }> }) {
   const { leaderId } = await params;
 
-  const [leader, cities] = await Promise.all([
+  const [leader, cities, leaders] = await Promise.all([
     getLeaderById(leaderId),
     getAllCities(),
+    getLeaders(),
   ]);
 
   if (!leader) {
@@ -43,7 +45,7 @@ export default async function EditLeaderPage({ params }: { params: Promise<{ lea
         </Link>
       </AdminHeader>
       <div className="p-6 md:p-8">
-        <LeaderForm leader={leader} cities={cities} />
+        <LeaderForm leader={leader} cities={cities} leaders={leaders} />
       </div>
     </main>
   );
