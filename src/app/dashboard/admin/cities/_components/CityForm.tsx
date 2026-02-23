@@ -41,7 +41,7 @@ export function CityForm({ city }: CityFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: city?.name || '',
-      state: city?.state || 'MA',
+      state: city?.state || '',
       latitude: city?.latitude || 0,
       longitude: city?.longitude || 0,
     },
