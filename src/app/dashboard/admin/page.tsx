@@ -87,7 +87,7 @@ export default async function AdminDashboardPage() {
           value={stats.activePolls}
           icon={Vote}
           description="Enquetes ativas"
-          href="/dashboard/admin/gabinete" // Temporariamente apontado para gabinete ou mantido sem href (usarei placeholder vazio ou omitirei para ele não errar caso mudei gabinete)
+          href="/dashboard/admin/votacoes"
         />
       </div>
 
