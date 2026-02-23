@@ -92,6 +92,31 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
     },
   });
 
+  const handleGeocode = async () => {
+    const bairroValue = form.getValues('bairro');
+    const cityId = form.getValues('cityId');
+    const cityName = cities.find(c => c.id === cityId)?.name || '';
+    const stateName = cities.find(c => c.id === cityId)?.state || 'Brasil';
+    const query = [bairroValue, cityName, stateName, 'Brasil'].filter(Boolean).join(', ');
+    if (!query.trim() || query.trim() === 'Brasil') {
+      toast({ title: 'Preencha o Município ou o Bairro antes de resolver a localização.', variant: 'destructive' });
+      return;
+    }
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        form.setValue('lat', parseFloat(data[0].lat));
+        form.setValue('lng', parseFloat(data[0].lon));
+        toast({ title: '📍 Localização resolvida com sucesso!' });
+      } else {
+        toast({ title: 'Localização não encontrada. Tente preencher o bairro com mais detalhes.', variant: 'destructive' });
+      }
+    } catch (e) {
+      toast({ title: 'Erro ao buscar localização. Verifique sua conexão.', variant: 'destructive' });
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
@@ -99,7 +124,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
       let result;
       if (isEditing && leader) {
         // Modo de Edição: Chama a função de atualização correta
-        result = await updateLeader(leader.id, {
+        result = await updateLeader((leader.id ?? leader.uid), {
           name: values.name,
           email: values.email,
           phone: values.phone,
@@ -172,9 +197,12 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
   }
 
   if (createdLeader) {
-    const loginUrl = typeof window !== 'undefined' ? `${window.location.origin}/login` : 'https://mapa-politico.web.app/login';
-    const message = `Olá, ${createdLeader.name}! Seu acesso à plataforma Inteligência Política foi criado.\n\nAcesso: ${loginUrl}\nLogin: ${createdLeader.email}\nSenha: ${createdLeader.password}\n\nGuarde bem essas informações!`;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://polimetrics.web.app';
+    const loginUrl = `${origin}/login`;
+    const panelUrl = `${origin}/dashboard/leader-panel`;
+    const message = `Olá, ${createdLeader.name}! Seu acesso à plataforma PoliMetrics foi criado.\n\n🔐 *Acesso:* ${loginUrl}\n📧 *Login:* ${createdLeader.email}\n🔑 *Senha:* ${createdLeader.password}\n\n👥 *Para cadastrar sua célula de apoiadores, acesse:*\n${panelUrl}\n\nGuarde bem essas informações!`;
     const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const copyLink = () => { navigator.clipboard.writeText(panelUrl); toast({ title: 'Link copiado!' }); };
 
     return (
       <div className="flex flex-col items-center justify-center space-y-5 p-8 border rounded-2xl bg-white text-center shadow-sm max-w-2xl">
@@ -199,6 +227,9 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
               <MessageCircle className="h-4 w-4" />
               Enviar Credenciais
             </a>
+          </Button>
+          <Button variant="secondary" onClick={copyLink}>
+            📋 Copiar Link da Célula
           </Button>
           <Button variant="outline" onClick={() => router.push('/dashboard/admin/leaders')}>
             Ver todos os Líderes
@@ -415,6 +446,14 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
             </FormItem>
           )} />
         </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="gap-2 text-sm"
+          onClick={handleGeocode}
+        >
+          📍 Resolver Localização Automaticamente
+        </Button>
 
         <FormField control={form.control} name="notes" render={({ field }) => (
           <FormItem>

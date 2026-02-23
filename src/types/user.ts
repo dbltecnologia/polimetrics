@@ -24,6 +24,7 @@ export interface User {
 }
 
 export interface AppUser {
+  id: string;
   uid: string;
   name: string;
   email: string;
@@ -31,5 +32,14 @@ export interface AppUser {
   instagram?: string;
   facebook?: string;
   createdAt?: string;
+  phone?: string;
+  cityId?: string;
+  parentLeaderId?: string | null;
+  lat?: number;
+  lng?: number;
+  bairro?: string;
+  areaAtuacao?: string;
+  influencia?: string;
+  status?: string;
   [key: string]: any;
 }
