@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter } from 'next/navigation'; // Importa o useRouter
+import { useRouter } from 'next/navigation';
 import {
   Form,
   FormControl,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
 import { signInWithEmailAndPassword, UserCredential } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -21,9 +22,27 @@ import { normalizeRole } from "@/lib/role-utils";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
+const STATES = [
+  { label: 'São Paulo', value: 'SP' },
+  { label: 'Rio de Janeiro', value: 'RJ' },
+  { label: 'Minas Gerais', value: 'MG' },
+  { label: 'Paraná', value: 'PR' },
+  { label: 'Distrito Federal', value: 'DF' },
+  { label: 'Bahia', value: 'BA' },
+  { label: 'Rio Grande do Sul', value: 'RS' },
+  { label: 'Santa Catarina', value: 'SC' },
+  { label: 'Ceará', value: 'CE' },
+  { label: 'Pernambuco', value: 'PE' },
+  { label: 'Goiás', value: 'GO' },
+  { label: 'Pará', value: 'PA' },
+  { label: 'Maranhão', value: 'MA' },
+  { label: 'Outro', value: 'OUTRO' },
+];
+
 const formSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
   password: z.string().min(1, { message: "A senha é obrigatória." }),
+  state: z.string().min(1, { message: "Selecione o estado de atuação." }),
 });
 
 export function LoginForm() {
@@ -33,7 +52,7 @@ export function LoginForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "", state: "" },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -59,6 +78,11 @@ export function LoginForm() {
       }
 
       const data = await response.json();
+
+      // Salva o estado selecionado para filtro no painel
+      if (typeof window !== 'undefined' && values.state) {
+        localStorage.setItem('polimetrics_selectedState', values.state);
+      }
 
       const normalizedRole = normalizeRole(data.role);
       const redirectPath = normalizedRole === 'admin' ? '/dashboard/admin' : '/welcome';
@@ -123,6 +147,29 @@ export function LoginForm() {
                   Esqueceu sua senha?
                 </Link>
               </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-blue-600">Estado de Atuação</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione seu estado" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {STATES.map(s => (
+                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
