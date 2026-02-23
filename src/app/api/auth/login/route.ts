@@ -6,9 +6,10 @@ import { resolveUserRole } from '@/lib/user-role';
 // Function to handle POST requests for user login.
 export async function POST(request: Request) {
   try {
-    // 1. Extract the ID token from the request body.
+    // 1. Extract the ID token and selected state from the request body.
     const body = await request.json();
     const idToken = body.idToken;
+    const selectedState = body.state as string | undefined;
 
     if (!idToken) {
       return NextResponse.json({ error: 'ID token not provided.' }, { status: 400 });
@@ -41,6 +42,19 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({ status: 'success', role, name, leader }, { status: 200 });
     response.cookies.set(options);
+
+    // 6. Set the selected state cookie for server-side filtering
+    if (selectedState) {
+      response.cookies.set({
+        name: 'polimetrics_state',
+        value: selectedState,
+        maxAge: expiresIn,
+        httpOnly: false, // readable by client too for display purposes
+        secure: isProduction,
+        sameSite: (isProduction ? 'none' : 'lax') as "lax" | "none" | "strict",
+        path: '/',
+      });
+    }
 
     return response;
 

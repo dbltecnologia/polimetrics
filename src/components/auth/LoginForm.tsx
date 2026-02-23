@@ -68,7 +68,7 @@ export function LoginForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ idToken, state: values.state }),
       });
 
       if (!response.ok) {
@@ -78,11 +78,6 @@ export function LoginForm() {
       }
 
       const data = await response.json();
-
-      // Salva o estado selecionado para filtro no painel
-      if (typeof window !== 'undefined' && values.state) {
-        localStorage.setItem('polimetrics_selectedState', values.state);
-      }
 
       const normalizedRole = normalizeRole(data.role);
       const redirectPath = normalizedRole === 'admin' ? '/dashboard/admin' : '/welcome';
