@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CityOverviewStats } from "@/services/admin/cities/getCitiesOverview";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface CitiesTableProps {
   cities: City[];
@@ -16,6 +17,7 @@ function formatNumber(value: number) {
 }
 
 export function CitiesTable({ cities, overview }: CitiesTableProps) {
+  const router = useRouter();
 
   return (
     <div>
@@ -45,21 +47,21 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
               };
 
               return (
-                <Link key={city.id} href={`/dashboard/admin/cities/${city.id}`}>
-                  {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
-                  }
-                  <TableRow className="cursor-pointer hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-medium">{city.name}</TableCell>
-                    <TableCell>{city.state}</TableCell>
-                    <TableCell className="text-right font-semibold">{formatNumber(stats.votePotential)}</TableCell>
-                    <TableCell className="text-right">{stats.leaders}</TableCell>
-                    <TableCell className="text-right">{stats.supporters}</TableCell>
-                    <TableCell className="text-right">
-                      {stats.demandasAbertas}/{stats.demandasTotal}
-                    </TableCell>
-                    <TableCell className="text-right">{stats.engajamento7d}</TableCell>
-                  </TableRow>
-                </Link>
+                <TableRow
+                  key={city.id}
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => router.push(`/dashboard/admin/cities/${city.id}`)}
+                >
+                  <TableCell className="font-medium">{city.name}</TableCell>
+                  <TableCell>{city.state}</TableCell>
+                  <TableCell className="text-right font-semibold">{formatNumber(stats.votePotential)}</TableCell>
+                  <TableCell className="text-right">{stats.leaders}</TableCell>
+                  <TableCell className="text-right">{stats.supporters}</TableCell>
+                  <TableCell className="text-right">
+                    {stats.demandasAbertas}/{stats.demandasTotal}
+                  </TableCell>
+                  <TableCell className="text-right">{stats.engajamento7d}</TableCell>
+                </TableRow>
               );
             })}
           </TableBody>
