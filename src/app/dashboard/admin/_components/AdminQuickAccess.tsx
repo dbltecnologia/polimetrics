@@ -16,7 +16,6 @@ const quickLinks = [
   { href: "/dashboard/admin/chamados", label: "Demandas", icon: MessageSquareText },
   { href: "/dashboard/admin/mapa-politico", label: "Mapa Político", icon: Target },
   { href: "/dashboard/admin/eleicoes", label: "Eleições", icon: Trophy },
-  { href: "/dashboard/admin/ai", label: "Painel IA", icon: Bot },
 ];
 
 export function AdminQuickAccess() {
