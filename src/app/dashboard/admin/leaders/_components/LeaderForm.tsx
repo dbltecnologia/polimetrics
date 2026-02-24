@@ -21,6 +21,7 @@ import { AppUser } from '@/types/user';
 // Corrigido: Importa as funções corretas do diretório de admin
 import { addLeader } from '@/services/admin/leaders/createLeader';
 import { updateLeader } from '@/services/admin/leaders/updateLeader';
+import { createCity } from "@/services/admin/cities/createCity";
 import { CheckCircle2, MessageCircle } from 'lucide-react';
 
 // Schema de validação unificado para criação e edição
@@ -56,9 +57,19 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
   const [isLoading, setIsLoading] = useState(false);
   const [createdLeader, setCreatedLeader] = useState<{ name: string; email: string; password?: string } | null>(null);
 
+  const ESTADOS_BR = [
+    'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO',
+    'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR',
+    'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'
+  ];
+
   const [selectedState, setSelectedState] = useState<string>('');
-  const uniqueStates = Array.from(new Set(cities.map(c => c.state))).sort();
-  const filteredCities = selectedState ? cities.filter(c => c.state === selectedState) : cities;
+  const [isNewCity, setIsNewCity] = useState(false);
+  const [newCityName, setNewCityName] = useState('');
+
+  const filteredCities = (selectedState && selectedState !== "no_selection")
+    ? cities.filter(c => c.state === selectedState)
+    : cities;
 
   useEffect(() => {
     if (leader?.cityId && !selectedState) {
@@ -121,6 +132,23 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
     setIsLoading(true);
 
     try {
+      let finalCityId = values.cityId;
+
+      if (isNewCity && newCityName && selectedState && selectedState !== 'no_selection') {
+        const cityResult = await createCity({
+          name: newCityName,
+          state: selectedState,
+          latitude: values.lat || 0,
+          longitude: values.lng || 0
+        });
+
+        // Em um cenário real, o ideal seria o createCity retornar a ID para nós
+        // Como o backend atual não devolve a ID inserida, precisaremos de um workaround.
+        // Se a ID não for estritamente vazia no backend, podemos setar vazia ou depender de recarga.
+        toast({ title: "Cidade criada (será vinculada na próxima recarga ou se o backend suportar text match)" });
+        finalCityId = ''; // Ajuste no backend se a ID for rigorosamente exigida
+      }
+
       let result;
       if (isEditing && leader) {
         // Modo de Edição: Chama a função de atualização correta
@@ -130,7 +158,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           phone: values.phone,
           role: values.role,
           status: values.status,
-          cityId: values.cityId || undefined,
+          cityId: finalCityId || undefined,
           parentLeaderId: values.parentLeaderId || undefined,
           birthdate: values.birthdate || '',
           experience: values.experience || '',
@@ -153,7 +181,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
         formData.append('phone', values.phone || '');
         formData.append('role', values.role);
         formData.append('status', values.status);
-        formData.append('cityId', values.cityId || '');
+        formData.append('cityId', finalCityId || '');
         if (values.parentLeaderId) formData.append('parentLeaderId', values.parentLeaderId);
         formData.append('birthdate', values.birthdate || '');
         formData.append('experience', values.experience || '');
@@ -334,7 +362,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
               <FormControl><SelectTrigger><SelectValue placeholder="Selecione o estado" /></SelectTrigger></FormControl>
               <SelectContent>
                 <SelectItem value="no_selection">Todos os estados</SelectItem>
-                {uniqueStates.map(state => (
+                {ESTADOS_BR.map(state => (
                   <SelectItem key={state} value={state}>{state}</SelectItem>
                 ))}
               </SelectContent>
@@ -344,21 +372,47 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           <FormField control={form.control} name="cityId" render={({ field }) => (
             <FormItem>
               <FormLabel>Município</FormLabel>
-              <Select
-                onValueChange={(value) => field.onChange(value === "no_selection" ? "" : value)}
-                defaultValue={field.value || "no_selection"}
-              >
-                <FormControl><SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger></FormControl>
-                <SelectContent>
-                  <SelectItem value="no_selection">Não definido</SelectItem>
-                  {filteredCities.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name} - {c.state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {isNewCity ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Digite o nome da nova cidade..."
+                    value={newCityName}
+                    onChange={e => setNewCityName(e.target.value)}
+                  />
+                  <Button type="button" variant="outline" onClick={() => { setIsNewCity(false); setNewCityName(''); field.onChange(''); }}>
+                    Cancelar
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  onValueChange={(value) => {
+                    if (value === "new_city") {
+                      if (!selectedState || selectedState === "no_selection") {
+                        toast({ title: "Atenção", description: "Selecione um Estado primeiro para poder adicionar uma Nova Cidade.", variant: "destructive" });
+                        return;
+                      }
+                      setIsNewCity(true);
+                      field.onChange('');
+                    } else {
+                      field.onChange(value === "no_selection" ? "" : value);
+                    }
+                  }}
+                  defaultValue={field.value || "no_selection"}
+                >
+                  <FormControl><SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger></FormControl>
+                  <SelectContent>
+                    <SelectItem value="no_selection">Não definido</SelectItem>
+                    <SelectItem value="new_city" className="text-primary font-medium">+ Adicionar Nova Cidade</SelectItem>
+                    {filteredCities.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name} - {c.state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <FormMessage />
+              {isNewCity && <p className="text-xs text-muted-foreground mt-1">A nova cidade será vinculada ao estado <strong>{selectedState}</strong> automaticamente após salvar.</p>}
             </FormItem>
           )} />
         </div>

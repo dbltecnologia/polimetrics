@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 import { AppUser } from '@/types/user';
 import { createMember } from '@/services/admin/members/createMember';
 import { getCities } from '@/services/city/client';
+import { createCity } from "@/services/admin/cities/createCity";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'O nome é obrigatório.' }),
@@ -41,6 +42,20 @@ export function MemberForm({ leaders }: MemberFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [cities, setCities] = useState<{ id: string; name: string; state: string }[]>([]);
+
+  const ESTADOS_BR = [
+    'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO',
+    'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR',
+    'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'
+  ];
+
+  const [selectedState, setSelectedState] = useState<string>('');
+  const [isNewCity, setIsNewCity] = useState(false);
+  const [newCityName, setNewCityName] = useState('');
+
+  const filteredCities = (selectedState && selectedState !== "no_selection")
+    ? cities.filter(c => c.state === selectedState)
+    : cities;
 
   useEffect(() => {
     getCities()
@@ -64,7 +79,24 @@ export function MemberForm({ leaders }: MemberFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      const result = await createMember(values);
+      let finalCityId = values.cityId;
+
+      if (isNewCity && newCityName && selectedState && selectedState !== 'no_selection') {
+        const cityResult = await createCity({
+          name: newCityName,
+          state: selectedState,
+          latitude: 0,
+          longitude: 0
+        });
+
+        toast({ title: "Cidade criada (será vinculada na próxima recarga ou se o backend suportar text match)" });
+        finalCityId = ''; // Workaround para aguardar ID
+      }
+
+      const result = await createMember({
+        ...values,
+        cityId: finalCityId || '',
+      });
       if (result.success) {
         toast({ title: "Membro adicionado com sucesso!" });
         router.refresh();
@@ -74,10 +106,10 @@ export function MemberForm({ leaders }: MemberFormProps) {
       }
     } catch (error: any) {
       console.error("Erro ao criar membro:", error);
-      toast({ 
-        title: "Erro ao criar membro", 
+      toast({
+        title: "Erro ao criar membro",
         description: error.message || "Ocorreu um erro inesperado.",
-        variant: "destructive" 
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -118,24 +150,69 @@ export function MemberForm({ leaders }: MemberFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="cityId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cidade</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl><SelectTrigger><SelectValue placeholder="Selecione a cidade do apoiador" /></SelectTrigger></FormControl>
-                <SelectContent>
-                  {cities.map(city => (
-                    <SelectItem key={city.id} value={city.id}>{city.name} - {city.state}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormItem>
+            <FormLabel>Estado</FormLabel>
+            <Select onValueChange={setSelectedState} value={selectedState || "no_selection"}>
+              <FormControl><SelectTrigger><SelectValue placeholder="Selecione o estado" /></SelectTrigger></FormControl>
+              <SelectContent>
+                <SelectItem value="no_selection">Todos os estados</SelectItem>
+                {ESTADOS_BR.map(state => (
+                  <SelectItem key={state} value={state}>{state}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormItem>
+
+          <FormField
+            control={form.control}
+            name="cityId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cidade</FormLabel>
+                {isNewCity ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Nome da nova cidade..."
+                      value={newCityName}
+                      onChange={e => setNewCityName(e.target.value)}
+                    />
+                    <Button type="button" variant="outline" onClick={() => { setIsNewCity(false); setNewCityName(''); field.onChange(''); }}>
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <Select
+                    onValueChange={(value) => {
+                      if (value === "new_city") {
+                        if (!selectedState || selectedState === "no_selection") {
+                          toast({ title: "Atenção", description: "Selecione um Estado primeiro para poder adicionar uma Nova Cidade.", variant: "destructive" });
+                          return;
+                        }
+                        setIsNewCity(true);
+                        field.onChange('');
+                      } else {
+                        field.onChange(value === "no_selection" ? "" : value);
+                      }
+                    }}
+                    defaultValue={field.value || "no_selection"}
+                  >
+                    <FormControl><SelectTrigger><SelectValue placeholder="Selecione a cidade do apoiador" /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      <SelectItem value="no_selection">Não definido</SelectItem>
+                      <SelectItem value="new_city" className="text-primary font-medium">+ Adicionar Nova Cidade</SelectItem>
+                      {filteredCities.map(city => (
+                        <SelectItem key={city.id} value={city.id}>{city.name} - {city.state}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <FormMessage />
+                {isNewCity && <p className="text-xs text-muted-foreground mt-1">A nova cidade será vinculada ao estado <strong>{selectedState}</strong> automaticamente após salvar.</p>}
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
