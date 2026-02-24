@@ -1,23 +1,43 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
-  UsersRound,
   Target,
   Trophy,
   LogOut,
-  Building,
   FileText,
   Vote,
   TrendingUp,
+  MapPin,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useLogout } from '@/hooks/use-auth';
 import { useEffect, useMemo, useState } from 'react';
+
+const STATE_LABELS: Record<string, string> = {
+  SP: 'São Paulo',
+  RJ: 'Rio de Janeiro',
+  MG: 'Minas Gerais',
+  PR: 'Paraná',
+  DF: 'Distrito Federal',
+  BA: 'Bahia',
+  RS: 'Rio Grande do Sul',
+  SC: 'Santa Catarina',
+  CE: 'Ceará',
+  PE: 'Pernambuco',
+  GO: 'Goiás',
+  PA: 'Pará',
+  MA: 'Maranhão',
+  OUTRO: 'Outro Estado',
+};
+
+function getStateCookie(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
 
 type AdminMetrics = {
   meetingsToday: number;
@@ -44,6 +64,11 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
   const pathname = usePathname();
   const { handleLogout, isLoggingOut } = useLogout();
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [selectedState, setSelectedState] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    setSelectedState(getStateCookie());
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -105,6 +130,18 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
           <span className="text-xl font-bold text-neutral-white tracking-wide">PoliMetrics</span>
         </Link>
       </div>
+
+      {/* Badge do estado atual */}
+      {selectedState && (
+        <div className="mx-4 mt-3 flex items-center gap-2 rounded-lg bg-sky-500/20 border border-sky-400/30 px-3 py-2">
+          <MapPin className="h-3.5 w-3.5 text-sky-300 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-sky-300/80">Estado atual</p>
+            <p className="truncate text-xs font-bold text-neutral-white">{STATE_LABELS[selectedState] ?? selectedState}</p>
+          </div>
+          <span className="ml-auto shrink-0 rounded bg-sky-400/30 px-1.5 py-0.5 text-[11px] font-black text-sky-200">{selectedState}</span>
+        </div>
+      )}
       <div className="flex flex-1 flex-col justify-between p-4">
         <nav className="space-y-3">
           {metrics && (
