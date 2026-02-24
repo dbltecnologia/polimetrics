@@ -10,6 +10,7 @@ import { User as FirebaseUser } from 'firebase/auth';
 function serializeUserProfile(doc: any): AppUser {
   const data = doc.data();
   const user: AppUser = {
+    id: doc.id,
     uid: doc.id,
     email: data.email,
     name: data.name,
@@ -65,7 +66,7 @@ export async function createUserProfile(firebaseUser: FirebaseUser): Promise<voi
   const newUser: Omit<AppUser, 'uid' | 'createdAt'> & { createdAt: any } = {
     name: firebaseUser.displayName || 'Usuário Anônimo',
     email: firebaseUser.email || '',
-    role: 'citizen', 
+    role: 'citizen',
     createdAt: serverTimestamp(),
   };
 

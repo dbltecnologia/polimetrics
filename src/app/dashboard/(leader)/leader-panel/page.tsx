@@ -5,8 +5,11 @@ import { useSession } from '@/context/session-context';
 import { useUser } from '@/contexts/UserContext';
 import { AddMemberForm } from '@/components/forms/AddMemberForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Vote, Phone, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, Vote, Phone, MapPin, Download, Trash2 } from 'lucide-react';
 import { LeaderOnboardingWizard } from '@/components/leader/LeaderOnboardingWizard';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function LeaderPanelPage() {
   const { user, loading: sessionLoading } = useSession();
@@ -40,6 +43,46 @@ export default function LeaderPanelPage() {
   const isLeader = profile?.role === 'leader';
   const members = dashboardData?.members || [];
   const totalVotePotential = dashboardData?.totalVotePotential || 0;
+
+  const exportToCSV = () => {
+    if (!members || members.length === 0) return;
+
+    const headers = ['Nome', 'Telefone', 'WhatsApp', 'Bairro', 'Cidade', 'Potencial de Votos', 'Status'];
+
+    const csvRows = members.map((m: any) => [
+      `"${m.name || ''}"`,
+      `"${m.phone || ''}"`,
+      `"${m.whatsapp || m.phone || ''}"`,
+      `"${m.bairro || m.neighborhood || ''}"`,
+      `"${m.cityName || ''}"`,
+      m.votePotential || 0,
+      `"${m.status || 'Potencial'}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...csvRows.map((row: string[]) => row.join(','))].join('\n');
+    const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `meus_apoiadores_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleSoftDelete = async (memberId: string) => {
+    if (confirm("Tem certeza que deseja inativar este apoiador? Ele não será excluído, mas deixará de contabilizar votos e ficará inativo.")) {
+      try {
+        await updateDoc(doc(db, "members", memberId), { status: "inativo" });
+        fetchDashboardData();
+      } catch (err) {
+        console.error("Erro ao inativar membro:", err);
+        alert("Erro ao inativar apoiador.");
+      }
+    }
+  };
 
   const hasIncompleteProfile = isLeader && !profile?.leader?.cityId;
   const hasNoMembers = isLeader && members.length === 0;
@@ -124,12 +167,20 @@ export default function LeaderPanelPage() {
 
         {/* Lista de Membros */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-lg font-semibold flex items-center justify-between">
-            Apoiadores Cadastrados
-            <span className="text-sm font-normal text-muted-foreground bg-slate-100 px-2 rounded-full">
-              {members.length} registros
-            </span>
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              Apoiadores Cadastrados
+              <span className="text-sm font-normal text-muted-foreground bg-slate-100 px-2 rounded-full">
+                {members.length} {members.length === 1 ? 'registro' : 'registros'}
+              </span>
+            </h2>
+            {members.length > 0 && (
+              <Button variant="outline" size="sm" onClick={exportToCSV} className="text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800">
+                <Download className="w-4 h-4 mr-2" />
+                Exportar Base CSV
+              </Button>
+            )}
+          </div>
 
           {members.length === 0 ? (
             <Card className="border-dashed bg-slate-50">
@@ -144,13 +195,20 @@ export default function LeaderPanelPage() {
               {members.map((member: any) => (
                 <div key={member.id} className="rounded-lg border bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-slate-800 line-clamp-1">{member.name}</p>
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${member.status === 'ativo' ? 'bg-emerald-100 text-emerald-800' :
-                      member.status === 'inativo' ? 'bg-rose-100 text-rose-800' :
-                        'bg-amber-100 text-amber-800'
-                      }`}>
-                      {member.status || 'Potencial'}
-                    </span>
+                    <p className="font-semibold text-slate-800 line-clamp-1 pr-2">{member.name}</p>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${member.status === 'ativo' ? 'bg-emerald-100 text-emerald-800' :
+                        member.status === 'inativo' ? 'bg-rose-100 text-rose-800' :
+                          'bg-amber-100 text-amber-800'
+                        }`}>
+                        {member.status || 'Potencial'}
+                      </span>
+                      {member.status !== 'inativo' && (
+                        <button onClick={() => handleSoftDelete(member.id)} className="text-slate-400 hover:text-rose-600 transition-colors" title="Inativar Apoiador">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-1 mt-3">
                     <div className="flex items-center text-xs text-slate-500 gap-2">

@@ -17,6 +17,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   });
 
   return {
+    id: user.uid,
     uid: user.uid,
     email: user.email || '',
     name,

@@ -21,7 +21,8 @@ const KPICard = ({ title, value }: { title: string, value: string | number }) =>
     </div>
 );
 
-export default async function MemberDetailsPage({ params }: { params: { memberId: string } }) {
+export default async function MemberDetailsPage(props: { params: Promise<{ memberId: string }> }) {
+    const params = await props.params;
     const memberDetails = await getMemberDetails(params.memberId);
 
     if (!memberDetails) {

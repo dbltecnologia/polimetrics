@@ -4,13 +4,8 @@ import { CityForm } from "../../_components/CityForm";
 import { getCityById } from "@/services/admin/cities/getCityById";
 import { notFound } from 'next/navigation';
 
-interface EditCityPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function EditCityPage({ params }: EditCityPageProps) {
+export default async function EditCityPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const city = await getCityById(params.id);
 
   if (!city) {
@@ -19,7 +14,7 @@ export default async function EditCityPage({ params }: EditCityPageProps) {
 
   return (
     <main className="p-6 md:p-8">
-      <AdminHeader 
+      <AdminHeader
         title="Editar Cidade"
         subtitle={`Modificando os dados de ${city.name} - ${city.state}.`}
       />
