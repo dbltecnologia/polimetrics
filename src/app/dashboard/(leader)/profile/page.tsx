@@ -5,6 +5,8 @@ import { getAllCities } from '@/services/admin/cities/getAllCities';
 import { LeaderProfileForm } from '@/components/leader/LeaderProfileForm';
 import { redirect } from 'next/navigation';
 
+import { getSelectedState } from '@/lib/selected-state';
+
 export const dynamic = 'force-dynamic';
 
 export default async function ProfilePage() {
@@ -22,7 +24,12 @@ export default async function ProfilePage() {
       ? await getLeaderProfile(user.uid).catch(() => null)
       : null;
 
-  const cities = await getAllCities();
+  let cities = await getAllCities();
+  const state = await getSelectedState();
+
+  if (state) {
+    cities = cities.filter(c => c.state === state);
+  }
 
   const cityIdRaw =
     (leaderProfile as any)?.cityId ??
