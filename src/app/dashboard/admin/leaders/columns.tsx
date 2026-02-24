@@ -32,6 +32,15 @@ export const columns: ColumnDef<LeaderRow>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    cell: ({ row }) => {
+      const leader = row.original;
+      const leaderId = (leader as any).id ?? leader.userId ?? leader.email;
+      return (
+        <Link href={`/dashboard/admin/leaders/${leaderId}/view`} className="font-medium text-primary hover:underline">
+          {leader.name}
+        </Link>
+      );
+    }
   },
   {
     accessorKey: "role",

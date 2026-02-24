@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { AppUser } from '@/types/user';
+import { Member } from '@/services/admin/members/getAllMembers';
 
 // Carrega o Leaflet apenas no lado do cliente
 const MapWrapper = dynamic(() => import('./MapWrapper'), {
@@ -15,12 +16,13 @@ const MapWrapper = dynamic(() => import('./MapWrapper'), {
 
 interface InteractiveMapProps {
     leaders: AppUser[];
+    members?: Member[];
 }
 
-export function InteractiveMap({ leaders }: InteractiveMapProps) {
+export function InteractiveMap({ leaders, members = [] }: InteractiveMapProps) {
     return (
         <div className="h-[650px] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-200 isolation-auto">
-            <MapWrapper leaders={leaders} />
+            <MapWrapper leaders={leaders} members={members} />
         </div>
     );
 }
