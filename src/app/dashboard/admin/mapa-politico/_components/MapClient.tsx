@@ -22,9 +22,34 @@ interface MapClientProps {
 
 export function MapClient({ leaders, members }: MapClientProps) {
     const [filterType, setFilterType] = useState<string>('all');
+    const [selectedCity, setSelectedCity] = useState<string>('all');
+    const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
 
-    const mappedLeaders = leaders.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number');
-    const mappedMembers = members.filter(m => typeof m.lat === 'number' && typeof m.lng === 'number');
+    let mappedLeaders = leaders.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number');
+    let mappedMembers = members.filter(m => typeof (m as any).lat === 'number' && typeof (m as any).lng === 'number');
+
+    // Extract available cities and neighborhoods BEFORE applying the geo filters
+    const citiesSet = new Set<string>();
+    mappedLeaders.forEach(l => { if ((l as any).cityName) citiesSet.add((l as any).cityName); });
+    mappedMembers.forEach(m => { if ((m as any).cityName) citiesSet.add((m as any).cityName); });
+    const availableCities = Array.from(citiesSet).sort();
+
+    // Apply city filter
+    if (selectedCity !== 'all') {
+        mappedLeaders = mappedLeaders.filter(l => (l as any).cityName === selectedCity);
+        mappedMembers = mappedMembers.filter(m => (m as any).cityName === selectedCity);
+    }
+
+    const neighborhoodsSet = new Set<string>();
+    mappedLeaders.forEach(l => { if ((l as any).bairro) neighborhoodsSet.add((l as any).bairro); if ((l as any).neighborhood) neighborhoodsSet.add((l as any).neighborhood); });
+    mappedMembers.forEach(m => { if ((m as any).neighborhood) neighborhoodsSet.add((m as any).neighborhood); if ((m as any).bairro) neighborhoodsSet.add((m as any).bairro); });
+    const availableNeighborhoods = Array.from(neighborhoodsSet).sort();
+
+    // Apply neighborhood filter
+    if (selectedNeighborhood !== 'all') {
+        mappedLeaders = mappedLeaders.filter(l => ((l as any).bairro === selectedNeighborhood || (l as any).neighborhood === selectedNeighborhood));
+        mappedMembers = mappedMembers.filter(m => ((m as any).neighborhood === selectedNeighborhood || (m as any).bairro === selectedNeighborhood));
+    }
 
     const displayLeaders = filterType === 'all' || filterType === 'leaders' ? mappedLeaders : [];
     const displayMembers = filterType === 'all' || filterType === 'members' ? mappedMembers : [];
@@ -62,7 +87,38 @@ export function MapClient({ leaders, members }: MapClientProps) {
                     </Card>
                 </Link>
 
-                <div className="hidden lg:block"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex flex-col justify-end">
+                    <div className="flex items-center gap-2 mb-1.5 px-1">
+                        <span className="text-xs font-medium text-muted-foreground">Localidade (Cidade)</span>
+                    </div>
+                    <Select onValueChange={(val) => { setSelectedCity(val); setSelectedNeighborhood('all'); }} value={selectedCity}>
+                        <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Todas as Cidades" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todas as Cidades</SelectItem>
+                            {availableCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex flex-col justify-end">
+                    <div className="flex items-center gap-2 mb-1.5 px-1">
+                        <span className="text-xs font-medium text-muted-foreground">Bairro (Microrregião)</span>
+                    </div>
+                    <Select onValueChange={setSelectedNeighborhood} value={selectedNeighborhood} disabled={selectedCity === 'all' || availableNeighborhoods.length === 0}>
+                        <SelectTrigger className="bg-white">
+                            <SelectValue placeholder="Todos os Bairros" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos os Bairros</SelectItem>
+                            {availableNeighborhoods.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
 
                 <div className="flex flex-col justify-end">
                     <div className="flex items-center gap-2 mb-1.5 px-1">

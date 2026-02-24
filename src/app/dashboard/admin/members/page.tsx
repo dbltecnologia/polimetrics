@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import MembersAdminTable from '@/components/admin/members/MembersAdminTable';
 import { getAllMembers } from '@/services/admin/members/getAllMembers';
-import { getLeaders } from '@/services/admin/getLeaders'; 
+import { getLeaders } from '@/services/admin/getLeaders';
 import { AppUser } from '@/types/user';
 import { Member } from '@/services/admin/members/getAllMembers';
 
@@ -26,6 +26,8 @@ export default function AdminMembersPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Estados para os filtros
+  const [selectedCity, setSelectedCity] = useState<string>('all');
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
   const [selectedMaster, setSelectedMaster] = useState<string>('all');
   const [selectedSub, setSelectedSub] = useState<string>('all');
 
@@ -48,27 +50,56 @@ export default function AdminMembersPage() {
     fetchData();
   }, []);
 
-  const { masterLeaders, subLeaders, filteredMembers } = useMemo(() => {
+  const { masterLeaders, subLeaders, filteredMembers, availableCities, availableNeighborhoods } = useMemo(() => {
     const masters = allLeaders.filter(l => l.role === 'master');
     let subs = allLeaders.filter(l => l.role === 'sub');
     let members = allMembers;
 
+    // Filtros de hierarquia
     if (selectedMaster !== 'all') {
       const subIdsOfMaster = allLeaders
         .filter(l => l.parentLeaderId === selectedMaster)
         .map(l => l.id);
       subs = subs.filter(s => subIdsOfMaster.includes(s.id));
-      
+
       const subIdsSet = new Set(subIdsOfMaster);
       members = allMembers.filter(m => m.leaderId && subIdsSet.has(m.leaderId));
     }
-    
+
     if (selectedSub !== 'all') {
-      members = allMembers.filter(m => m.leaderId === selectedSub);
+      members = members.filter(m => m.leaderId === selectedSub);
     }
 
-    return { masterLeaders: masters, subLeaders: subs, filteredMembers: members };
-  }, [selectedMaster, selectedSub, allMembers, allLeaders]);
+    // Extrair lista de cidades e bairros disponíveis ANTES do filtro geográfico (ou baseados nos líderes filtrados)
+    const citiesSet = new Set<string>();
+    const neighborhoodsSet = new Set<string>();
+
+    // Obter todas as cidades e bairros a partir dos membros ainda ativos no funil (pós-filtro de líder)
+    members.forEach(m => {
+      if ((m as any).cityName) citiesSet.add((m as any).cityName);
+      if ((m as any).neighborhood) neighborhoodsSet.add((m as any).neighborhood);
+    });
+
+    const availableCities = Array.from(citiesSet).sort();
+
+    // Aplicar filtros geográficos
+    if (selectedCity !== 'all') {
+      members = members.filter(m => (m as any).cityName === selectedCity);
+    }
+
+    // Refinar bairros disponiveis baseados na cidade selecionada e membros restantes
+    const localNeighborhoodsSet = new Set<string>();
+    members.forEach(m => {
+      if ((m as any).neighborhood) localNeighborhoodsSet.add((m as any).neighborhood);
+    });
+    const availableNeighborhoods = Array.from(localNeighborhoodsSet).sort();
+
+    if (selectedNeighborhood !== 'all') {
+      members = members.filter(m => (m as any).neighborhood === selectedNeighborhood);
+    }
+
+    return { masterLeaders: masters, subLeaders: subs, filteredMembers: members, availableCities, availableNeighborhoods };
+  }, [selectedMaster, selectedSub, selectedCity, selectedNeighborhood, allMembers, allLeaders]);
 
   const kpis = useMemo(() => {
     const total = allMembers.length;
@@ -118,17 +149,21 @@ export default function AdminMembersPage() {
     setSelectedSub('all');
   }, [selectedMaster]);
 
+  useEffect(() => {
+    setSelectedNeighborhood('all');
+  }, [selectedCity]);
+
   if (isLoading) {
     return <div className="p-6">Carregando dados...</div>;
   }
-  
+
   return (
     <main className="p-3 md:p-8 space-y-4">
       <AdminHeader
         title="Apoiadores da Base"
         subtitle="Gestão de liderados, potencial de votos e status da rede."
       />
-      
+
       <div className="flex justify-end mb-3">
         <Link href="/dashboard/admin/members/new">
           <Button className="h-9 w-9 rounded-full shadow-sm" size="icon" title="Adicionar Membro">
@@ -215,7 +250,31 @@ export default function AdminMembersPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 my-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 my-4">
+        <Select onValueChange={setSelectedCity} value={selectedCity}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filtrar por Cidade" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as Cidades</SelectItem>
+            {availableCities.map(city => (
+              <SelectItem key={city} value={city}>{city}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select onValueChange={setSelectedNeighborhood} value={selectedNeighborhood} disabled={selectedCity === 'all' || availableNeighborhoods.length === 0}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filtrar por Bairro" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Bairros</SelectItem>
+            {availableNeighborhoods.map(hood => (
+              <SelectItem key={hood} value={hood}>{hood}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Select onValueChange={setSelectedMaster} value={selectedMaster}>
           <SelectTrigger>
             <SelectValue placeholder="Filtrar por Líder Master" />
@@ -228,8 +287,8 @@ export default function AdminMembersPage() {
           </SelectContent>
         </Select>
 
-        <Select onValueChange={setSelectedSub} value={selectedSub} disabled={selectedMaster === 'all' && subLeaders.length === allLeaders.filter(l=>l.role === 'sub').length}>
-           <SelectTrigger>
+        <Select onValueChange={setSelectedSub} value={selectedSub} disabled={selectedMaster === 'all' && subLeaders.length === allLeaders.filter(l => l.role === 'sub').length}>
+          <SelectTrigger>
             <SelectValue placeholder="Filtrar por Líder Subordinado" />
           </SelectTrigger>
           <SelectContent>
@@ -282,9 +341,9 @@ export default function AdminMembersPage() {
               <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase ${member.status === 'ativo'
                 ? 'bg-emerald-50 text-emerald-700'
                 : member.status === 'inativo'
-                ? 'bg-rose-50 text-rose-700'
-                : 'bg-amber-50 text-amber-700'
-              }`}>
+                  ? 'bg-rose-50 text-rose-700'
+                  : 'bg-amber-50 text-amber-700'
+                }`}>
                 {member.status}
               </span>
             </div>
@@ -294,7 +353,7 @@ export default function AdminMembersPage() {
 
       {/* Tabela desktop */}
       <div className="mt-2 hidden md:block border rounded-lg overflow-hidden">
-         <MembersAdminTable members={filteredMembers} />
+        <MembersAdminTable members={filteredMembers} />
       </div>
     </main>
   );
