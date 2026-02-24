@@ -27,6 +27,7 @@ interface LeaderProfileFormProps {
   initialAreaAtuacao?: string;
   initialLat?: number;
   initialLng?: number;
+  onSuccess?: () => void;
 }
 
 export function LeaderProfileForm({
@@ -43,6 +44,7 @@ export function LeaderProfileForm({
   initialAreaAtuacao = '',
   initialLat,
   initialLng,
+  onSuccess,
 }: LeaderProfileFormProps) {
   const { toast } = useToast();
   const { refresh } = useUser();
@@ -118,7 +120,9 @@ export function LeaderProfileForm({
       // Atualiza o UserContext para refletir avatar/links no Header imediatamente.
       await refresh();
 
-      if (isFirstTime) {
+      if (onSuccess) {
+        onSuccess();
+      } else if (isFirstTime) {
         router.push('/dashboard/leader-panel?welcome=1');
       }
     } catch (error) {

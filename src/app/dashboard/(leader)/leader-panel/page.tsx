@@ -6,6 +6,7 @@ import { useUser } from '@/contexts/UserContext';
 import { AddMemberForm } from '@/components/forms/AddMemberForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Vote, Phone, MapPin } from 'lucide-react';
+import { LeaderOnboardingWizard } from '@/components/leader/LeaderOnboardingWizard';
 
 export default function LeaderPanelPage() {
   const { user, loading: sessionLoading } = useSession();
@@ -39,6 +40,22 @@ export default function LeaderPanelPage() {
   const isLeader = profile?.role === 'leader';
   const members = dashboardData?.members || [];
   const totalVotePotential = dashboardData?.totalVotePotential || 0;
+
+  const hasIncompleteProfile = isLeader && !profile?.leader?.cityId;
+  const hasNoMembers = isLeader && members.length === 0;
+  const needsOnboarding = hasIncompleteProfile || hasNoMembers;
+
+  if (needsOnboarding) {
+    return (
+      <div className="p-2 md:p-6 mt-4">
+        <LeaderOnboardingWizard
+          profile={profile}
+          hasIncompleteProfile={hasIncompleteProfile}
+          onComplete={fetchDashboardData}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 p-2 md:p-6 max-w-7xl mx-auto">
