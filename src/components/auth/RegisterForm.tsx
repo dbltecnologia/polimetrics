@@ -3,22 +3,29 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+
+const ESTADOS_BR = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
+  'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
+  'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+];
 
 // Schema updated to remove the role field
 const formSchema = z.object({
@@ -26,6 +33,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
   password: z.string().min(6, { message: "A senha deve ter pelo menos 6 caracteres." }),
   confirmPassword: z.string(),
+  state: z.string().min(2, { message: "Por favor, selecione um estado." })
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem.",
   path: ["confirmPassword"],
@@ -38,13 +46,13 @@ export function RegisterForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "", state: "" },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null);
     setIsLoading(true);
-    
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
@@ -54,26 +62,27 @@ export function RegisterForm() {
         name: values.name,
         email: values.email,
         role: 'lider', // Hardcoded role
+        state: values.state, // Save state for filtering
         createdAt: new Date(),
-        totalPoints: 0, 
+        totalPoints: 0,
         status: 'ativo',
       });
 
       const idToken = await user.getIdToken();
 
       const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ idToken }),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken, state: values.state }),
       });
 
       if (!response.ok) {
-          throw new Error('Falha ao criar a sessão no servidor após o registro.');
+        throw new Error('Falha ao criar a sessão no servidor após o registro.');
       }
 
-      router.push('/welcome');
+      router.push('/dashboard/leader-panel');
 
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
@@ -113,6 +122,30 @@ export function RegisterForm() {
               <FormControl>
                 <Input placeholder="seu@email.com" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-blue-600">Estado de Atuação</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione seu estado" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {ESTADOS_BR.map((uf) => (
+                    <SelectItem key={uf} value={uf}>
+                      {uf}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
