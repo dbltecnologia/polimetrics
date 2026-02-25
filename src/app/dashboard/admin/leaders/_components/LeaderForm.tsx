@@ -71,14 +71,19 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
     ? cities.filter(c => c.state === selectedState)
     : cities;
 
+  const isEditing = !!leader;
+
   useEffect(() => {
-    if (leader?.cityId && !selectedState) {
+    const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/) : null;
+    const cookieState = match ? decodeURIComponent(match[1]) : undefined;
+
+    if (!isEditing && cookieState && !selectedState) {
+      setSelectedState(cookieState);
+    } else if (leader?.cityId && !selectedState) {
       const city = cities.find(c => c.id === (leader as any).cityId);
       if (city) setSelectedState(city.state);
     }
-  }, [leader, cities]);
-
-  const isEditing = !!leader;
+  }, [leader, cities, isEditing, selectedState]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -358,7 +363,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormItem>
             <FormLabel>Estado</FormLabel>
-            <Select onValueChange={setSelectedState} value={selectedState || "no_selection"}>
+            <Select onValueChange={setSelectedState} value={selectedState || "no_selection"} disabled>
               <FormControl><SelectTrigger><SelectValue placeholder="Selecione o estado" /></SelectTrigger></FormControl>
               <SelectContent>
                 <SelectItem value="no_selection">Todos os estados</SelectItem>

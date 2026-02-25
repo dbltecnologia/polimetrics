@@ -58,10 +58,16 @@ export function MemberForm({ leaders }: MemberFormProps) {
     : cities;
 
   useEffect(() => {
+    const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/) : null;
+    const cookieState = match ? decodeURIComponent(match[1]) : undefined;
+    if (cookieState && !selectedState) {
+      setSelectedState(cookieState);
+    }
+
     getCities()
       .then(setCities)
       .catch(() => setCities([]));
-  }, []);
+  }, [selectedState]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -153,7 +159,7 @@ export function MemberForm({ leaders }: MemberFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormItem>
             <FormLabel>Estado</FormLabel>
-            <Select onValueChange={setSelectedState} value={selectedState || "no_selection"}>
+            <Select onValueChange={setSelectedState} value={selectedState || "no_selection"} disabled>
               <FormControl><SelectTrigger><SelectValue placeholder="Selecione o estado" /></SelectTrigger></FormControl>
               <SelectContent>
                 <SelectItem value="no_selection">Todos os estados</SelectItem>
