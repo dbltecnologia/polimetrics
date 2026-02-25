@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from "react";
 import { City } from "@/models/City";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { CityOverviewStats } from "@/services/admin/cities/getCitiesOverview";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -19,10 +21,35 @@ function formatNumber(value: number) {
 export function CitiesTable({ cities, overview }: CitiesTableProps) {
   const router = useRouter();
 
+  const uniqueStates = Array.from(new Set(cities.map(c => c.state).filter(Boolean))).sort();
+  // Mostra SOMENTE o estado atual, ou o primeiro estado se houver algum. 
+  // O usuário pediu "o mesmo usuario consiga utilizar varios estados ao mesmo tempo. Vai ser apenas um switch".
+  // Então o initial state será o primeiro estado ou "all" caso esteja vazio.
+  const [selectedState, setSelectedState] = useState<string>(uniqueStates.length > 0 ? uniqueStates[0] : "all");
+
+  const filteredCities = selectedState === "all" ? cities : cities.filter(c => c.state === selectedState);
+
   return (
-    <div>
+    <div className="space-y-4 p-4 md:p-6 bg-white">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cidades ({filteredCities.length})</h2>
+        <div className="w-[180px]">
+          <Select value={selectedState} onValueChange={setSelectedState}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Estados</SelectItem>
+              {uniqueStates.map(st => (
+                <SelectItem key={st} value={st}>{st}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Visualização em Tabela para Desktops (lg) com scroll horizontal */}
-      <div className="hidden lg:block overflow-x-auto">
+      <div className="hidden lg:block overflow-x-auto rounded-md border">
         <Table className="min-w-full">
           <TableHeader>
             <TableRow>
@@ -36,7 +63,7 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {cities.map((city) => {
+            {filteredCities.map((city) => {
               const stats = overview[city.id] || {
                 leaders: 0,
                 supporters: 0,
@@ -70,7 +97,7 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
       {/* Visualização em Cartões para Dispositivos Móveis e Tablets (abaixo de lg) */}
       <div className="block lg:hidden">
         <div className="space-y-4">
-          {cities.map((city) => {
+          {filteredCities.map((city) => {
             const stats = overview[city.id] || {
               leaders: 0,
               supporters: 0,
