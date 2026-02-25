@@ -63,6 +63,9 @@ const MobileNavigation = ({ items }: { items: typeof leaderMobileLinks | typeof 
                     </Link>
                 ))}
             </nav>
+            <div className="mt-auto p-4 text-center pb-6">
+                <p className="text-[10px] text-neutral-white/30 font-medium tracking-widest">v1.0.0</p>
+            </div>
         </div>
     );
 };

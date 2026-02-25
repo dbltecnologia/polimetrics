@@ -3,6 +3,7 @@ import { getLeaders } from '@/services/admin/getLeaders'; // Corrigido: Importa 
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from './columns';
+import { LeaderDeleteAction } from './_components/LeaderDeleteAction';
 import { Button } from "@/components/ui/button";
 import { PlusCircle, CalendarDays, Users, Eye, Pencil, BadgeCheck, Target, Users2 } from "lucide-react";
 import Link from "next/link";
@@ -110,72 +111,72 @@ export default async function LeadersPage() {
         </Button>
       </AdminHeader>
       <div className="p-3 md:p-8 space-y-5">
-        <div className="grid gap-3 md:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <div className="block">
-            <Card className="shadow-sm border-primary/20 bg-white transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-muted-foreground">Total de líderes</CardTitle>
+            <Card className="shadow-sm border-primary/20 bg-white transition-all h-full">
+              <CardHeader className="pb-2 p-3 md:p-6">
+                <CardTitle className="text-xs md:text-sm text-muted-foreground">Líderes</CardTitle>
               </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{totalLeaders}</p>
-                <div className="rounded-full bg-primary/10 p-2">
-                  <Users className="h-5 w-5 text-primary" />
+              <CardContent className="flex items-center justify-between p-3 pt-0 md:p-6 md:pt-0">
+                <p className="text-xl md:text-2xl font-bold text-foreground">{totalLeaders}</p>
+                <div className="rounded-full bg-primary/10 p-1.5 md:p-2">
+                  <Users className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                 </div>
               </CardContent>
             </Card>
           </div>
           <Link href="/dashboard/admin/members" className="block">
 
-            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-muted-foreground">Apoiadores vinculados</CardTitle>
+            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer h-full">
+              <CardHeader className="pb-2 p-3 md:p-6">
+                <CardTitle className="text-xs md:text-sm text-muted-foreground">Apoiadores</CardTitle>
               </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{totalMembers}</p>
-                <div className="rounded-full bg-emerald-50 p-2">
-                  <Users2 className="h-5 w-5 text-emerald-600" />
+              <CardContent className="flex items-center justify-between p-3 pt-0 md:p-6 md:pt-0">
+                <p className="text-xl md:text-2xl font-bold text-foreground">{totalMembers}</p>
+                <div className="rounded-full bg-emerald-50 p-1.5 md:p-2">
+                  <Users2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-600" />
                 </div>
               </CardContent>
             </Card>
 
           </Link>
-          <Link href="/dashboard/admin/members" className="block">
+          <Link href="/dashboard/admin/members" className="block col-span-2 md:col-span-1">
 
-            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-muted-foreground">Potencial de votos</CardTitle>
+            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer h-full">
+              <CardHeader className="pb-2 p-3 md:p-6">
+                <CardTitle className="text-xs md:text-sm text-muted-foreground">Potencial de Votos (Rede)</CardTitle>
               </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{totalVotePotential.toLocaleString('pt-BR')}</p>
-                <div className="rounded-full bg-emerald-50 p-2">
-                  <Vote className="h-5 w-5 text-emerald-700" />
+              <CardContent className="flex items-center justify-between p-3 pt-0 md:p-6 md:pt-0">
+                <p className="text-xl md:text-2xl font-bold text-foreground">{totalVotePotential.toLocaleString('pt-BR')}</p>
+                <div className="rounded-full bg-emerald-50 p-1.5 md:p-2">
+                  <Vote className="h-4 w-4 md:h-5 md:w-5 text-emerald-700" />
                 </div>
               </CardContent>
             </Card>
 
           </Link>
           <div className="block">
-            <Card className="shadow-sm transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-muted-foreground">Masters</CardTitle>
+            <Card className="shadow-sm transition-all h-full">
+              <CardHeader className="pb-2 p-3 md:p-6">
+                <CardTitle className="text-xs md:text-sm text-muted-foreground">Masters</CardTitle>
               </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{totalMasters}</p>
-                <div className="rounded-full bg-blue-50 p-2">
-                  <BadgeCheck className="h-5 w-5 text-blue-700" />
+              <CardContent className="flex items-center justify-between p-3 pt-0 md:p-6 md:pt-0">
+                <p className="text-xl md:text-2xl font-bold text-foreground">{totalMasters}</p>
+                <div className="rounded-full bg-blue-50 p-1.5 md:p-2">
+                  <BadgeCheck className="h-4 w-4 md:h-5 md:w-5 text-blue-700" />
                 </div>
               </CardContent>
             </Card>
           </div>
           <div className="block">
-            <Card className="shadow-sm transition-all">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-muted-foreground">Subordinados</CardTitle>
+            <Card className="shadow-sm transition-all h-full">
+              <CardHeader className="pb-2 p-3 md:p-6">
+                <CardTitle className="text-xs md:text-sm text-muted-foreground">Subordinados</CardTitle>
               </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-foreground">{totalSubs}</p>
-                <div className="rounded-full bg-amber-50 p-2">
-                  <Target className="h-5 w-5 text-amber-600" />
+              <CardContent className="flex items-center justify-between p-3 pt-0 md:p-6 md:pt-0">
+                <p className="text-xl md:text-2xl font-bold text-foreground">{totalSubs}</p>
+                <div className="rounded-full bg-amber-50 p-1.5 md:p-2">
+                  <Target className="h-4 w-4 md:h-5 md:w-5 text-amber-600" />
                 </div>
               </CardContent>
             </Card>
@@ -242,6 +243,7 @@ export default async function LeadersPage() {
                       <span className="sr-only">Visualizar</span>
                     </Link>
                   </Button>
+                  <LeaderDeleteAction leaderId={leaderId} leaderName={leader.name || 'Líder Desconhecido'} />
                 </div>
               </div>
             );

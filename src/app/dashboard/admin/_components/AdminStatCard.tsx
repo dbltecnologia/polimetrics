@@ -13,7 +13,7 @@ interface AdminStatCardProps {
 export function AdminStatCard({ title, value, icon: Icon, description, href }: AdminStatCardProps) {
   const CardContainer = (
     <div className={cn(
-      "rounded-xl border bg-white p-4 shadow-sm",
+      "rounded-xl border bg-white p-3 md:p-4 shadow-sm h-full flex flex-col justify-between",
       href && "hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer"
     )}>
       <div className="flex items-center justify-between gap-2">
@@ -22,9 +22,9 @@ export function AdminStatCard({ title, value, icon: Icon, description, href }: A
           <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-700" />
         </div>
       </div>
-      <div className="mt-2">
-        <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
-        {description && <p className="mt-1 text-xs text-gray-500 line-clamp-1">{description}</p>}
+      <div className="mt-1 md:mt-2">
+        <p className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
+        {description && <p className="mt-0.5 text-[10px] md:text-xs text-gray-500 line-clamp-1">{description}</p>}
       </div>
     </div>
   );

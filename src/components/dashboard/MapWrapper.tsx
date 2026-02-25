@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { AppUser } from '@/types/user';
@@ -32,6 +32,25 @@ interface MapWrapperProps {
     members?: Member[];
 }
 
+function BoundsUpdater({ leaders, members }: { leaders: AppUser[], members: Member[] }) {
+    const map = useMap();
+    useEffect(() => {
+        const bounds = new L.LatLngBounds([]);
+        leaders.forEach(l => {
+            if (typeof l.lat === 'number' && typeof l.lng === 'number') bounds.extend([l.lat, l.lng]);
+        });
+        members.forEach(m => {
+            const lat = (m as any).lat;
+            const lng = (m as any).lng;
+            if (typeof lat === 'number' && typeof lng === 'number') bounds.extend([lat, lng]);
+        });
+        if (bounds.isValid()) {
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 18 });
+        }
+    }, [leaders, members, map]);
+    return null;
+}
+
 export default function MapWrapper({ leaders, members = [] }: MapWrapperProps) {
     // Coordenadas padrão via Env ou fallback para São Luís, MA
     const defaultCenter: [number, number] = [
@@ -58,6 +77,7 @@ export default function MapWrapper({ leaders, members = [] }: MapWrapperProps) {
 
     return (
         <MapContainer key={mapKey} center={center} zoom={13} maxZoom={20} className="h-full w-full relative z-0">
+            <BoundsUpdater leaders={validLeaders} members={validMembers} />
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

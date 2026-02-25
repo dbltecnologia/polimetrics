@@ -184,6 +184,9 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
             </li>
           </ul>
         </nav>
+        <div className="mt-4 text-center">
+          <p className="text-[10px] text-neutral-white/30 font-medium tracking-widest">v1.0.0</p>
+        </div>
       </div>
     </aside>
   );

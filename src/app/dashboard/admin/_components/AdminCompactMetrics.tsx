@@ -24,18 +24,18 @@ export async function AdminCompactMetrics() {
         {items.map(({ key, label, icon: Icon, href }) => {
           const CardContent = (
             <div key={key} className={cn(
-              "rounded-2xl border bg-card p-3 shadow-sm",
+              "rounded-xl border bg-card p-2 md:p-3 shadow-sm",
               href && "hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer"
             )}>
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-muted-foreground truncate" title={label}>
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-[9px] sm:text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-muted-foreground truncate" title={label}>
                   {label}
                 </p>
-                <div className="shrink-0 rounded-xl bg-primary/10 p-2 text-primary">
-                  <Icon className="h-4 w-4" />
+                <div className="shrink-0 rounded-lg bg-primary/10 p-1.5 md:p-2 text-primary">
+                  <Icon className="h-3 w-3 md:h-4 md:w-4" />
                 </div>
               </div>
-              <p className="mt-2 text-2xl font-bold tracking-tight">
+              <p className="mt-1 text-lg sm:text-xl md:mt-2 md:text-2xl font-bold tracking-tight">
                 {metrics[key as keyof typeof metrics]}
               </p>
             </div>

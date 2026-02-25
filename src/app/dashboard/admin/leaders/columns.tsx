@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpDown, Eye, Pencil, Vote, Users2 } from 'lucide-react';
 import Link from 'next/link';
 import type { AppUser } from '@/types/user';
+import { LeaderDeleteAction } from './_components/LeaderDeleteAction';
 
 type LeaderRow = AppUser & {
   memberCount?: number;
@@ -118,6 +119,7 @@ export const columns: ColumnDef<LeaderRow>[] = [
               <span className="sr-only">Visualizar</span>
             </Link>
           </Button>
+          <LeaderDeleteAction leaderId={leaderId} leaderName={leader.name || 'Líder Desconhecido'} />
         </div>
       );
     },
