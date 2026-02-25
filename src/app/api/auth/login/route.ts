@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const options = {
       name: 'session',
       value: sessionCookie,
-      maxAge: expiresIn,
+      maxAge: expiresIn / 1000, // Next.js cookies expect maxAge in seconds
       httpOnly: true,
       secure: isProduction,
       sameSite: (isProduction ? 'none' : 'lax') as "lax" | "none" | "strict",
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       response.cookies.set({
         name: 'polimetrics_state',
         value: selectedState,
-        maxAge: expiresIn,
+        maxAge: expiresIn / 1000, // Next.js cookies expect maxAge in seconds
         httpOnly: false, // readable by client too for display purposes
         secure: isProduction,
         sameSite: (isProduction ? 'none' : 'lax') as "lax" | "none" | "strict",
