@@ -19,8 +19,8 @@ export async function AdminCompactMetrics() {
   const metrics = await getAdminCompactMetrics();
 
   return (
-    <section className="px-3 md:px-8">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-4">
+    <section className="px-2 md:px-8">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-2 md:gap-4">
         {items.map(({ key, label, icon: Icon, href }) => {
           const CardContent = (
             <div key={key} className={cn(

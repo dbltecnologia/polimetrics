@@ -20,8 +20,8 @@ const quickLinks = [
 
 export function AdminQuickAccess() {
   return (
-    <section className="px-3 md:px-8">
-      <div className="rounded-2xl border bg-card p-4 shadow-sm md:p-6">
+    <section className="px-2 md:px-8">
+      <div className="rounded-2xl border bg-card p-3 shadow-sm md:p-6">
         <div className="mb-4">
           <h2 className="text-lg font-semibold">Acesso Rápido</h2>
           <p className="text-sm text-muted-foreground">
@@ -29,12 +29,12 @@ export function AdminQuickAccess() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {quickLinks.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className="flex flex-col items-center justify-center group rounded-2xl border bg-background p-3 sm:p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
+              className="flex flex-col items-center justify-center group rounded-2xl border bg-background p-2 sm:p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
 
               <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
                 <Icon className="h-5 w-5 sm:h-6 sm:w-6" />

@@ -30,8 +30,8 @@ export default async function AdminDashboardPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-6 md:px-10 md:py-10 text-white shadow-xl mx-3 md:mx-8">
+    <div className="flex flex-col gap-5 md:gap-8">
+      <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-4 py-4 md:px-10 md:py-10 text-white shadow-xl mx-2 md:mx-8">
         <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.15),transparent_55%)]" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
@@ -53,7 +53,7 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5 md:gap-6 px-3 md:px-8">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-6 px-2 md:px-8">
         <AdminStatCard
           title="Cidades"
           value={stats.totalCities}
@@ -95,7 +95,7 @@ export default async function AdminDashboardPage() {
 
       <AdminQuickAccess />
 
-      <div className="grid gap-6 lg:grid-cols-[1.35fr,0.65fr] px-3 md:px-8">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.35fr,0.65fr] px-2 md:px-8">
         <div className="space-y-6">
           <BairrosChart data={bairrosStats} />
         </div>
