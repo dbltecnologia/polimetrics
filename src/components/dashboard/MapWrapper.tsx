@@ -1,146 +1,171 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import { AppUser } from '@/types/user';
 import { Member } from '@/services/admin/members/getAllMembers';
-import { useEffect, useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
 import { Users, FileText, User } from 'lucide-react';
 
-const createIcon = (color: string) => {
-    return L.divIcon({
-        className: 'custom-leaflet-icon',
-        html: `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 drop-shadow-md pb-1" style="transform: translate(-25%, -100%); width: 32px; height: 32px;">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3" fill="white"></circle>
-            </svg>
-        `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
-    });
+const containerStyle = {
+    width: '100%',
+    height: '100%'
 };
 
-const leaderIcon = createIcon('#0ea5e9'); // sky-500
-const memberIcon = createIcon('#10b981'); // emerald-500
+// Coordenadas padrão via Env ou fallback para São Luís, MA
+const defaultCenter = {
+    lat: Number(process.env.NEXT_PUBLIC_MAP_DEFAULT_LAT || -2.53),
+    lng: Number(process.env.NEXT_PUBLIC_MAP_DEFAULT_LNG || -44.30)
+};
 
 interface MapWrapperProps {
     leaders: AppUser[];
     members?: Member[];
 }
 
-function BoundsUpdater({ leaders, members }: { leaders: AppUser[], members: Member[] }) {
-    const map = useMap();
-    useEffect(() => {
-        const bounds = new L.LatLngBounds([]);
-        leaders.forEach(l => {
-            if (typeof l.lat === 'number' && typeof l.lng === 'number') bounds.extend([l.lat, l.lng]);
+export default function MapWrapper({ leaders, members = [] }: MapWrapperProps) {
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+    });
+
+    const [map, setMap] = useState<google.maps.Map | null>(null);
+    const [activeMarker, setActiveMarker] = useState<string | null>(null);
+
+    const validLeaders = useMemo(() => leaders.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number'), [leaders]);
+    const validMembers = useMemo(() => members.filter(m => typeof (m as any).lat === 'number' && typeof (m as any).lng === 'number'), [members]);
+
+    const onLoad = useCallback(function callback(mapInstance: google.maps.Map) {
+        const bounds = new window.google.maps.LatLngBounds();
+        let hasPoints = false;
+
+        validLeaders.forEach(l => {
+            bounds.extend({ lat: l.lat!, lng: l.lng! });
+            hasPoints = true;
         });
-        members.forEach(m => {
+
+        validMembers.forEach(m => {
             const lat = (m as any).lat;
             const lng = (m as any).lng;
-            if (typeof lat === 'number' && typeof lng === 'number') bounds.extend([lat, lng]);
+            bounds.extend({ lat, lng });
+            hasPoints = true;
         });
-        if (bounds.isValid()) {
-            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 18 });
+
+        if (hasPoints) {
+            mapInstance.fitBounds(bounds);
+            // Corrige o zoom excessivo em bounds muito pequenos
+            const listener = window.google.maps.event.addListener(mapInstance, "idle", function () {
+                if (mapInstance.getZoom() && mapInstance.getZoom()! > 18) {
+                    mapInstance.setZoom(18);
+                }
+                window.google.maps.event.removeListener(listener);
+            });
         }
-    }, [leaders, members, map]);
-    return null;
-}
 
-export default function MapWrapper({ leaders, members = [] }: MapWrapperProps) {
-    // Coordenadas padrão via Env ou fallback para São Luís, MA
-    const defaultCenter: [number, number] = [
-        Number(process.env.NEXT_PUBLIC_MAP_DEFAULT_LAT || -2.53),
-        Number(process.env.NEXT_PUBLIC_MAP_DEFAULT_LNG || -44.30)
-    ];
+        setMap(mapInstance);
+    }, [validLeaders, validMembers]);
 
-    const validLeaders = leaders.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number');
-    const validMembers = members.filter(m => typeof (m as any).lat === 'number' && typeof (m as any).lng === 'number');
-
-    // Ajusta o centro do mapa para o primeiro líder se houver, ou mantém São Luís
-    const center = validLeaders.length > 0 ? [validLeaders[0].lat!, validLeaders[0].lng!] as [number, number] : defaultCenter;
-
-    // React Leaflet ODEIA o React Strict Mode (ocorre o erro 'Map container is already initialized').
-    const [mapKey, setMapKey] = useState<string>('');
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMapKey(Math.random().toString(36).substring(7));
-        setMounted(true);
+    const onUnmount = useCallback(function callback(mapInstance: google.maps.Map) {
+        setMap(null);
     }, []);
 
-    if (!mounted || !mapKey) return <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400">Carregando mapa...</div>;
+    const center = validLeaders.length > 0 ? { lat: validLeaders[0].lat!, lng: validLeaders[0].lng! } : defaultCenter;
+
+    if (!isLoaded) return <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400">Carregando mapa do Google...</div>;
+
+    // Marcadores clássicos do G-Maps para diferenciar Leader/Member
+    const leaderIconUrl = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+    const memberIconUrl = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
 
     return (
-        <MapContainer key={mapKey} center={center} zoom={13} maxZoom={20} className="h-full w-full relative z-0">
-            <BoundsUpdater leaders={validLeaders} members={validMembers} />
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                maxZoom={20}
-            />
-            {validLeaders.map(leader => (
-                <Marker key={`l-${leader.uid || leader.id || Math.random().toString()}`} position={[leader.lat!, leader.lng!]} icon={leaderIcon}>
-                    <Popup>
-                        <div className="flex flex-col gap-1 min-w-[200px]">
-                            <span className="font-bold text-sm text-slate-900 flex items-center gap-1"><Users className="w-3 h-3 text-sky-500" /> {leader.name}</span>
-                            <span className="text-xs text-sky-600 font-medium">{leader.role === 'master' ? 'Líder Master' : 'Líder'}</span>
+        <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={13}
+            onLoad={onLoad}
+            onUnmount={onUnmount}
+            options={{
+                mapTypeControl: false,
+                streetViewControl: false,
+                maxZoom: 20
+            }}
+        >
+            {validLeaders.map(leader => {
+                const id = `l-${leader.uid || leader.id || Math.random()}`;
+                return (
+                    <Marker
+                        key={id}
+                        position={{ lat: leader.lat!, lng: leader.lng! }}
+                        icon={{ url: leaderIconUrl }}
+                        onClick={() => setActiveMarker(id)}
+                    >
+                        {activeMarker === id && (
+                            <InfoWindow onCloseClick={() => setActiveMarker(null)}>
+                                <div className="flex flex-col gap-1 min-w-[200px]">
+                                    <span className="font-bold text-sm text-slate-900 flex items-center gap-1"><Users className="w-3 h-3 text-sky-500" /> {leader.name}</span>
+                                    <span className="text-xs text-sky-600 font-medium">{leader.role === 'master' ? 'Líder Master' : 'Líder'}</span>
 
-                            <div className="h-px w-full bg-slate-200 my-1" />
+                                    <div className="h-px w-full bg-slate-200 my-1" />
 
-                            <div className="grid grid-cols-[1fr_2fr] gap-x-2 text-xs">
-                                <span className="text-slate-500">Bairro:</span>
-                                <span className="font-medium text-slate-800">{leader.bairro || 'N/A'}</span>
-                                <span className="text-slate-500">Área:</span>
-                                <span className="font-medium text-slate-800">{leader.areaAtuacao || 'N/A'}</span>
-                                <span className="text-slate-500">Votos:</span>
-                                <span className="font-medium text-slate-800">{leader.influencia || 'N/A'}</span>
-                            </div>
+                                    <div className="grid grid-cols-[1fr_2fr] gap-x-2 text-xs">
+                                        <span className="text-slate-500">Bairro:</span>
+                                        <span className="font-medium text-slate-800">{leader.bairro || 'N/A'}</span>
+                                        <span className="text-slate-500">Área:</span>
+                                        <span className="font-medium text-slate-800">{leader.areaAtuacao || 'N/A'}</span>
+                                        <span className="text-slate-500">Votos:</span>
+                                        <span className="font-medium text-slate-800">{leader.influencia || 'N/A'}</span>
+                                    </div>
 
-                            <div className="mt-2 text-right">
-                                <Link href={`/dashboard/admin/leaders/${leader.id || leader.uid || ''}/view`} className="text-xs text-sky-600 font-semibold hover:underline flex items-center justify-end gap-1">
-                                    <FileText className="w-3 h-3" />
-                                    Ver Perfil Completo
-                                </Link>
-                            </div>
-                        </div>
-                    </Popup>
-                </Marker>
-            ))}
+                                    <div className="mt-2 text-right">
+                                        <Link href={`/dashboard/admin/leaders/${leader.id || leader.uid || ''}/view`} className="text-xs text-sky-600 font-semibold hover:underline flex items-center justify-end gap-1">
+                                            <FileText className="w-3 h-3" />
+                                            Ver Perfil Completo
+                                        </Link>
+                                    </div>
+                                </div>
+                            </InfoWindow>
+                        )}
+                    </Marker>
+                );
+            })}
 
             {validMembers.map(member => {
                 const lat = (member as any).lat;
                 const lng = (member as any).lng;
+                const id = `m-${member.id}`;
                 return (
-                    <Marker key={`m-${member.id}`} position={[lat, lng]} icon={memberIcon}>
-                        <Popup>
-                            <div className="flex flex-col gap-1 min-w-[200px]">
-                                <span className="font-bold text-sm text-slate-900 flex items-center gap-1"><User className="w-3 h-3 text-emerald-500" /> {member.name}</span>
-                                <span className="text-xs text-emerald-600 font-medium">Apoiador</span>
+                    <Marker
+                        key={id}
+                        position={{ lat, lng }}
+                        icon={{ url: memberIconUrl }}
+                        onClick={() => setActiveMarker(id)}
+                    >
+                        {activeMarker === id && (
+                            <InfoWindow onCloseClick={() => setActiveMarker(null)}>
+                                <div className="flex flex-col gap-1 min-w-[200px]">
+                                    <span className="font-bold text-sm text-slate-900 flex items-center gap-1"><User className="w-3 h-3 text-emerald-500" /> {member.name}</span>
+                                    <span className="text-xs text-emerald-600 font-medium">Apoiador</span>
 
-                                <div className="h-px w-full bg-slate-200 my-1" />
+                                    <div className="h-px w-full bg-slate-200 my-1" />
 
-                                <div className="grid grid-cols-[1fr_2fr] gap-x-2 text-xs">
-                                    <span className="text-slate-500">Cidade:</span>
-                                    <span className="font-medium text-slate-800">{(member as any).cityName || 'N/A'}</span>
-                                    <span className="text-slate-500">Bairro:</span>
-                                    <span className="font-medium text-slate-800">{(member as any).neighborhood || 'N/A'}</span>
-                                    <span className="text-slate-500">Líder:</span>
-                                    <span className="font-medium text-slate-800">{member.leaderName || 'N/A'}</span>
-                                    <span className="text-slate-500">Telefone:</span>
-                                    <span className="font-medium text-slate-800">{member.phone || 'N/A'}</span>
-                                    <span className="text-slate-500">Votos:</span>
-                                    <span className="font-medium text-emerald-700">{member.votePotential || 0}</span>
+                                    <div className="grid grid-cols-[1fr_2fr] gap-x-2 text-xs">
+                                        <span className="text-slate-500">Cidade:</span>
+                                        <span className="font-medium text-slate-800">{(member as any).cityName || 'N/A'}</span>
+                                        <span className="text-slate-500">Bairro:</span>
+                                        <span className="font-medium text-slate-800">{(member as any).neighborhood || 'N/A'}</span>
+                                        <span className="text-slate-500">Líder:</span>
+                                        <span className="font-medium text-slate-800">{member.leaderName || 'N/A'}</span>
+                                        <span className="text-slate-500">Telefone:</span>
+                                        <span className="font-medium text-slate-800">{member.phone || 'N/A'}</span>
+                                        <span className="text-slate-500">Votos:</span>
+                                        <span className="font-medium text-emerald-700">{member.votePotential || 0}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </Popup>
+                            </InfoWindow>
+                        )}
                     </Marker>
-                )
+                );
             })}
-        </MapContainer>
+        </GoogleMap>
     );
 }
