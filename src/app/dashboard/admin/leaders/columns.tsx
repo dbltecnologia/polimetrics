@@ -2,9 +2,10 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, Eye, Pencil, Vote, Users2 } from 'lucide-react';
+import { ArrowUpDown, Eye, Pencil, Vote, Users2, Copy, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { AppUser } from '@/types/user';
+import { useToast } from "@/components/ui/use-toast";
 import { LeaderDeleteAction } from './_components/LeaderDeleteAction';
 
 type LeaderRow = AppUser & {
@@ -19,6 +20,38 @@ const roleLabel = (role?: string) => {
   if (role === 'sub') return 'Líder Subordinado';
   if (role === 'leader' || role === 'lider') return 'Líder';
   return 'Indefinido';
+};
+
+const PhoneCell = ({ phone }: { phone?: string }) => {
+  const { toast } = useToast();
+
+  if (!phone) return <span className="text-muted-foreground text-sm">—</span>;
+
+  const handleCopyPhone = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(phone);
+    toast({ title: "Copiado", description: "Telefone copiado para a área de transferência." });
+  };
+
+  const handleWhatsApp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const numbers = phone.replace(/\D/g, '');
+    window.open(`https://wa.me/55${numbers}`, '_blank');
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="font-medium text-sm">{phone}</span>
+      <div className="flex -space-x-1 opacity-60 hover:opacity-100 transition-opacity">
+        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" onClick={handleCopyPhone} title="Copiar Telefone">
+          <Copy className="h-3.5 w-3.5 text-slate-500" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" onClick={handleWhatsApp} title="Abrir no WhatsApp">
+          <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 export const columns: ColumnDef<LeaderRow>[] = [
@@ -49,6 +82,11 @@ export const columns: ColumnDef<LeaderRow>[] = [
     cell: ({ row }) => {
       return roleLabel(row.original.role);
     },
+  },
+  {
+    accessorKey: "phone",
+    header: "Telefone",
+    cell: ({ row }) => <PhoneCell phone={row.original.phone} />,
   },
   {
     accessorKey: "cityName",

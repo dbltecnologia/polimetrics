@@ -14,15 +14,16 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { AppUser } from '@/types/user';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
-import { AppUser } from '@/types/user';
 // Corrigido: Importa as funções corretas do diretório de admin
 import { addLeader } from '@/services/admin/leaders/createLeader';
 import { updateLeader } from '@/services/admin/leaders/updateLeader';
 import { createCity } from "@/services/admin/cities/createCity";
 import { CheckCircle2, MessageCircle } from 'lucide-react';
+import { formatCPF, formatPhone } from '@/utils/formatters';
 
 // Schema de validação unificado para criação e edição
 const formSchema = z.object({
@@ -53,6 +54,7 @@ interface LeaderFormProps {
 
 export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [createdLeader, setCreatedLeader] = useState<{ name: string; email: string; password?: string } | null>(null);
@@ -94,7 +96,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
       role: (leader?.role as any) || undefined,
       status: ((leader as any)?.status as any) || 'ativo',
       cityId: (leader as any)?.cityId || '',
-      parentLeaderId: (leader as any)?.parentLeaderId || '',
+      parentLeaderId: (leader as any)?.parentLeaderId || searchParams?.get('leaderId') || '',
       birthdate: (leader as any)?.birthdate || '',
       experience: (leader as any)?.experience || '',
       notes: (leader as any)?.notes || '',
@@ -307,7 +309,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
         <FormField control={form.control} name="phone" render={({ field }) => (
           <FormItem>
             <FormLabel>Telefone</FormLabel>
-            <FormControl><Input placeholder="(99) 99999-9999" {...field} /></FormControl>
+            <FormControl><Input placeholder="(99) 99999-9999" {...field} onChange={e => field.onChange(formatPhone(e.target.value))} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -346,7 +348,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           <FormField control={form.control} name="parentLeaderId" render={({ field }) => (
             <FormItem>
               <FormLabel>Vincular a um Superior (Master / Líder)</FormLabel>
-              <Select onValueChange={(value) => field.onChange(value === "no_selection" ? "" : value)} defaultValue={field.value || "no_selection"}>
+              <Select onValueChange={(value) => field.onChange(value === "no_selection" ? "" : value)} defaultValue={field.value || "no_selection"} disabled={!!searchParams?.get('leaderId')}>
                 <FormControl><SelectTrigger><SelectValue placeholder="Selecione o superior" /></SelectTrigger></FormControl>
                 <SelectContent>
                   <SelectItem value="no_selection">Não definido</SelectItem>
@@ -441,7 +443,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
         <FormField control={form.control} name="cpf" render={({ field }) => (
           <FormItem>
             <FormLabel>CPF</FormLabel>
-            <FormControl><Input placeholder="000.000.000-00" {...field} /></FormControl>
+            <FormControl><Input placeholder="000.000.000-00" {...field} onChange={e => field.onChange(formatCPF(e.target.value))} /></FormControl>
             <FormMessage />
           </FormItem>
         )} />

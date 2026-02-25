@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppUser } from '@/types/user';
 import { Member } from '@/services/admin/members/getAllMembers';
 import { InteractiveMap } from '@/components/dashboard/InteractiveMap';
@@ -24,6 +24,26 @@ export function MapClient({ leaders, members }: MapClientProps) {
     const [filterType, setFilterType] = useState<string>('all');
     const [selectedCity, setSelectedCity] = useState<string>('all');
     const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        const savedCity = localStorage.getItem('map:selectedCity');
+        const savedHood = localStorage.getItem('map:selectedNeighborhood');
+        const savedType = localStorage.getItem('map:filterType');
+
+        if (savedCity) setSelectedCity(savedCity);
+        if (savedHood) setSelectedNeighborhood(savedHood);
+        if (savedType) setFilterType(savedType);
+
+        setIsLoaded(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isLoaded) return;
+        localStorage.setItem('map:selectedCity', selectedCity);
+        localStorage.setItem('map:selectedNeighborhood', selectedNeighborhood);
+        localStorage.setItem('map:filterType', filterType);
+    }, [selectedCity, selectedNeighborhood, filterType, isLoaded]);
 
     let mappedLeaders = leaders.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number');
     let mappedMembers = members.filter(m => typeof (m as any).lat === 'number' && typeof (m as any).lng === 'number');

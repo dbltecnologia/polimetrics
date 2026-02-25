@@ -14,13 +14,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { useEffect, useState } from 'react';
 import { AppUser } from '@/types/user';
 import { createMember } from '@/services/admin/members/createMember';
 import { getCities } from '@/services/city/client';
 import { createCity } from "@/services/admin/cities/createCity";
+import { formatPhone } from '@/utils/formatters';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'O nome é obrigatório.' }),
@@ -39,6 +40,7 @@ interface MemberFormProps {
 
 export function MemberForm({ leaders }: MemberFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [cities, setCities] = useState<{ id: string; name: string; state: string }[]>([]);
@@ -79,6 +81,7 @@ export function MemberForm({ leaders }: MemberFormProps) {
       birthdate: '',
       experience: '',
       notes: '',
+      leaderId: searchParams?.get('leaderId') || '',
     },
   });
 
@@ -143,7 +146,7 @@ export function MemberForm({ leaders }: MemberFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Líder Responsável</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!searchParams?.get('leaderId')}>
                 <FormControl><SelectTrigger><SelectValue placeholder="Selecione o líder para este membro" /></SelectTrigger></FormControl>
                 <SelectContent>
                   {leaders.map(leader => (
@@ -226,7 +229,7 @@ export function MemberForm({ leaders }: MemberFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>WhatsApp/Telefone</FormLabel>
-              <FormControl><Input placeholder="(99) 99999-9999" {...field} /></FormControl>
+              <FormControl><Input placeholder="(99) 99999-9999" {...field} onChange={e => field.onChange(formatPhone(e.target.value))} /></FormControl>
               <FormMessage />
             </FormItem>
           )}

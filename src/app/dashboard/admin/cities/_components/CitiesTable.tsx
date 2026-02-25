@@ -5,6 +5,8 @@ import { City } from "@/models/City";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import type { CityOverviewStats } from "@/services/admin/cities/getCitiesOverview";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -26,16 +28,21 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
   // O usuário pediu "o mesmo usuario consiga utilizar varios estados ao mesmo tempo. Vai ser apenas um switch".
   // Então o initial state será o primeiro estado ou "all" caso esteja vazio.
   const [selectedState, setSelectedState] = useState<string>(uniqueStates.length > 0 ? uniqueStates[0] : "all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredCities = selectedState === "all" ? cities : cities.filter(c => c.state === selectedState);
+  const filteredCities = cities.filter(c => {
+    const matchState = selectedState === "all" || c.state === selectedState;
+    const matchName = c.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchState && matchName;
+  });
 
   return (
     <div className="space-y-4 p-4 md:p-6 bg-white">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cidades ({filteredCities.length})</h2>
-        <div className="w-[180px]">
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
           <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger className="h-9">
+            <SelectTrigger className="h-9 w-full sm:w-[150px]">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
@@ -45,6 +52,16 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
               ))}
             </SelectContent>
           </Select>
+          <div className="relative w-full sm:w-[250px]">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Buscar cidade..."
+              className="pl-8 h-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 

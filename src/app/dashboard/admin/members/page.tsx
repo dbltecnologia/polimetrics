@@ -15,9 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Button } from '@/components/ui/button';
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
-import { MapPin, Phone, Users as UsersIcon, User, Vote, ShieldCheck, UsersRound } from 'lucide-react';
+import { MapPin, Phone, Users as UsersIcon, User, Vote, ShieldCheck, UsersRound, Search } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function AdminMembersPage() {
@@ -30,6 +31,7 @@ export default function AdminMembersPage() {
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
   const [selectedMaster, setSelectedMaster] = useState<string>('all');
   const [selectedSub, setSelectedSub] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
     async function fetchData() {
@@ -98,8 +100,16 @@ export default function AdminMembersPage() {
       members = members.filter(m => (m as any).neighborhood === selectedNeighborhood);
     }
 
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      members = members.filter(m =>
+        m.name?.toLowerCase().includes(lowerSearch) ||
+        m.phone?.replace(/\D/g, '').includes(searchTerm.replace(/\D/g, ''))
+      );
+    }
+
     return { masterLeaders: masters, subLeaders: subs, filteredMembers: members, availableCities, availableNeighborhoods };
-  }, [selectedMaster, selectedSub, selectedCity, selectedNeighborhood, allMembers, allLeaders]);
+  }, [selectedMaster, selectedSub, selectedCity, selectedNeighborhood, searchTerm, allMembers, allLeaders]);
 
   const kpis = useMemo(() => {
     const total = allMembers.length;
@@ -250,54 +260,66 @@ export default function AdminMembersPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 my-4">
-        <Select onValueChange={setSelectedCity} value={selectedCity}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrar por Cidade" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as Cidades</SelectItem>
-            {availableCities.map(city => (
-              <SelectItem key={city} value={city}>{city}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col md:flex-row gap-3 my-4">
+        <div className="relative w-full md:w-[300px]">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Buscar nome ou telefone..."
+            className="pl-8 h-10 w-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <Select onValueChange={setSelectedCity} value={selectedCity}>
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Filtrar por Cidade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as Cidades</SelectItem>
+              {availableCities.map(city => (
+                <SelectItem key={city} value={city}>{city}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select onValueChange={setSelectedNeighborhood} value={selectedNeighborhood} disabled={selectedCity === 'all' || availableNeighborhoods.length === 0}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrar por Bairro" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os Bairros</SelectItem>
-            {availableNeighborhoods.map(hood => (
-              <SelectItem key={hood} value={hood}>{hood}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select onValueChange={setSelectedNeighborhood} value={selectedNeighborhood} disabled={selectedCity === 'all' || availableNeighborhoods.length === 0}>
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Filtrar por Bairro" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Bairros</SelectItem>
+              {availableNeighborhoods.map(hood => (
+                <SelectItem key={hood} value={hood}>{hood}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select onValueChange={setSelectedMaster} value={selectedMaster}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrar por Líder Master" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os Líderes Master</SelectItem>
-            {masterLeaders.map(leader => (
-              <SelectItem key={leader.id} value={leader.id}>{leader.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select onValueChange={setSelectedMaster} value={selectedMaster}>
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Filtrar por Líder Master" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Líderes Master</SelectItem>
+              {masterLeaders.map(leader => (
+                <SelectItem key={leader.id} value={leader.id}>{leader.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select onValueChange={setSelectedSub} value={selectedSub} disabled={selectedMaster === 'all' && subLeaders.length === allLeaders.filter(l => l.role === 'sub').length}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrar por Líder Subordinado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os Líderes Subordinados</SelectItem>
-            {subLeaders.map(leader => (
-              <SelectItem key={leader.id} value={leader.id}>{leader.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select onValueChange={setSelectedSub} value={selectedSub} disabled={selectedMaster === 'all' && subLeaders.length === allLeaders.filter(l => l.role === 'sub').length}>
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Filtrar por Líder Subordinado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Líderes Subordinados</SelectItem>
+              {subLeaders.map(leader => (
+                <SelectItem key={leader.id} value={leader.id}>{leader.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="mt-4">
