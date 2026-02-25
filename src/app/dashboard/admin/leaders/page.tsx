@@ -104,11 +104,7 @@ export default async function LeadersPage() {
             Adicionar Líder
           </Link>
         </Button>
-        <Button asChild variant="secondary">
-          <Link href="/deputado/claudio-cunha">
-            Perfil do Deputado
-          </Link>
-        </Button>
+
       </AdminHeader>
       <div className="p-3 md:p-8 space-y-5">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -140,21 +136,6 @@ export default async function LeadersPage() {
             </Card>
 
           </Link>
-          <Link href="/dashboard/admin/members" className="block col-span-2 md:col-span-1">
-
-            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer h-full">
-              <CardHeader className="pb-2 p-3 md:p-6">
-                <CardTitle className="text-xs md:text-sm text-muted-foreground">Potencial de Votos (Rede)</CardTitle>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between p-3 pt-0 md:p-6 md:pt-0">
-                <p className="text-xl md:text-2xl font-bold text-foreground">{totalVotePotential.toLocaleString('pt-BR')}</p>
-                <div className="rounded-full bg-emerald-50 p-1.5 md:p-2">
-                  <Vote className="h-4 w-4 md:h-5 md:w-5 text-emerald-700" />
-                </div>
-              </CardContent>
-            </Card>
-
-          </Link>
           <div className="block">
             <Card className="shadow-sm transition-all h-full">
               <CardHeader className="pb-2 p-3 md:p-6">
@@ -181,6 +162,21 @@ export default async function LeadersPage() {
               </CardContent>
             </Card>
           </div>
+          <Link href="/dashboard/admin/members" className="block col-span-2 md:col-span-1">
+
+            <Card className="shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer h-full">
+              <CardHeader className="pb-2 p-3 md:p-6">
+                <CardTitle className="text-xs md:text-sm text-muted-foreground">Potencial de Votos (Rede)</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between p-3 pt-0 md:p-6 md:pt-0">
+                <p className="text-xl md:text-2xl font-bold text-foreground">{totalVotePotential.toLocaleString('pt-BR')}</p>
+                <div className="rounded-full bg-emerald-50 p-1.5 md:p-2">
+                  <Vote className="h-4 w-4 md:h-5 md:w-5 text-emerald-700" />
+                </div>
+              </CardContent>
+            </Card>
+
+          </Link>
         </div>
 
         {/* Lista mobile */}

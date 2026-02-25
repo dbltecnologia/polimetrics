@@ -14,10 +14,10 @@ export default async function MapaPoliticoPage() {
     return (
         <main className="max-w-6xl mx-auto flex flex-col h-full min-h-[calc(100vh-80px)]">
             <AdminHeader
-                title="Mapa Político Georreferenciado"
+                title="Mapa Político"
                 subtitle="Visualize a distribuição estratégica da sua base por bairros."
             />
-            <div className="p-3 md:p-8 space-y-5 flex-1 flex flex-col pt-0">
+            <div className="p-2 md:p-8 space-y-4 flex-1 flex flex-col pt-4 md:pt-4">
                 <MapClient leaders={leaders} members={members} />
             </div>
         </main>

@@ -55,17 +55,17 @@ export function MapClient({ leaders, members }: MapClientProps) {
     const displayMembers = filterType === 'all' || filterType === 'members' ? mappedMembers : [];
 
     return (
-        <div className="space-y-5 flex-1 flex flex-col">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="space-y-4 flex-1 flex flex-col">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
 
                 <Link href="/dashboard/admin/leaders" className="block outline-none">
                     <Card className="shadow-sm hover:border-primary/50 transition-colors cursor-pointer h-full">
-                        <CardContent className="p-4 flex items-center justify-between">
+                        <CardContent className="p-3 flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-muted-foreground font-medium">Líderes no Mapa</p>
-                                <p className="text-2xl font-bold">{mappedLeaders.length}</p>
+                                <p className="text-[10px] md:text-sm text-muted-foreground font-medium line-clamp-1">Líderes (Mapa)</p>
+                                <p className="text-xl md:text-2xl font-bold">{mappedLeaders.length}</p>
                             </div>
-                            <div className="bg-primary/10 p-3 rounded-full text-primary">
+                            <div className="bg-primary/10 p-2 md:p-3 rounded-xl text-primary">
                                 <MapPin className="w-5 h-5" />
                             </div>
                         </CardContent>
@@ -75,12 +75,12 @@ export function MapClient({ leaders, members }: MapClientProps) {
 
                 <Link href="/dashboard/admin/members" className="block outline-none">
                     <Card className="shadow-sm hover:border-emerald-500/50 transition-colors cursor-pointer h-full">
-                        <CardContent className="p-4 flex items-center justify-between">
+                        <CardContent className="p-3 flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-muted-foreground font-medium">Apoiadores no Mapa</p>
-                                <p className="text-2xl font-bold">{mappedMembers.length}</p>
+                                <p className="text-[10px] md:text-sm text-muted-foreground font-medium line-clamp-1">Apoiadores (Mapa)</p>
+                                <p className="text-xl md:text-2xl font-bold">{mappedMembers.length}</p>
                             </div>
-                            <div className="bg-emerald-50 p-3 rounded-full text-emerald-600">
+                            <div className="bg-emerald-50 p-2 md:p-3 rounded-xl text-emerald-600">
                                 <User className="w-5 h-5" />
                             </div>
                         </CardContent>
@@ -89,7 +89,7 @@ export function MapClient({ leaders, members }: MapClientProps) {
 
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
                 <div className="flex flex-col justify-end">
                     <div className="flex items-center gap-2 mb-1.5 px-1">
                         <span className="text-xs font-medium text-muted-foreground">Localidade (Cidade)</span>
