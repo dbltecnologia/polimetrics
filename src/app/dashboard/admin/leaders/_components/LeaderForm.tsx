@@ -249,20 +249,20 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           <p className="text-sm"><span className="font-semibold text-slate-700">Senha:</span> <span className="text-slate-900">{createdLeader.password}</span></p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 w-full justify-center">
-          <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-4 w-full justify-center items-center">
+          <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 w-full sm:w-auto">
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
               <MessageCircle className="h-4 w-4" />
               Enviar Credenciais
             </a>
           </Button>
-          <Button variant="secondary" onClick={copyLink}>
+          <Button variant="secondary" onClick={copyLink} className="w-full sm:w-auto">
             📋 Copiar Link da Célula
           </Button>
-          <Button variant="outline" onClick={() => router.push('/dashboard/admin/leaders')}>
+          <Button variant="outline" onClick={() => router.push('/dashboard/admin/leaders')} className="w-full sm:w-auto">
             Ver todos os Líderes
           </Button>
-          <Button variant="ghost" onClick={() => { setCreatedLeader(null); form.reset(); }}>
+          <Button variant="ghost" onClick={() => { setCreatedLeader(null); form.reset(); }} className="w-full sm:w-auto">
             Criar Outro Líder
           </Button>
         </div>
