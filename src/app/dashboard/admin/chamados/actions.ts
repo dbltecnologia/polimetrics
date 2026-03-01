@@ -12,3 +12,13 @@ export async function deleteChamadoAction(id: string) {
         return { error: 'Falha ao remover chamado: ' + error.message };
     }
 }
+
+export async function updateChamadoStatusAction(id: string, status: string) {
+    try {
+        await firestore.collection('chamados').doc(id).update({ status });
+        revalidatePath('/dashboard/admin/chamados');
+        return { success: true };
+    } catch (error: any) {
+        return { error: 'Falha ao atualizar chamado: ' + error.message };
+    }
+}

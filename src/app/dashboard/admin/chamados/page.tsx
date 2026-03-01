@@ -55,7 +55,7 @@ export default async function ChamadosPage() {
                 </div>
               </div>
               <div className="-mt-1 -mr-1">
-                <ChamadoActions id={c.id} />
+                <ChamadoActions id={c.id} currentStatus={(c as any).status} />
               </div>
             </div>
             {c.message && (
@@ -98,7 +98,7 @@ export default async function ChamadosPage() {
                         {c.message || '—'}
                       </TableCell>
                       <TableCell className="text-right align-top">
-                        <ChamadoActions id={c.id} />
+                        <ChamadoActions id={c.id} currentStatus={(c as any).status} />
                       </TableCell>
                     </TableRow>
                   ))}
