@@ -2,9 +2,11 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Copy, MessageCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Copy, MessageCircle, Pencil } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { MemberDeleteAction } from "./MemberDeleteAction";
+import Link from "next/link";
 
 // A interface Member é definida diretamente aqui para corresponder aos dados da API.
 interface Member {
@@ -60,12 +62,13 @@ export default function MembersAdminTable({ members }: MembersAdminTableProps) {
               <TableHead className="font-bold text-sm">Telefone</TableHead>
               <TableHead className="font-bold text-sm text-right">Votos</TableHead>
               <TableHead className="font-bold text-sm text-center">Status</TableHead>
+              <TableHead className="font-bold text-sm text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {currentMembers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                   Nenhum apoiador encontrado.
                 </TableCell>
               </TableRow>
@@ -100,6 +103,17 @@ export default function MembersAdminTable({ members }: MembersAdminTableProps) {
                     `}>
                       {member.status}
                     </span>
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <div className="flex items-center justify-center gap-1">
+                      <Button variant="outline" size="icon" asChild className="h-8 w-8">
+                        <Link href={`/dashboard/admin/members/${member.id}`}>
+                          <Pencil className="h-3.5 w-3.5" />
+                          <span className="sr-only">Editar</span>
+                        </Link>
+                      </Button>
+                      <MemberDeleteAction memberId={member.id} memberName={member.name} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

@@ -41,8 +41,10 @@ export default async function MemberDetailsPage(props: { params: Promise<{ membe
                         Voltar para a Comunidade
                     </Link>
                 </Button>
-                <Button disabled variant="outline">
-                    <Edit className="mr-2 h-4 w-4" /> Editar Membro
+                <Button asChild variant="outline">
+                    <Link href={`/dashboard/admin/members/${params.memberId}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" /> Editar Membro
+                    </Link>
                 </Button>
             </div>
 

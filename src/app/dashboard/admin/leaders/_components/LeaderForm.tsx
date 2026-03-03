@@ -176,6 +176,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           influencia: values.influencia || undefined,
           lat: values.lat,
           lng: values.lng,
+          ...(values.password && values.password.length >= 6 ? { password: values.password } : {}),
         });
       } else {
         // Modo de Criação: Monta o FormData e chama a função de criação correta
@@ -296,15 +297,15 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           </FormItem>
         )} />
 
-        {!isEditing && (
-          <FormField control={form.control} name="password" render={({ field }) => (
-            <FormItem>
-              <FormLabel>Senha</FormLabel>
-              <FormControl><Input type="password" placeholder="Mínimo 6 caracteres" {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-        )}
+        {/* Campo de senha: obrigatório na criação, opcional na edição */}
+        <FormField control={form.control} name="password" render={({ field }) => (
+          <FormItem>
+            <FormLabel>{isEditing ? 'Nova Senha (opcional)' : 'Senha'}</FormLabel>
+            <FormControl><Input type="password" placeholder={isEditing ? 'Deixe em branco para não alterar' : 'Mínimo 6 caracteres'} {...field} /></FormControl>
+            {isEditing && <p className="text-xs text-muted-foreground">Se preenchido, a senha do líder será atualizada.</p>}
+            <FormMessage />
+          </FormItem>
+        )} />
 
         <FormField control={form.control} name="phone" render={({ field }) => (
           <FormItem>

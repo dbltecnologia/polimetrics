@@ -18,8 +18,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from '@/components/ui/button';
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
-import { MapPin, Phone, Users as UsersIcon, User, Vote, ShieldCheck, UsersRound, Search } from 'lucide-react';
+import { MapPin, Phone, Users as UsersIcon, User, Vote, ShieldCheck, UsersRound, Search, Pencil } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { MemberDeleteAction } from '@/components/admin/members/MemberDeleteAction';
 
 export default function AdminMembersPage() {
   const [allMembers, setAllMembers] = useState<Member[]>([]);
@@ -368,6 +369,15 @@ export default function AdminMembersPage() {
                 }`}>
                 {member.status}
               </span>
+            </div>
+            <div className="mt-3 flex items-center justify-end gap-2">
+              <Button variant="outline" size="icon" asChild className="h-8 w-8">
+                <Link href={`/dashboard/admin/members/${member.id}`}>
+                  <Pencil className="h-4 w-4" />
+                  <span className="sr-only">Editar</span>
+                </Link>
+              </Button>
+              <MemberDeleteAction memberId={member.id} memberName={member.name || 'Membro'} />
             </div>
           </div>
         ))}

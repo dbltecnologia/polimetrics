@@ -16,6 +16,7 @@ import { useUser } from '@/contexts/UserContext';
 interface LeaderProfileFormProps {
   leaderId: string;
   cities: City[];
+  userName?: string;
   initialCity?: string;
   initialParty?: string;
   initialBio?: string;
@@ -33,6 +34,7 @@ interface LeaderProfileFormProps {
 export function LeaderProfileForm({
   leaderId,
   cities,
+  userName,
   initialCity = '',
   initialParty = '',
   initialBio = '',
@@ -152,7 +154,7 @@ export function LeaderProfileForm({
           </Avatar>
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/70">Seu perfil</p>
-            <p className="text-lg font-semibold">Atualize e fortaleça sua base</p>
+            <p className="text-lg font-semibold">{userName || 'Atualize e fortaleça sua base'}</p>
           </div>
         </div>
         <p className="mt-3 text-sm text-white/80">

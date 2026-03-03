@@ -50,6 +50,7 @@ export default async function ProfilePage() {
       <LeaderProfileForm
         leaderId={user.uid}
         cities={cities}
+        userName={(leaderProfile as any)?.name || (leader as any)?.name || user.displayName || user.email || ''}
         initialCity={typeof cityIdRaw === 'string' ? cityIdRaw.trim() : ''}
         initialParty={(leaderProfile as any)?.politicalParty || ''}
         initialBio={(leaderProfile as any)?.bio || ''}

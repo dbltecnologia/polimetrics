@@ -10,6 +10,9 @@ import { Search } from "lucide-react";
 import type { CityOverviewStats } from "@/services/admin/cities/getCitiesOverview";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CityDeleteAction } from './CityDeleteAction';
+import { Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface CitiesTableProps {
   cities: City[];
@@ -77,6 +80,7 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
               <TableHead className="whitespace-nowrap text-right">Apoiadores</TableHead>
               <TableHead className="whitespace-nowrap text-right">Demandas</TableHead>
               <TableHead className="whitespace-nowrap text-right">Engaj. 7d</TableHead>
+              <TableHead className="whitespace-nowrap text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -105,6 +109,17 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
                     {stats.demandasAbertas}/{stats.demandasTotal}
                   </TableCell>
                   <TableCell className="text-right">{stats.engajamento7d}</TableCell>
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-center gap-1">
+                      <Button variant="outline" size="icon" asChild className="h-8 w-8">
+                        <Link href={`/dashboard/admin/cities/${city.id}`}>
+                          <Pencil className="h-3.5 w-3.5" />
+                          <span className="sr-only">Editar</span>
+                        </Link>
+                      </Button>
+                      <CityDeleteAction cityId={city.id} cityName={city.name} />
+                    </div>
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -132,7 +147,18 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
 
                 <Card className="cursor-pointer hover:border-primary/50 transition-colors">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
+                      <div onClick={(e) => e.preventDefault()} className="flex gap-1">
+                        <Button variant="outline" size="icon" asChild className="h-8 w-8">
+                          <Link href={`/dashboard/admin/cities/${city.id}`}>
+                            <Pencil className="h-3.5 w-3.5" />
+                            <span className="sr-only">Editar</span>
+                          </Link>
+                        </Button>
+                        <CityDeleteAction cityId={city.id} cityName={city.name} />
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="grid grid-cols-2 gap-3 text-sm">
                     <div className="rounded-xl border bg-muted/30 p-3">

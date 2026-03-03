@@ -1,33 +1,46 @@
 'use server';
 
 import { firestore } from '@/lib/firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { AppUser } from '@/types/user';
 import { revalidatePath } from 'next/cache';
 
 /**
  * Updates a user document in the 'users' collection.
- * @param id The document ID of the user to update.
- * @param data The data to update.
- * @returns A promise that resolves to an object indicating success or failure.
+ * Optionally updates the Firebase Auth password when provided.
  */
-export async function updateLeader(id: string, data: Partial<AppUser>): Promise<{ success: boolean; message: string }> {
+export async function updateLeader(
+  id: string,
+  data: Partial<AppUser> & { password?: string }
+): Promise<{ success: boolean; message: string }> {
   if (!id) {
     return { success: false, message: 'ID do líder não fornecido.' };
   }
 
   try {
+    // If a password was provided, update it in Firebase Auth first
+    if (data.password && data.password.length >= 6) {
+      try {
+        await getAuth().updateUser(id, { password: data.password });
+      } catch (authError: any) {
+        console.error(`Erro ao atualizar senha do líder ${id}:`, authError);
+        return { success: false, message: `Erro ao atualizar senha: ${authError.message}` };
+      }
+    }
+
+    // Remove password from Firestore data (never store plain passwords)
+    const { password: _pwd, ...firestoreData } = data;
+
     const userRef = firestore.collection('users').doc(id);
 
-    const dataToUpdate: Partial<AppUser> = {
-      ...data,
-      updatedAt: new Date(), // Always update the timestamp
+    const dataToUpdate = {
+      ...firestoreData,
+      updatedAt: new Date(),
     };
 
     await userRef.update(dataToUpdate);
 
-    // Revalidate the path to ensure the list page is updated
     revalidatePath('/dashboard/admin/leaders');
-    // Revalidate the specific leader's page as well
     revalidatePath(`/dashboard/admin/leaders/${id}`);
 
     return { success: true, message: 'Líder atualizado com sucesso!' };
