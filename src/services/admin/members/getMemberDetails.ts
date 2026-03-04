@@ -25,7 +25,7 @@ export interface MemberDetails extends Member {
 
 export async function getMemberDetails(memberId: string): Promise<MemberDetails | null> {
     try {
-        const memberDoc = await firestore.collection('community-members').doc(memberId).get();
+        const memberDoc = await firestore.collection('members').doc(memberId).get();
 
         if (!memberDoc.exists) {
             return null;
@@ -48,7 +48,7 @@ export async function getMemberDetails(memberId: string): Promise<MemberDetails 
         history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
         const totalPoints = missionsSnapshot.docs.reduce((sum, doc) => sum + (doc.data().points || 25), 0);
-        
+
         const kpis: MemberKPIs = {
             totalPoints: totalPoints,
             lastMission: missionsSnapshot.docs.length > 0 ? new Date(missionsSnapshot.docs[0].data().completedAt.toDate()).toLocaleDateString() : 'Nenhuma',

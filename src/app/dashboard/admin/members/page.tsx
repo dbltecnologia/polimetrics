@@ -80,7 +80,9 @@ export default function AdminMembersPage() {
     // Obter todas as cidades e bairros a partir dos membros ainda ativos no funil (pós-filtro de líder)
     members.forEach(m => {
       if ((m as any).cityName) citiesSet.add((m as any).cityName);
-      if ((m as any).neighborhood) neighborhoodsSet.add((m as any).neighborhood);
+      // createMember saves 'bairro'; older records use 'neighborhood'
+      const nb = (m as any).bairro || (m as any).neighborhood;
+      if (nb) neighborhoodsSet.add(nb);
     });
 
     const availableCities = Array.from(citiesSet).sort();
@@ -93,12 +95,13 @@ export default function AdminMembersPage() {
     // Refinar bairros disponiveis baseados na cidade selecionada e membros restantes
     const localNeighborhoodsSet = new Set<string>();
     members.forEach(m => {
-      if ((m as any).neighborhood) localNeighborhoodsSet.add((m as any).neighborhood);
+      const nb = (m as any).bairro || (m as any).neighborhood;
+      if (nb) localNeighborhoodsSet.add(nb);
     });
     const availableNeighborhoods = Array.from(localNeighborhoodsSet).sort();
 
     if (selectedNeighborhood !== 'all') {
-      members = members.filter(m => (m as any).neighborhood === selectedNeighborhood);
+      members = members.filter(m => ((m as any).bairro === selectedNeighborhood || (m as any).neighborhood === selectedNeighborhood));
     }
 
     if (searchTerm) {

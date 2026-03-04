@@ -35,8 +35,8 @@ export async function getLeaderStats(): Promise<LeaderStats[]> {
       leadersSnapshot,
       membersSnapshot,
     ] = await Promise.all([
-      firestore.collection('users').where('role', '==', 'lider').get(),
-      firestore.collection('community-members').select('leaderId').get(),
+      firestore.collection('users').where('role', 'in', ['leader', 'lider', 'master', 'sub']).get(),
+      firestore.collection('members').select('leaderId').get(),
     ]);
 
     // 2. Create count maps from the collections

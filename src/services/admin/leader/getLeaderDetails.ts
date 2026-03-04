@@ -51,7 +51,7 @@ export async function getLeaderDetails(leaderId: string): Promise<LeaderDetailsD
 
         // Buscas em paralelo
         const [membersSnapshot, actionsSnapshot, missionsSnapshot] = await Promise.all([
-            firestore.collection('community-members').where('leaderId', '==', leaderId).get(),
+            firestore.collection('members').where('leaderId', '==', leaderId).get(),
             firestore.collection('community_actions').where('leaderId', '==', leaderId).orderBy('createdAt', 'desc').get(),
             firestore.collection('mission_logs').where('leaderId', '==', leaderId).orderBy('completedAt', 'desc').get(),
         ]);

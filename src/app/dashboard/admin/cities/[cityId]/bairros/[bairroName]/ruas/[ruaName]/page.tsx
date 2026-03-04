@@ -19,26 +19,32 @@ interface MemberMapping {
 }
 
 async function getStreetMembers(cityId: string, bairroName: string, ruaName: string): Promise<MemberMapping[]> {
+    // Fetch by cityId + street; filter bairro client-side since field name varies
+    // (createMember saves 'bairro', older records may use 'neighborhood')
     const snapshot = await firestore
         .collection('members')
         .where('cityId', '==', cityId)
-        .where('neighborhood', '==', bairroName)
         .where('street', '==', ruaName)
         .get();
 
-    return snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            name: data.name || 'Sem Nome',
-            phone: data.phone || null,
-            address: `${data.street || ''}, ${data.number || 'S/N'} - ${data.neighborhood || ''}`,
-            leaderName: data.leaderName || 'Sem Líder',
-            status: data.status || 'ativo',
-            cityName: data.cityName || null,
-            votePotential: Number(data.votePotential) || 0
-        } as MemberMapping;
-    });
+    return snapshot.docs
+        .map((doc) => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                name: data.name || 'Sem Nome',
+                phone: data.phone || null,
+                address: `${data.street || ''}, ${data.number || 'S/N'} - ${data.bairro || data.neighborhood || ''}`,
+                leaderName: data.leaderName || 'Sem Líder',
+                status: data.status || 'ativo',
+                cityName: data.cityName || null,
+                votePotential: Number(data.votePotential) || 0
+            } as MemberMapping;
+        })
+        .filter((m) => {
+            const docBairro = (m as any).bairro || (m as any).neighborhood || 'Bairro Não Informado';
+            return docBairro === bairroName;
+        });
 }
 
 export default async function ViewStreetPage({ params }: { params: Promise<{ cityId: string; bairroName: string; ruaName: string }> }) {
