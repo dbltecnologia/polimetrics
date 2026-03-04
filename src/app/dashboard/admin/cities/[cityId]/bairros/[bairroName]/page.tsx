@@ -12,6 +12,7 @@ type Member = {
     votePotential?: number;
     cityId?: string;
     neighborhood?: string;
+    bairro?: string;
     street?: string;
 };
 
@@ -22,16 +23,17 @@ type StreetStats = {
 };
 
 async function getBairroMembers(cityId: string, bairroName: string) {
+    // Fetch all members for the city and filter client-side because Firestore
+    // doesn't support OR across different fields ('bairro' vs 'neighborhood').
+    // createMember saves as 'bairro'; older records may use 'neighborhood'.
     const snapshot = await firestore
         .collection('members')
         .where('cityId', '==', cityId)
-        .where('neighborhood', '==', bairroName)
         .get();
 
-    return snapshot.docs.map((doc) => {
-        const data = doc.data() as Member;
-        return { ...data, id: doc.id };
-    });
+    return snapshot.docs
+        .map((doc) => ({ ...doc.data() as Member, id: doc.id }))
+        .filter((m) => (m.bairro || m.neighborhood || 'Bairro Não Informado') === bairroName);
 }
 
 export default async function ViewBairroPage({ params }: { params: Promise<{ cityId: string; bairroName: string }> }) {

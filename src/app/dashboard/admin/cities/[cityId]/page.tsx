@@ -12,6 +12,7 @@ type Member = {
     votePotential?: number;
     cityId?: string;
     neighborhood?: string;
+    bairro?: string;
     street?: string;
 };
 
@@ -53,7 +54,8 @@ export default async function ViewCityPage({ params }: { params: Promise<{ cityI
     let totalVotePotential = 0;
 
     members.forEach(member => {
-        const bairro = member.neighborhood || 'Bairro Não Informado';
+        // createMember saves 'bairro'; older records may use 'neighborhood'
+        const bairro = member.bairro || member.neighborhood || 'Bairro Não Informado';
         const potential = Number(member.votePotential) || 0;
 
         totalVotePotential += potential;
