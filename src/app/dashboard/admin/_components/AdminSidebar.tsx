@@ -120,7 +120,7 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
   return (
     <aside
       className={clsx(
-        'h-full flex-col bg-primary border-r border-primary-dark',
+        'h-full max-h-screen flex-col bg-primary border-r border-primary-dark overflow-hidden',
         variant === 'desktop' ? 'hidden md:flex' : 'flex'
       )}
     >
@@ -144,7 +144,7 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
           <span className="ml-auto shrink-0 rounded bg-sky-400/30 px-1.5 py-0.5 text-[11px] font-black text-sky-200">{selectedState}</span>
         </div>
       )}
-      <div className="flex flex-1 flex-col justify-between p-4">
+      <div className="flex flex-1 flex-col justify-between p-4 overflow-y-auto min-h-0">
         <nav className="space-y-3">
           {metrics && (
             <div className="rounded-xl bg-primary-dark/60 p-3 text-neutral-white/90">

@@ -39,11 +39,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   if (user && user.role === 'admin') {
     return (
       <LogoutProvider>
-        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-          <div className="hidden border-r bg-card lg:block">
+        <div className="grid h-screen w-full overflow-hidden lg:grid-cols-[280px_1fr]">
+          <div className="hidden border-r bg-card lg:flex lg:flex-col overflow-hidden">
             <AdminSidebar />
           </div>
-          <div className="flex min-w-0 flex-col">
+          <div className="flex min-w-0 flex-col overflow-hidden">
             <Header />
             <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-muted p-4 sm:p-6 lg:p-8">
               {children}
