@@ -2,6 +2,7 @@
 
 import { firestore } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
+import { geocodeAddress } from '@/lib/geocode';
 
 interface CreateMemberData {
   name: string;
@@ -24,7 +25,14 @@ export async function createMember(data: CreateMemberData): Promise<{ success: b
 
   try {
     const newMemberRef = firestore.collection('members').doc();
-    
+
+    // Auto-geocode when bairro/address is provided
+    let geoData: { lat?: number; lng?: number } = {};
+    if (address) {
+      const coords = await geocodeAddress(`${address}, Brasil`);
+      if (coords) geoData = coords;
+    }
+
     await newMemberRef.set({
       name,
       leaderId,
@@ -36,6 +44,7 @@ export async function createMember(data: CreateMemberData): Promise<{ success: b
       votePotential: Number(votePotential) || 0,
       notes: notes || '',
       status: 'ativo',
+      ...geoData,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

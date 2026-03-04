@@ -4,6 +4,7 @@ import { firestore } from '@/lib/firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
 import { AppUser } from '@/types/user';
 import { revalidatePath } from 'next/cache';
+import { geocodeAddress } from '@/lib/geocode';
 
 /**
  * Updates a user document in the 'users' collection.
@@ -31,10 +32,19 @@ export async function updateLeader(
     // Remove password from Firestore data (never store plain passwords)
     const { password: _pwd, ...firestoreData } = data;
 
+    // Auto-geocode when address fields are present but lat/lng are missing
+    let geoUpdate: { lat?: number; lng?: number } = {};
+    const addressParts = [firestoreData.address, firestoreData.bairro, (firestoreData as any).cityName].filter(Boolean);
+    if (addressParts.length > 0 && !firestoreData.lat) {
+      const coords = await geocodeAddress(addressParts.join(', ') + ', Brasil');
+      if (coords) geoUpdate = coords;
+    }
+
     const userRef = firestore.collection('users').doc(id);
 
     const dataToUpdate = {
       ...firestoreData,
+      ...geoUpdate,
       updatedAt: new Date(),
     };
 

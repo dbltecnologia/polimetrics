@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth/server-side';
 import { resolveUserRole } from '@/lib/user-role';
 import { firestore } from '@/lib/firebase-admin';
+import { geocodeAddress } from '@/lib/geocode';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,14 @@ export async function PATCH(
 
         const body = await request.json();
 
+        // Auto-geocode when address/bairro is being updated and no lat/lng provided
+        let geoUpdate: { lat?: number; lng?: number } = {};
+        const addressStr = body.bairro || body.address || body.neighborhood;
+        if (addressStr && body.lat === undefined) {
+            const coords = await geocodeAddress(`${addressStr}, Brasil`);
+            if (coords) geoUpdate = coords;
+        }
+
         const memberRef = firestore.collection('members').doc(memberId);
         const memberDoc = await memberRef.get();
 
@@ -43,6 +52,7 @@ export async function PATCH(
 
         await memberRef.update({
             ...body,
+            ...geoUpdate,
             updatedAt: new Date().toISOString(),
         });
 
