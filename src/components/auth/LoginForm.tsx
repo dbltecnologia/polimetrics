@@ -104,12 +104,12 @@ export function LoginForm() {
     if (role === 'admin') {
       form.setValue('email', 'admin@polimetrics.com.br');
       form.setValue('password', 'password123');
+      form.setValue('state', 'SP');
     } else {
       form.setValue('email', 'lider@polimetrics.com.br');
       form.setValue('password', 'password123');
+      form.setValue('state', 'SP');
     }
-    // Opcional: já acionar o submit automaticamente
-    // form.handleSubmit(onSubmit)();
   };
 
   return (

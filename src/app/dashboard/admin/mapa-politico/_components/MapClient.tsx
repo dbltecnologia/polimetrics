@@ -119,7 +119,7 @@ export function MapClient({ leaders, members, cities: allCities }: MapClientProp
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas as Cidades</SelectItem>
-                            {availableCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                            {availableCities.filter(c => c && c.trim()).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>

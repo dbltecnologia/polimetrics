@@ -157,7 +157,7 @@ export const columns: ColumnDef<LeaderRow>[] = [
       const leader = row.original;
       const leaderId = (leader as any).id ?? leader.userId ?? leader.email;
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-[100px] whitespace-nowrap">
           <Button variant="outline" size="icon" asChild>
             <Link href={`/dashboard/admin/leaders/${leaderId}`}>
               <Pencil className="h-4 w-4" />
