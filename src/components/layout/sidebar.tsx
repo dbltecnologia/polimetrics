@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, FileText, BarChart, MessageSquare, UserCircle } from 'lucide-react';
+import { Home, Users, FileText, BarChart, MessageSquare, UserCircle, MapPin } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 const leaderNavItems = [
     { href: '/dashboard', icon: Home, label: 'Início' },
     { href: '/dashboard/leader-panel', icon: Users, label: 'Minha Rede' },
+    { href: '/dashboard/mapa', icon: MapPin, label: 'Mapa da Rede' },
     { href: '/dashboard/chamados', icon: MessageSquare, label: 'Chamados' },
     { href: '/dashboard/profile', icon: UserCircle, label: 'Perfil' },
 ];
