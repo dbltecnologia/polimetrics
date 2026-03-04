@@ -75,7 +75,11 @@ export default function MembersAdminTable({ members }: MembersAdminTableProps) {
             ) : (
               currentMembers.map((member) => (
                 <TableRow key={member.id} className="hover:bg-slate-50 transition-colors">
-                  <TableCell className="py-2.5 font-medium">{member.name}</TableCell>
+                  <TableCell className="py-2.5 font-medium">
+                    <Link href={`/dashboard/admin/members/${member.id}`} className="text-primary hover:underline font-semibold">
+                      {member.name}
+                    </Link>
+                  </TableCell>
                   <TableCell className="py-2.5 text-muted-foreground text-sm">{member.cityName || '—'}</TableCell>
                   <TableCell className="py-2.5 text-muted-foreground text-sm">{member.leaderName || '—'}</TableCell>
                   <TableCell className="py-2.5 text-sm">
@@ -107,7 +111,7 @@ export default function MembersAdminTable({ members }: MembersAdminTableProps) {
                   <TableCell className="py-2.5">
                     <div className="flex items-center justify-center gap-1">
                       <Button variant="outline" size="icon" asChild className="h-8 w-8">
-                        <Link href={`/dashboard/admin/members/${member.id}`}>
+                        <Link href={`/dashboard/admin/members/${member.id}/edit`}>
                           <Pencil className="h-3.5 w-3.5" />
                           <span className="sr-only">Editar</span>
                         </Link>

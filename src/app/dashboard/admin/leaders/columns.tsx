@@ -7,6 +7,7 @@ import Link from 'next/link';
 import type { AppUser } from '@/types/user';
 import { useToast } from "@/components/ui/use-toast";
 import { LeaderDeleteAction } from './_components/LeaderDeleteAction';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 type LeaderRow = AppUser & {
   memberCount?: number;
@@ -69,10 +70,22 @@ export const columns: ColumnDef<LeaderRow>[] = [
     cell: ({ row }) => {
       const leader = row.original;
       const leaderId = (leader as any).id ?? leader.userId ?? leader.email;
+      const initials = (leader.name || 'L')
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w: string) => w[0].toUpperCase())
+        .join('');
       return (
-        <Link href={`/dashboard/admin/leaders/${leaderId}/view`} className="font-medium text-primary hover:underline">
-          {leader.name}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={(leader as any).photoURL || ''} alt={leader.name} />
+            <AvatarFallback className="bg-primary/15 text-primary text-xs font-bold">{initials}</AvatarFallback>
+          </Avatar>
+          <Link href={`/dashboard/admin/leaders/${leaderId}/view`} className="font-medium text-primary hover:underline">
+            {leader.name}
+          </Link>
+        </div>
       );
     }
   },

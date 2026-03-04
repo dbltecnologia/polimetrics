@@ -372,7 +372,7 @@ export default function AdminMembersPage() {
             </div>
             <div className="mt-3 flex items-center justify-end gap-2">
               <Button variant="outline" size="icon" asChild className="h-8 w-8">
-                <Link href={`/dashboard/admin/members/${member.id}`}>
+                <Link href={`/dashboard/admin/members/${member.id}/edit`}>
                   <Pencil className="h-4 w-4" />
                   <span className="sr-only">Editar</span>
                 </Link>

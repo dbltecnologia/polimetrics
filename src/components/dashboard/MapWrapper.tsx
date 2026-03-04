@@ -6,6 +6,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
 import { Users, FileText, User } from 'lucide-react';
+import { GOOGLE_MAPS_API_KEY } from '@/lib/maps-config';
 
 const containerStyle = {
     width: '100%',
@@ -26,7 +27,7 @@ interface MapWrapperProps {
 export default function MapWrapper({ leaders, members = [] }: MapWrapperProps) {
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
-        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+        googleMapsApiKey: GOOGLE_MAPS_API_KEY
     });
 
     const [map, setMap] = useState<google.maps.Map | null>(null);

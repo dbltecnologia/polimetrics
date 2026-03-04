@@ -1,9 +1,12 @@
 
 "use client"
 
-
 import { ColumnDef } from "@tanstack/react-table";
 import { format, parseISO } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { MemberDeleteAction } from '@/components/admin/members/MemberDeleteAction';
 
 const formatDateOfBirth = (dateString: string) => {
     try {
@@ -53,7 +56,19 @@ export const columns: ColumnDef<any>[] = [
         header: "Aniversário",
         cell: ({ row }) => formatDateOfBirth(row.getValue("nascimento")),
     },
+    {
+        id: "actions",
+        header: "Ações",
+        cell: ({ row }) => (
+            <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" asChild className="h-8 w-8">
+                    <Link href={`/dashboard/admin/members/${row.original.id}/edit`}>
+                        <Pencil className="h-3.5 w-3.5" />
+                        <span className="sr-only">Editar</span>
+                    </Link>
+                </Button>
+                <MemberDeleteAction memberId={row.original.id} memberName={row.original.name || 'Apoiador'} />
+            </div>
+        ),
+    },
 ];
-
-// Nota: Para city.name e leader.name, o objeto Member precisará ter esses dados pré-populados
-// ou você terá que fazer buscas adicionais. Uma view na página do cliente é mais simples.

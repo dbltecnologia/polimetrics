@@ -18,9 +18,10 @@ import {
 interface MapClientProps {
     leaders: AppUser[];
     members: Member[];
+    cities: { id: string; name: string; state: string }[];
 }
 
-export function MapClient({ leaders, members }: MapClientProps) {
+export function MapClient({ leaders, members, cities: allCities }: MapClientProps) {
     const [filterType, setFilterType] = useState<string>('all');
     const [selectedCity, setSelectedCity] = useState<string>('all');
     const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
@@ -48,22 +49,20 @@ export function MapClient({ leaders, members }: MapClientProps) {
     let mappedLeaders = leaders.filter(l => typeof l.lat === 'number' && typeof l.lng === 'number');
     let mappedMembers = members.filter(m => typeof (m as any).lat === 'number' && typeof (m as any).lng === 'number');
 
-    // Extract available cities and neighborhoods BEFORE applying the geo filters
-    const citiesSet = new Set<string>();
-    mappedLeaders.forEach(l => { if ((l as any).cityName) citiesSet.add((l as any).cityName); });
-    mappedMembers.forEach(m => { if ((m as any).cityName) citiesSet.add((m as any).cityName); });
-    const availableCities = Array.from(citiesSet).sort();
+    // Extract cities from the full city list passed by the page
+    const availableCities = allCities.map(c => c.name).sort();
 
-    // Apply city filter
-    if (selectedCity !== 'all') {
-        mappedLeaders = mappedLeaders.filter(l => (l as any).cityName === selectedCity);
-        mappedMembers = mappedMembers.filter(m => (m as any).cityName === selectedCity);
-    }
-
+    // Extract neighborhoods from geo-filtered records (free-text field)
     const neighborhoodsSet = new Set<string>();
     mappedLeaders.forEach(l => { if ((l as any).bairro) neighborhoodsSet.add((l as any).bairro); if ((l as any).neighborhood) neighborhoodsSet.add((l as any).neighborhood); });
     mappedMembers.forEach(m => { if ((m as any).neighborhood) neighborhoodsSet.add((m as any).neighborhood); if ((m as any).bairro) neighborhoodsSet.add((m as any).bairro); });
     const availableNeighborhoods = Array.from(neighborhoodsSet).sort();
+
+    // Apply city filter (after extracting neighborhoods)
+    if (selectedCity !== 'all') {
+        mappedLeaders = mappedLeaders.filter(l => (l as any).cityName === selectedCity);
+        mappedMembers = mappedMembers.filter(m => (m as any).cityName === selectedCity);
+    }
 
     // Apply neighborhood filter
     if (selectedNeighborhood !== 'all') {

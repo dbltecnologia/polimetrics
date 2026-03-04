@@ -6,10 +6,10 @@ import { useUser } from '@/contexts/UserContext';
 import { AddMemberForm } from '@/components/forms/AddMemberForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Vote, Phone, MapPin, Download, Trash2 } from 'lucide-react';
+import { Users, Vote, Phone, MapPin, Download, Trash2, Pencil } from 'lucide-react';
 import { LeaderOnboardingWizard } from '@/components/leader/LeaderOnboardingWizard';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import Link from 'next/link';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function LeaderPanelPage() {
   const { user, loading: sessionLoading } = useSession();
@@ -72,15 +72,18 @@ export default function LeaderPanelPage() {
     document.body.removeChild(link);
   };
 
-  const handleSoftDelete = async (memberId: string) => {
-    if (confirm("Tem certeza que deseja inativar este apoiador? Ele não será excluído, mas deixará de contabilizar votos e ficará inativo.")) {
-      try {
-        await updateDoc(doc(db, "members", memberId), { status: "inativo" });
-        fetchDashboardData();
-      } catch (err) {
-        console.error("Erro ao inativar membro:", err);
-        alert("Erro ao inativar apoiador.");
-      }
+  const { toast } = useToast();
+
+  const handleDeleteMember = async (memberId: string, memberName: string) => {
+    if (!confirm(`Tem certeza que deseja excluir o apoiador "${memberName}"? Esta ação é irreversível.`)) return;
+    try {
+      const res = await fetch(`/api/admin/members/${memberId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erro ao excluir');
+      toast({ title: 'Apoiador excluído com sucesso.' });
+      fetchDashboardData();
+    } catch (err) {
+      console.error('Erro ao excluir membro:', err);
+      toast({ title: 'Erro ao excluir apoiador.', variant: 'destructive' });
     }
   };
 
@@ -203,11 +206,18 @@ export default function LeaderPanelPage() {
                         }`}>
                         {member.status || 'Potencial'}
                       </span>
-                      {member.status !== 'inativo' && (
-                        <button onClick={() => handleSoftDelete(member.id)} className="text-slate-400 hover:text-rose-600 transition-colors" title="Inativar Apoiador">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-primary" asChild title="Editar Apoiador">
+                        <Link href={`/dashboard/admin/members/${member.id}/edit`}>
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Link>
+                      </Button>
+                      <button
+                        onClick={() => handleDeleteMember(member.id, member.name)}
+                        className="text-slate-400 hover:text-rose-600 transition-colors"
+                        title="Excluir Apoiador"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                   <div className="space-y-1 mt-3">

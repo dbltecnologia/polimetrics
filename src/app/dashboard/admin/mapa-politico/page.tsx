@@ -27,7 +27,7 @@ export default async function MapaPoliticoPage() {
                 subtitle="Visualize a distribuição estratégica da sua base por bairros."
             />
             <div className="p-2 md:p-8 space-y-4 flex-1 flex flex-col pt-4 md:pt-4">
-                <MapClient leaders={leaders} members={members} />
+                <MapClient leaders={leaders} members={members} cities={cities} />
             </div>
         </main>
     );

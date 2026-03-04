@@ -25,6 +25,7 @@ const leaderMobileLinks = [
     { href: '/dashboard', icon: Home, label: 'Início' },
     { href: '/dashboard/leader-panel', icon: Users, label: 'Minha Rede' },
     { href: '/dashboard/chamados', icon: MessageSquare, label: 'Chamados' },
+    { href: '/dashboard/profile', icon: CircleUser, label: 'Perfil' },
 ];
 
 const memberMobileLinks = [
@@ -123,7 +124,7 @@ const Header = () => {
                     {profile?.role === 'leader' && (
                         <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onSelect={() => router.push('/dashboard/leader/profile')}>
+                            <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                                 Configurar perfil e foto
                             </DropdownMenuItem>
                         </>
