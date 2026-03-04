@@ -16,6 +16,7 @@ export default function LeaderPanelPage() {
   const { user: profile, loading: profileLoading } = useUser();
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loadingConfig, setLoadingConfig] = useState(true);
+  const { toast } = useToast();
 
   const fetchDashboardData = async () => {
     if (!user?.uid) return;
@@ -72,7 +73,6 @@ export default function LeaderPanelPage() {
     document.body.removeChild(link);
   };
 
-  const { toast } = useToast();
 
   const handleDeleteMember = async (memberId: string, memberName: string) => {
     if (!confirm(`Tem certeza que deseja excluir o apoiador "${memberName}"? Esta ação é irreversível.`)) return;
