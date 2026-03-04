@@ -48,6 +48,11 @@ export async function POST(req: Request) {
       leaderRole: roleData.role,
       cityId: roleData.leader?.cityId || null,
       email: user.email || null,
+      // Extra fields for historical tracking
+      senderName: (body?.senderName as string | null) || null,
+      senderPhone: (body?.senderPhone as string | null) || null,
+      targetCargo: (body?.targetCargo as string | null) || null,
+      electionYear: body?.electionYear ? Number(body.electionYear) : null,
       createdAt: FieldValue.serverTimestamp(),
       status: 'aberto',
     };
