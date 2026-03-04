@@ -5,7 +5,7 @@
  * Uso: npx tsx scripts/geocode-existing.ts
  */
 
-import { adminFirestore as db } from '../src/lib/server/firebase-admin';
+import { firestore as db } from '../src/lib/server/firebase-admin';
 import { GOOGLE_MAPS_API_KEY } from '../src/lib/maps-config';
 
 async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
