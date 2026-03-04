@@ -149,12 +149,15 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
-                      <div onClick={(e) => e.preventDefault()} className="flex gap-1">
-                        <Button variant="outline" size="icon" asChild className="h-8 w-8">
-                          <Link href={`/dashboard/admin/cities/${city.id}`}>
-                            <Pencil className="h-3.5 w-3.5" />
-                            <span className="sr-only">Editar</span>
-                          </Link>
+                      <div onClick={(e) => e.stopPropagation()} className="flex gap-1">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/dashboard/admin/cities/${city.id}`); }}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          <span className="sr-only">Editar</span>
                         </Button>
                         <CityDeleteAction cityId={city.id} cityName={city.name} />
                       </div>
