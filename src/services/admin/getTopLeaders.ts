@@ -8,11 +8,14 @@ export interface TopLeader {
   community: string | null;
 }
 
+// All roles that represent field leaders (not admin/viewer)
+const LEADER_ROLES = ['leader', 'lider', 'master', 'sub'];
+
 export async function getTopLeaders(): Promise<TopLeader[]> {
   try {
     const leadersSnapshot = await firestore
       .collection('users')
-      .where('role', '==', 'leader')
+      .where('role', 'in', LEADER_ROLES)
       .orderBy('totalPoints', 'desc')
       .limit(5)
       .get();

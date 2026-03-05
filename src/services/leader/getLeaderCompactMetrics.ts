@@ -41,6 +41,7 @@ export async function getLeaderCompactMetrics(leaderId: string): Promise<LeaderC
       .get()
       .catch(() => null),
     meetingsRef
+      .where('leaderId', '==', leaderId)
       .where('dateTime', '>=', start)
       .where('dateTime', '<=', end)
       .get()

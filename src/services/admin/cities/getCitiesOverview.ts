@@ -16,7 +16,7 @@ export async function getCitiesOverview(): Promise<Record<string, CityOverviewSt
         const stats: Record<string, CityOverviewStats> = {};
 
         const [usersSnap, membersSnap, chamadosSnap] = await Promise.all([
-            firestore.collection('users').where('role', 'in', ['leader', 'admin']).get().catch(() => null),
+            firestore.collection('users').where('role', 'in', ['leader', 'lider', 'master', 'sub']).get().catch(() => null),
             firestore.collection('members').get().catch(() => null),
             firestore.collection('chamados').get().catch(() => null),
         ]);
@@ -55,14 +55,9 @@ export async function getCitiesOverview(): Promise<Record<string, CityOverviewSt
                 if (cityId) {
                     ensureCity(cityId);
                     stats[cityId].supporters += 1;
-                    // Support multiple field names for vote potential
-                    const votes = parseInt(
-                        data.votePotential || data.expectedVotes || data.potentialVotes || '0',
-                        10
-                    );
-                    if (!isNaN(votes)) {
-                        stats[cityId].votePotential += votes;
-                    }
+                    // Number() handles both string and number; falls back to 0
+                    const votes = Number(data.votePotential || data.expectedVotes || data.potentialVotes) || 0;
+                    stats[cityId].votePotential += votes;
                 }
             });
         }

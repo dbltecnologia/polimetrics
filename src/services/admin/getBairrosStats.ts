@@ -7,47 +7,25 @@ export interface BairroStat {
 
 export async function getBairrosStats(): Promise<BairroStat[]> {
     try {
-        const [leadersSnapshot, membersSnapshot] = await Promise.all([
-            firestore.collection('users').where('role', 'in', ['leader', 'lider', 'master', 'sub']).get(),
-            firestore.collection('members').get(),
-        ]);
+        // Aggregate vote potential from the 'members' collection directly,
+        // using the member's own bairro/neighborhood field (not the leader's bairro).
+        const membersSnapshot = await firestore.collection('members').get();
 
-        // Map leaderId -> bairro
-        const leaderBairros: Record<string, string> = {};
-        leadersSnapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.bairro) {
-                leaderBairros[doc.id] = data.bairro.trim();
-            }
-        });
-
-        // Aggregate vote potentials by bairro
         const bairroTotals: Record<string, number> = {};
 
         membersSnapshot.forEach((doc) => {
             const data = doc.data();
-            const leaderId = data.leaderId;
-            if (leaderId && leaderBairros[leaderId]) {
-                const bairro = leaderBairros[leaderId];
-                let votePotential = 0;
-                if (typeof data.votePotential === 'number') {
-                    votePotential = data.votePotential;
-                } else if (typeof data.votePotential === 'string') {
-                    votePotential = parseInt(data.votePotential, 10) || 0;
-                }
+            // createMember saves as 'bairro'; older records may use 'neighborhood'
+            const bairro = (data.bairro || data.neighborhood || '').trim();
+            if (!bairro) return;
 
-                if (bairroTotals[bairro]) {
-                    bairroTotals[bairro] += votePotential;
-                } else {
-                    bairroTotals[bairro] = votePotential;
-                }
-            }
+            const votePotential = Number(data.votePotential) || 0;
+            bairroTotals[bairro] = (bairroTotals[bairro] || 0) + votePotential;
         });
 
-        // Convert to array and sort by totalVotePotential descending
-        const result: BairroStat[] = Object.keys(bairroTotals).map((bairro) => ({
+        const result: BairroStat[] = Object.entries(bairroTotals).map(([bairro, totalVotePotential]) => ({
             bairro,
-            totalVotePotential: bairroTotals[bairro]
+            totalVotePotential,
         }));
 
         result.sort((a, b) => b.totalVotePotential - a.totalVotePotential);

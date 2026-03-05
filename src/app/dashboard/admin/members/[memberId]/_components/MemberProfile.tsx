@@ -26,7 +26,7 @@ export function MemberProfile({ member }: { member: any }) {
             <CardContent>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div><strong>Telefone:</strong> {member.phone || 'Não informado'}</div>
-                    <div><strong>Bairro:</strong> {member.neighborhood || 'Não informado'}</div>
+                    <div><strong>Bairro:</strong> {member.bairro || member.neighborhood || 'Não informado'}</div>
                     <div><strong>Cidade:</strong> {member.city || 'Não informada'}</div>
                     <div><strong>Líder:</strong> {member.leaderName || 'Não atribuído'}</div>
                 </div>

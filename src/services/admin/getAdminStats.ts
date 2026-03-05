@@ -1,4 +1,9 @@
+'use server';
+
 import { firestore } from '@/lib/firebase-admin';
+
+// All roles that represent field leaders (not 'admin')
+const LEADER_ROLES = ['leader', 'lider', 'master', 'sub'];
 
 export interface AdminStats {
   totalLeaders: number;
@@ -11,10 +16,8 @@ export async function getAdminStats(): Promise<AdminStats> {
   try {
     // Admin dashboard shows ALL data — no state filter.
     // State filter is only for map views.
-    const leaderRoles = ['leader', 'lider', 'master', 'sub', 'admin'];
-
     const [leadersSnapshot, membersSnapshot, pollsSnapshot] = await Promise.all([
-      firestore.collection('users').where('role', 'in', leaderRoles).get(),
+      firestore.collection('users').where('role', 'in', LEADER_ROLES).get(),
       firestore.collection('members').get(),
       firestore.collection('polls').where('status', '==', 'active').get(),
     ]);
@@ -22,11 +25,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     let totalVotePotential = 0;
     membersSnapshot.forEach((doc) => {
       const data = doc.data();
-      if (typeof data.votePotential === 'number') {
-        totalVotePotential += data.votePotential;
-      } else if (typeof data.votePotential === 'string') {
-        totalVotePotential += parseInt(data.votePotential, 10) || 0;
-      }
+      totalVotePotential += Number(data.votePotential) || 0;
     });
 
     return {

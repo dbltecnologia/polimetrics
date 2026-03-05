@@ -37,7 +37,8 @@ export async function createMember(data: CreateMemberData): Promise<{ success: b
       name,
       leaderId,
       phone: phone || null,
-      bairro: address || '',
+      bairro: address || '',    // campo principal usado pelo app
+      address: address || '',   // alias para compatibilidade com getAllMembers
       cityId: cityId || null,
       birthdate: birthdate || '',
       experience: experience || '',
