@@ -24,6 +24,8 @@ const formSchema = z.object({
     name: z.string().min(2, { message: 'O nome é obrigatório.' }),
     phone: z.string().optional(),
     cityId: z.string().optional(),
+    bairro: z.string().optional(),
+    street: z.string().optional(),
     votePotential: z.coerce.number().min(0).default(0),
     status: z.enum(['ativo', 'inativo', 'potencial']).default('ativo'),
     leaderId: z.string().optional(),
@@ -37,6 +39,9 @@ interface MemberEditFormProps {
         name?: string;
         phone?: string | null;
         cityId?: string;
+        bairro?: string;
+        neighborhood?: string;
+        street?: string;
         votePotential?: number;
         status?: string;
         leaderId?: string | null;
@@ -45,9 +50,11 @@ interface MemberEditFormProps {
     };
     leaders: AppUser[];
     cities: { id: string; name: string; state: string }[];
+    hideLeaderField?: boolean;
+    redirectTo?: string;
 }
 
-export function MemberEditForm({ member, leaders, cities }: MemberEditFormProps) {
+export function MemberEditForm({ member, leaders, cities, hideLeaderField = false, redirectTo }: MemberEditFormProps) {
     const router = useRouter();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +65,8 @@ export function MemberEditForm({ member, leaders, cities }: MemberEditFormProps)
             name: member.name || '',
             phone: member.phone || '',
             cityId: member.cityId || '',
+            bairro: member.bairro || member.neighborhood || '',
+            street: member.street || '',
             votePotential: member.votePotential || 0,
             status: (member.status as any) || 'ativo',
             leaderId: member.leaderId || '',
@@ -72,7 +81,10 @@ export function MemberEditForm({ member, leaders, cities }: MemberEditFormProps)
             const res = await fetch(`/api/admin/members/${member.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(values),
+                body: JSON.stringify({
+                    ...values,
+                    neighborhood: values.bairro, // keep both fields in sync
+                }),
             });
 
             if (!res.ok) {
@@ -81,7 +93,8 @@ export function MemberEditForm({ member, leaders, cities }: MemberEditFormProps)
             }
 
             toast({ title: 'Membro atualizado com sucesso!' });
-            router.push('/dashboard/admin/members');
+            const destination = redirectTo || '/dashboard/admin/members';
+            router.push(destination);
             router.refresh();
         } catch (error: any) {
             console.error('Erro ao atualizar membro:', error);
@@ -106,21 +119,23 @@ export function MemberEditForm({ member, leaders, cities }: MemberEditFormProps)
                     </FormItem>
                 )} />
 
-                <FormField control={form.control} name="leaderId" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Líder Responsável</FormLabel>
-                        <Select onValueChange={(v) => field.onChange(v === 'no_selection' ? '' : v)} value={field.value || 'no_selection'}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Selecione o líder" /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="no_selection">Sem líder</SelectItem>
-                                {leaders.map(leader => (
-                                    <SelectItem key={leader.id} value={leader.id}>{leader.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                )} />
+                {!hideLeaderField && (
+                    <FormField control={form.control} name="leaderId" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Líder Responsável</FormLabel>
+                            <Select onValueChange={(v) => field.onChange(v === 'no_selection' ? '' : v)} value={field.value || 'no_selection'}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Selecione o líder" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="no_selection">Sem líder</SelectItem>
+                                    {leaders.map(leader => (
+                                        <SelectItem key={leader.id} value={leader.id}>{leader.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                )}
 
                 <FormField control={form.control} name="cityId" render={({ field }) => (
                     <FormItem>
@@ -137,6 +152,24 @@ export function MemberEditForm({ member, leaders, cities }: MemberEditFormProps)
                         <FormMessage />
                     </FormItem>
                 )} />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField control={form.control} name="bairro" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Bairro</FormLabel>
+                            <FormControl><Input placeholder="Ex: Centro, Asa Norte..." {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+
+                    <FormField control={form.control} name="street" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Rua / Endereço</FormLabel>
+                            <FormControl><Input placeholder="Ex: Rua das Flores, 123" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </div>
 
                 <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem>

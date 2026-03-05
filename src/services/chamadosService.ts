@@ -26,7 +26,6 @@ export const getAllChamados = async (): Promise<Chamado[]> => {
 export const getChamadosByLeader = async (leaderId: string): Promise<Chamado[]> => {
   const snapshot = await firestore.collection('chamados')
     .where('leaderId', '==', leaderId)
-    .orderBy('createdAt', 'desc')
     .get();
 
   return snapshot.docs.map((doc) => {
@@ -37,5 +36,9 @@ export const getChamadosByLeader = async (leaderId: string): Promise<Chamado[]> 
       createdAt: normalizeTimestamp((data as any).createdAt),
       updatedAt: normalizeTimestamp((data as any).updatedAt),
     } as Chamado;
+  }).sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt as string).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt as string).getTime() : 0;
+    return dateB - dateA; // desc
   });
 };

@@ -6,6 +6,8 @@ import { geocodeAddress } from '@/lib/geocode';
 
 export const dynamic = 'force-dynamic';
 
+const LEADER_ROLES = ['leader', 'lider', 'master', 'sub', 'admin'];
+
 // PATCH — Update a member
 export async function PATCH(
     request: Request,
@@ -23,7 +25,10 @@ export async function PATCH(
             fallbackName: user.displayName || '',
         });
 
-        if (role !== 'admin') {
+        const isAdmin = role === 'admin';
+        const isLeader = LEADER_ROLES.includes(role) && !isAdmin;
+
+        if (!isAdmin && !isLeader) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
@@ -48,6 +53,11 @@ export async function PATCH(
 
         if (!memberDoc.exists) {
             return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+        }
+
+        // Leaders can only edit members that belong to them
+        if (isLeader && memberDoc.data()?.leaderId !== user.uid) {
+            return NextResponse.json({ error: 'Forbidden: member does not belong to you' }, { status: 403 });
         }
 
         await memberRef.update({
@@ -81,7 +91,10 @@ export async function DELETE(
             fallbackName: user.displayName || '',
         });
 
-        if (role !== 'admin') {
+        const isAdminDel = role === 'admin';
+        const isLeaderDel = LEADER_ROLES.includes(role) && !isAdminDel;
+
+        if (!isAdminDel && !isLeaderDel) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
@@ -89,6 +102,14 @@ export async function DELETE(
         const memberId = resolvedParams.id;
         if (!memberId) {
             return NextResponse.json({ error: 'Missing member ID' }, { status: 400 });
+        }
+
+        // Leaders can only delete their own members
+        if (isLeaderDel) {
+            const memberDoc = await firestore.collection('members').doc(memberId).get();
+            if (!memberDoc.exists || memberDoc.data()?.leaderId !== user.uid) {
+                return NextResponse.json({ error: 'Forbidden: member does not belong to you' }, { status: 403 });
+            }
         }
 
         await firestore.collection('members').doc(memberId).delete();

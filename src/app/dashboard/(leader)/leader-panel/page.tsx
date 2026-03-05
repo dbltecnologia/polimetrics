@@ -207,7 +207,7 @@ export default function LeaderPanelPage() {
                         {member.status || 'Potencial'}
                       </span>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-primary" asChild title="Editar Apoiador">
-                        <Link href={`/dashboard/admin/members/${member.id}/edit`}>
+                        <Link href={`/dashboard/leader-panel/edit/${member.id}`}>
                           <Pencil className="w-3.5 h-3.5" />
                         </Link>
                       </Button>
