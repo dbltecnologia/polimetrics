@@ -3,6 +3,8 @@ import { isAuthenticated } from '@/lib/auth/server-side';
 import { resolveUserRole } from '@/lib/user-role';
 import { firestore } from '@/lib/firebase-admin';
 
+const LEADER_ROLES = ['leader', 'lider', 'master', 'sub', 'admin'];
+
 export async function GET() {
   const user = await isAuthenticated();
   if (!user) {
@@ -15,7 +17,7 @@ export async function GET() {
     fallbackName: user.displayName || user.email || '',
   });
 
-  if (role !== 'leader') {
+  if (!LEADER_ROLES.includes(role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -34,4 +36,3 @@ export async function GET() {
     return NextResponse.json({ error: 'Falha ao buscar membros.' }, { status: 500 });
   }
 }
-

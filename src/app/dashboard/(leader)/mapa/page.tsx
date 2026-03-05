@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { GOOGLE_MAPS_API_KEY } from '@/lib/maps-config';
-import { Users, User, TrendingUp, MapPin, Phone, Building2 } from 'lucide-react';
+import { Users, TrendingUp, MapPin, Phone } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const containerStyle = { width: '100%', height: '100%' };
@@ -18,8 +18,8 @@ function makeSvgPin(color: string, size: number) {
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-const MY_ICON = makeSvgPin('#1d4ed8', 38);       // Blue — the leader themselves
-const MEMBER_ICON = makeSvgPin('#16a34a', 28);    // Green — member
+const MY_ICON = makeSvgPin('#1d4ed8', 38); // Blue — the leader themselves
+const MEMBER_ICON = makeSvgPin('#16a34a', 28); // Green — member
 
 export default function LeaderMapPage() {
     const { user, loading: userLoading } = useUser();
@@ -52,6 +52,10 @@ export default function LeaderMapPage() {
         () => members.reduce((a: number, m: any) => a + (Number(m.votePotential) || 0), 0),
         [members]
     );
+
+    const mappedPct = members.length > 0
+        ? Math.round((mappedMembers.length / members.length) * 100)
+        : 0;
 
     const center = useMemo(() => {
         if (leader?.lat && leader?.lng) return { lat: leader.lat, lng: leader.lng };
@@ -92,7 +96,12 @@ export default function LeaderMapPage() {
                         </div>
                         <div>
                             <p className="text-2xl font-bold">{mappedMembers.length}</p>
-                            <p className="text-xs text-muted-foreground">No mapa</p>
+                            <p className="text-xs text-muted-foreground">
+                                No mapa
+                                {members.length > 0 && (
+                                    <span className="ml-1 font-medium text-emerald-600">{mappedPct}%</span>
+                                )}
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -114,6 +123,20 @@ export default function LeaderMapPage() {
                 {!isLoaded ? (
                     <div className="h-full flex items-center justify-center text-muted-foreground">
                         <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                ) : mappedMembers.length === 0 && !leader?.lat ? (
+                    /* ─── Empty state — nenhuma geolocalização disponível ─── */
+                    <div className="h-full flex flex-col items-center justify-center gap-4 p-8 text-center">
+                        <div className="bg-slate-100 rounded-full p-5">
+                            <MapPin className="w-10 h-10 text-slate-400" />
+                        </div>
+                        <div>
+                            <p className="text-base font-semibold text-slate-700">Nenhum apoiador geolocalizado</p>
+                            <p className="text-sm text-slate-500 mt-1 max-w-xs mx-auto">
+                                Edite o cadastro dos apoiadores e salve um endereço para que eles apareçam
+                                automaticamente no mapa.
+                            </p>
+                        </div>
                     </div>
                 ) : (
                     <GoogleMap
@@ -139,9 +162,9 @@ export default function LeaderMapPage() {
                                         <div className="p-1 min-w-[160px]">
                                             <p className="font-bold text-sm text-primary">{leader.name || 'Você'}</p>
                                             <p className="text-xs text-blue-600 font-medium">Você (Líder)</p>
-                                            {leader.bairro && (
+                                            {(leader.bairro || leader.neighborhood) && (
                                                 <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                                    <MapPin className="w-3 h-3" /> {leader.bairro}
+                                                    <MapPin className="w-3 h-3" /> {leader.bairro || leader.neighborhood}
                                                 </p>
                                             )}
                                         </div>
@@ -173,9 +196,20 @@ export default function LeaderMapPage() {
                                             </div>
                                             <div className="h-px bg-slate-100" />
                                             <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-xs">
-                                                {m.bairro && <><span className="text-slate-400">Bairro</span><span className="font-medium">{m.bairro}</span></>}
-                                                {m.cityName && <><span className="text-slate-400">Cidade</span><span className="font-medium">{m.cityName}</span></>}
-                                                {m.phone && <><span className="text-slate-400">Fone</span><a href={`tel:${m.phone}`} className="font-medium text-blue-600">{m.phone}</a></>}
+                                                {(m.bairro || m.neighborhood) && <>
+                                                    <span className="text-slate-400">Bairro</span>
+                                                    <span className="font-medium">{m.bairro || m.neighborhood}</span>
+                                                </>}
+                                                {m.cityName && <>
+                                                    <span className="text-slate-400">Cidade</span>
+                                                    <span className="font-medium">{m.cityName}</span>
+                                                </>}
+                                                {m.phone && <>
+                                                    <span className="text-slate-400">Fone</span>
+                                                    <a href={`tel:${m.phone}`} className="font-medium text-blue-600 flex items-center gap-0.5">
+                                                        <Phone className="w-3 h-3" />{m.phone}
+                                                    </a>
+                                                </>}
                                                 <span className="text-slate-400">Votos</span>
                                                 <span className="font-bold text-emerald-600">{m.votePotential || 0}</span>
                                             </div>
@@ -187,20 +221,24 @@ export default function LeaderMapPage() {
                     </GoogleMap>
                 )}
 
-                {/* Floating legend */}
-                <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-xl shadow border border-slate-200 px-3 py-2 flex items-center gap-4 text-xs z-10">
-                    <div className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded-full bg-blue-600 inline-block" />
-                        <span className="text-slate-600">Você</span>
+                {/* Floating legend — só mostra quando o mapa está visível */}
+                {(mappedMembers.length > 0 || leader?.lat) && isLoaded && (
+                    <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-xl shadow border border-slate-200 px-3 py-2 flex items-center gap-4 text-xs z-10">
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-3 h-3 rounded-full bg-blue-600 inline-block" />
+                            <span className="text-slate-600">Você</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
+                            <span className="text-slate-600 font-medium">
+                                Apoiadores <span className="font-bold text-slate-900">{mappedMembers.length}</span>
+                            </span>
+                        </div>
+                        {mappedMembers.length < members.length && (
+                            <span className="text-amber-600 font-medium">{members.length - mappedMembers.length} sem localização</span>
+                        )}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
-                        <span className="text-slate-600 font-medium">Apoiadores <span className="font-bold text-slate-900">{mappedMembers.length}</span></span>
-                    </div>
-                    {mappedMembers.length < members.length && (
-                        <span className="text-amber-600 font-medium">{members.length - mappedMembers.length} sem localização</span>
-                    )}
-                </div>
+                )}
             </div>
 
             {/* Members without geo - hint */}
