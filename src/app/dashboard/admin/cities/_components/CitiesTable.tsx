@@ -150,15 +150,15 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
                       <div onClick={(e) => e.stopPropagation()} className="flex gap-1">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
+                        <button
+                          type="button"
+                          aria-label="Editar cidade"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/dashboard/admin/cities/${city.id}`); }}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                           <span className="sr-only">Editar</span>
-                        </Button>
+                        </button>
                         <CityDeleteAction cityId={city.id} cityName={city.name} />
                       </div>
                     </div>

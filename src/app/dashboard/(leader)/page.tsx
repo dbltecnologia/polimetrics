@@ -44,7 +44,7 @@ export default async function DashboardPage() {
 
       <LeaderQuickAccess />
 
-      {role === "leader" && (
+      {(['leader', 'lider', 'master', 'sub'] as const).includes(role as any) && (
         <section className="rounded-2xl border bg-card p-4 shadow-sm md:p-6 border-primary/20 bg-primary/5">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold flex items-center gap-2">
