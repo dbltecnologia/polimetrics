@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, MessageSquare, ShieldCheck, Calendar, MapPin, Phone, User, Star } from 'lucide-react';
-import { serializeDoc } from '@/lib/firestore-serializers';
+
 
 const statusVariant = {
     ativo: 'default',
@@ -29,7 +29,7 @@ export default async function MemberDetailsPage(props: { params: Promise<{ membe
         notFound();
     }
 
-    const member = serializeDoc(memberDetails);
+    const member = memberDetails;
 
     return (
         <div className="space-y-6">
