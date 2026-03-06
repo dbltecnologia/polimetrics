@@ -11,15 +11,17 @@ const normalizeTimestamp = (value: any) => {
 // Retorna todos os chamados
 export const getAllChamados = async (): Promise<Chamado[]> => {
   const snapshot = await firestore.collection('chamados').get();
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      ...data,
-      createdAt: normalizeTimestamp((data as any).createdAt),
-      updatedAt: normalizeTimestamp((data as any).updatedAt),
-    } as Chamado;
-  });
+  return snapshot.docs
+    .filter(doc => doc.exists && doc.data())
+    .map((doc) => {
+      const data = doc.data()!;
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: normalizeTimestamp((data as any).createdAt),
+        updatedAt: normalizeTimestamp((data as any).updatedAt),
+      } as Chamado;
+    });
 };
 
 // Retorna os chamados de um líder específico

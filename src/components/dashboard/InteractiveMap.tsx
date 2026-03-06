@@ -17,12 +17,13 @@ const MapWrapper = dynamic(() => import('./MapWrapper'), {
 interface InteractiveMapProps {
     leaders: AppUser[];
     members?: Member[];
+    centerCity?: string;
 }
 
-export function InteractiveMap({ leaders, members = [] }: InteractiveMapProps) {
+export function InteractiveMap({ leaders, members = [], centerCity }: InteractiveMapProps) {
     return (
         <div className="h-[650px] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-200 isolation-auto">
-            <MapWrapper leaders={leaders} members={members} />
+            <MapWrapper leaders={leaders} members={members} centerCity={centerCity} />
         </div>
     );
 }

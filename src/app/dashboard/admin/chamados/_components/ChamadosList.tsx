@@ -50,13 +50,14 @@ const statusConfig: Record<string, { label: string; className: string }> = {
     fechado: { label: 'Fechado', className: 'bg-slate-100 text-slate-700 border border-slate-200' },
 };
 
-function getRemetente(c: Chamado): string {
+function getRemetente(c: Chamado | null | undefined): string {
+    if (!c) return '—';
     return c.senderName || c.name || c.leaderName || '—';
 }
 
 export function ChamadosList({ chamados }: { chamados: Chamado[] }) {
     const [selected, setSelected] = useState<Chamado | null>(null);
-    const safeList = chamados.filter(Boolean);
+    const safeList = (chamados || []).filter((c): c is Chamado => !!c);
 
     return (
         <>

@@ -2,8 +2,8 @@
 
 import { AppUser } from '@/types/user';
 import { Member } from '@/services/admin/members/getAllMembers';
-import { useState, useCallback, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow, OverlayView } from '@react-google-maps/api';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
 import { Users, FileText, User, X, Phone, MapPin, TrendingUp, ChevronRight } from 'lucide-react';
 import { GOOGLE_MAPS_API_KEY } from '@/lib/maps-config';
@@ -18,6 +18,7 @@ const defaultCenter = {
 interface MapWrapperProps {
     leaders: AppUser[];
     members?: Member[];
+    centerCity?: string; // e.g. "Guarulhos" — triggers geocode + pan
 }
 
 // SVG marker factory — retorna data URL para uso no Google Maps
@@ -40,7 +41,7 @@ const LEADER_SELECTED_ICON = makeSvgMarker('#f59e0b', 42, true); // Gold selecte
 const MEMBER_ICON = makeSvgMarker('#16a34a', 26, false);          // Green member
 const MEMBER_HIGHLIGHT_ICON = makeSvgMarker('#f59e0b', 30, false); // Gold highlighted member
 
-export default function MapWrapper({ leaders, members = [] }: MapWrapperProps) {
+export default function MapWrapper({ leaders, members = [], centerCity }: MapWrapperProps) {
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: GOOGLE_MAPS_API_KEY
@@ -98,6 +99,34 @@ export default function MapWrapper({ leaders, members = [] }: MapWrapperProps) {
         }
         setMap(mapInstance);
     }, [validLeaders, validMembers]);
+
+    // Pan to selected city when it changes
+    const prevCenterCity = useRef<string | undefined>(undefined);
+    useEffect(() => {
+        if (!map || !centerCity || centerCity === 'all') return;
+        if (centerCity === prevCenterCity.current) return;
+        prevCenterCity.current = centerCity;
+
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: `${centerCity}, Brasil` }, (results, status) => {
+            if (status === 'OK' && results && results[0]) {
+                const loc = results[0].geometry.location;
+                map.panTo({ lat: loc.lat(), lng: loc.lng() });
+                map.setZoom(13);
+            }
+        });
+    }, [map, centerCity]);
+
+    // When city resets to 'all', refit all markers
+    useEffect(() => {
+        if (!map || centerCity !== 'all') return;
+        if (validLeaders.length === 0 && validMembers.length === 0) return;
+        const bounds = new window.google.maps.LatLngBounds();
+        validLeaders.forEach(l => bounds.extend({ lat: l.lat!, lng: l.lng! }));
+        validMembers.forEach(m => bounds.extend({ lat: (m as any).lat, lng: (m as any).lng }));
+        map.fitBounds(bounds);
+    }, [map, centerCity, validLeaders, validMembers]);
+
 
     const onUnmount = useCallback(() => setMap(null), []);
 

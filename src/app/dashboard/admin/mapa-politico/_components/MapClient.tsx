@@ -297,7 +297,7 @@ export function MapClient({ leaders, members, cities: allCities }: MapClientProp
             </div>
 
             <div className="flex-1 w-full bg-slate-50 rounded-2xl relative">
-                <InteractiveMap leaders={displayLeaders} members={displayMembers} />
+                <InteractiveMap leaders={displayLeaders} members={displayMembers} centerCity={selectedCity} />
             </div>
         </div>
     );
