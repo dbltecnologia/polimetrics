@@ -19,7 +19,7 @@ export default async function ChamadosPage() {
         title="Chamados / Demandas"
         subtitle="Mensagens enviadas pelos líderes."
       />
-      <ChamadosList chamados={chamados} />
+      <ChamadosList chamados={chamados.filter(Boolean)} />
     </div>
   );
 }

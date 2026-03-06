@@ -56,19 +56,20 @@ function getRemetente(c: Chamado): string {
 
 export function ChamadosList({ chamados }: { chamados: Chamado[] }) {
     const [selected, setSelected] = useState<Chamado | null>(null);
+    const safeList = chamados.filter(Boolean);
 
     return (
         <>
             {/* Mobile */}
             <div className="space-y-3 md:hidden">
-                {chamados.length === 0 && (
+                {safeList.length === 0 && (
                     <Card>
                         <CardContent className="p-4 text-sm text-muted-foreground">
                             Nenhum chamado registrado.
                         </CardContent>
                     </Card>
                 )}
-                {chamados.map((c) => (
+                {safeList.map((c) => (
                     <div
                         key={c.id}
                         className="rounded-xl border border-slate-200 bg-white px-3 py-3 shadow-sm cursor-pointer hover:border-primary/40 transition-colors"
@@ -110,7 +111,7 @@ export function ChamadosList({ chamados }: { chamados: Chamado[] }) {
                         <CardTitle>Chamados</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {chamados.length === 0 ? (
+                        {safeList.length === 0 ? (
                             <p className="text-sm text-muted-foreground">Nenhum chamado registrado.</p>
                         ) : (
                             <Table>
@@ -125,7 +126,7 @@ export function ChamadosList({ chamados }: { chamados: Chamado[] }) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {chamados.map((c) => {
+                                    {safeList.map((c) => {
                                         const sc = statusConfig[c.status || 'aberto'] || statusConfig.aberto;
                                         return (
                                             <TableRow
