@@ -73,8 +73,8 @@ export default async function MemberDetailsPage(props: { params: Promise<{ membe
                         </CardHeader>
                         <CardContent className="grid grid-cols-2 gap-4">
                             <KPICard title="Pontos Totais" value={member.kpis.totalPoints} />
-                            <KPICard title="Última Missão" value={member.kpis.lastMission} />
-                            <KPICard title="Última Ação" value={member.kpis.lastAction} />
+                            <KPICard title="Última Missão" value={member.kpis.lastMission ?? 'Nenhuma'} />
+                            <KPICard title="Última Ação" value={member.kpis.lastAction ?? 'Nenhuma'} />
                             <KPICard title="Status" value={member.kpis.currentStatus} />
                         </CardContent>
                     </Card>
