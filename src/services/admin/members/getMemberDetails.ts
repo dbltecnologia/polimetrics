@@ -35,14 +35,21 @@ export async function getMemberDetails(memberId: string): Promise<MemberDetails 
 
         const [leaderDoc, notesSnapshot, missionsSnapshot, actionsSnapshot] = await Promise.all([
             memberData.leaderId ? firestore.collection('users').doc(memberData.leaderId).get() : Promise.resolve(null),
-            firestore.collection('notes').where('memberId', '==', memberId).orderBy('createdAt', 'desc').get(),
-            firestore.collection('mission_logs').where('memberId', '==', memberId).orderBy('completedAt', 'desc').get(),
-            firestore.collection('community_actions').where('memberId', '==', memberId).orderBy('createdAt', 'desc').get(),
+            // orderBy removed — sort in-memory below to avoid requiring Firestore composite indexes
+            firestore.collection('notes').where('memberId', '==', memberId).get(),
+            firestore.collection('mission_logs').where('memberId', '==', memberId).get(),
+            firestore.collection('community_actions').where('memberId', '==', memberId).get(),
         ]);
 
+        const toDate = (v: any): Date => {
+            if (!v) return new Date(0);
+            if (typeof v.toDate === 'function') return v.toDate();
+            return new Date(v);
+        };
+
         const history: HistoryItem[] = [];
-        notesSnapshot.forEach(doc => history.push({ type: 'Anotação', title: 'Anotação adicionada', date: doc.data().createdAt.toDate().toISOString(), description: doc.data().content }));
-        missionsSnapshot.forEach(doc => history.push({ type: 'Missão', title: `Missão: ${doc.data().missionName || 'Missão Concluída'}`, date: doc.data().completedAt.toDate().toISOString(), description: `+${doc.data().points || 25} pontos` }));
+        notesSnapshot.forEach(doc => history.push({ type: 'Anotação', title: 'Anotação adicionada', date: toDate(doc.data().createdAt).toISOString(), description: doc.data().content || '' }));
+        missionsSnapshot.forEach(doc => history.push({ type: 'Missão', title: `Missão: ${doc.data().missionName || 'Missão Concluída'}`, date: toDate(doc.data().completedAt).toISOString(), description: `+${doc.data().points || 25} pontos` }));
         // As visitas ainda não estão modeladas, então serão adicionadas futuramente
 
         history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -51,8 +58,8 @@ export async function getMemberDetails(memberId: string): Promise<MemberDetails 
 
         const kpis: MemberKPIs = {
             totalPoints: totalPoints,
-            lastMission: missionsSnapshot.docs.length > 0 ? new Date(missionsSnapshot.docs[0].data().completedAt.toDate()).toLocaleDateString() : 'Nenhuma',
-            lastAction: actionsSnapshot.docs.length > 0 ? new Date(actionsSnapshot.docs[0].data().createdAt.toDate()).toLocaleDateString() : 'Nenhuma',
+            lastMission: missionsSnapshot.docs.length > 0 ? toDate(missionsSnapshot.docs.sort((a, b) => toDate(b.data().completedAt).getTime() - toDate(a.data().completedAt).getTime())[0].data().completedAt).toLocaleDateString('pt-BR') : 'Nenhuma',
+            lastAction: actionsSnapshot.docs.length > 0 ? toDate(actionsSnapshot.docs.sort((a, b) => toDate(b.data().createdAt).getTime() - toDate(a.data().createdAt).getTime())[0].data().createdAt).toLocaleDateString('pt-BR') : 'Nenhuma',
             currentStatus: memberData.status || 'potencial',
         };
 
