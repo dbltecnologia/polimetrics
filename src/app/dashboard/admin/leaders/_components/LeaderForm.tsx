@@ -26,27 +26,37 @@ import { CheckCircle2, MessageCircle } from 'lucide-react';
 import { formatCPF, formatPhone } from '@/utils/formatters';
 import { AddressAutocomplete } from '@/components/ui/AddressAutocomplete';
 
-// Schema de validação unificado para criação e edição
-const formSchema = z.object({
-  name: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
-  email: z.string().email({ message: 'Email inválido.' }),
-  phone: z.string().optional(),
-  role: z.enum(['master', 'sub', 'lider', 'leader'], { required_error: 'O tipo de líder é obrigatório.' }),
+// Schema base (campos sempre presentes)
+const baseSchema = z.object({
+  name: z.string().min(2, { message: 'Nome Completo deve ter pelo menos 2 caracteres.' }),
+  email: z.string().email({ message: 'E-mail inválido.' }),
+  phone: z.string().min(10, { message: 'Telefone é obrigatório (mínimo 10 dígitos).' }),
+  role: z.enum(['master', 'sub', 'lider', 'leader'], { required_error: 'Tipo de Líder é obrigatório.' }),
   status: z.enum(['ativo', 'inativo']).default('ativo'),
-  cityId: z.string().optional(),
+  cityId: z.string().min(1, { message: 'Município é obrigatório.' }),
   parentLeaderId: z.string().optional(),
-  birthdate: z.string().optional(),
-  experience: z.string().optional(),
+  birthdate: z.string().min(1, { message: 'Data de Nascimento é obrigatória.' }),
+  experience: z.string().min(2, { message: 'Experiência na política é obrigatória.' }),
   notes: z.string().optional(),
-  password: z.string().optional(), // Opcional, pois só é necessário na criação
-  cpf: z.string().optional(),
-  bairro: z.string().optional(),
+  password: z.string().optional(),
+  cpf: z.string().min(11, { message: 'CPF é obrigatório.' }),
+  bairro: z.string().min(2, { message: 'Bairro / Endereço é obrigatório. Selecione uma sugestão do Google.' }),
   street: z.string().optional(),
-  areaAtuacao: z.string().optional(),
-  influencia: z.enum(['Baixo', 'Médio', 'Alto']).optional(),
+  areaAtuacao: z.string().min(1, { message: 'Área de Atuação é obrigatória.' }),
+  influencia: z.enum(['Baixo', 'Médio', 'Alto'], { required_error: 'Grau de Influência é obrigatório.' }),
   // lat/lng are resolved automatically by geocoding — never shown to users
   lat: z.number().optional(),
   lng: z.number().optional(),
+});
+
+// Schema de criação: exige senha ≥ 6
+const createSchema = baseSchema.extend({
+  password: z.string().min(6, { message: 'Senha é obrigatória e deve ter pelo menos 6 caracteres.' }),
+});
+
+// Schema de edição: senha opcional
+const editSchema = baseSchema.extend({
+  password: z.string().optional(),
 });
 
 interface LeaderFormProps {
@@ -61,6 +71,10 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [createdLeader, setCreatedLeader] = useState<{ name: string; email: string; password?: string } | null>(null);
+
+  // Use the appropriate schema based on editing mode
+  const formSchema = isEditing ? editSchema : createSchema;
+  type FormValues = z.infer<typeof formSchema>;
 
   const ESTADOS_BR = [
     'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO',
@@ -92,6 +106,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onTouched',
     defaultValues: {
       name: leader?.name || '',
       email: leader?.email || '',
@@ -113,6 +128,11 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
       lng: (leader as any)?.lng || undefined,
     },
   });
+
+  const formErrors = form.formState.errors;
+  const errorList = Object.entries(formErrors)
+    .filter(([, err]) => err?.message)
+    .map(([, err]) => err!.message as string);
 
   // Geocoding is now handled automatically: on save via updateLeader/addLeader
   // and via AddressAutocomplete when user selects an address suggestion.
@@ -265,6 +285,19 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl">
+
+        {/* Banner de erros — aparece após tentativa de submit com campos inválidos */}
+        {errorList.length > 0 && (
+          <div className="rounded-lg border border-rose-200 bg-rose-50 p-4">
+            <p className="font-semibold text-rose-700 text-sm mb-2">⚠️ Corrija os seguintes campos antes de salvar:</p>
+            <ul className="list-disc list-inside space-y-1">
+              {errorList.map((msg, i) => (
+                <li key={i} className="text-sm text-rose-600">{msg}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <FormField control={form.control} name="name" render={({ field }) => (
           <FormItem>
             <FormLabel>Nome Completo</FormLabel>
