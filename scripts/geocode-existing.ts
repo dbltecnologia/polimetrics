@@ -5,16 +5,18 @@
  * Uso: npx tsx scripts/geocode-existing.ts
  */
 
-import * as admin from 'firebase-admin';
-import * as serviceAccount from '../service-account.json';
+import { createRequire } from 'module';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 import { GOOGLE_MAPS_API_KEY } from '../src/lib/maps-config';
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-    });
+const require = createRequire(import.meta.url);
+const serviceAccount = require('../firebase-admin.json');
+
+if (!getApps().length) {
+    initializeApp({ credential: cert(serviceAccount) });
 }
-const db = admin.firestore();
+const db = getFirestore();
 
 async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
     if (!address?.trim()) return null;
