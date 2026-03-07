@@ -72,7 +72,8 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
   const [isLoading, setIsLoading] = useState(false);
   const [createdLeader, setCreatedLeader] = useState<{ name: string; email: string; password?: string } | null>(null);
 
-  // Use the appropriate schema based on editing mode
+  // isEditing must be before formSchema
+  const isEditing = !!leader;
   const formSchema = isEditing ? editSchema : createSchema;
   type FormValues = z.infer<typeof formSchema>;
 
@@ -90,7 +91,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
     ? cities.filter(c => c.state === selectedState)
     : cities;
 
-  const isEditing = !!leader;
+  // isEditing declared above (before formSchema)
 
   useEffect(() => {
     const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/) : null;

@@ -31,11 +31,25 @@ async function geocodeAddress(address: string): Promise<{ lat: number; lng: numb
     }
 }
 
+// Cache de cidades para evitar múltiplas leituras ao Firestore
+let citiesCache: Map<string, string> | null = null;
+async function getCityName(cityId: string): Promise<string | null> {
+    if (!citiesCache) {
+        const snap = await db.collection('cities').get();
+        citiesCache = new Map(snap.docs.map(d => [d.id, (d.data().name as string) || '']));
+        console.log(`  📦 Cache de cidades carregado: ${citiesCache.size} cidades`);
+    }
+    return citiesCache.get(cityId) || null;
+}
+
 async function processCollection(collection: string, addressFields: string[]) {
     const snap = await db.collection(collection).get();
+    // Include docs with cityId but no lat too, since we can geocode from city
     const toGeocode = snap.docs.filter(d => {
         const data = d.data();
-        return typeof data.lat !== 'number' && addressFields.some(f => data[f]);
+        return typeof data.lat !== 'number' && (
+            addressFields.some(f => data[f]) || !!data.cityId
+        );
     });
 
     console.log(`\n[${collection}] ${toGeocode.length} documentos sem geolocalização de ${snap.size} total`);
@@ -43,11 +57,18 @@ async function processCollection(collection: string, addressFields: string[]) {
 
     for (const doc of toGeocode) {
         const data = doc.data();
+
+        // Resolve city name from cityId if cityName is missing
+        let resolvedCity: string | null = data.cityName || null;
+        if (!resolvedCity && data.cityId) {
+            resolvedCity = await getCityName(data.cityId);
+        }
+
         // Build the best address string we can
         const parts = [
             data.street || data.rua,
             data.bairro || data.neighborhood,
-            data.cityName,
+            resolvedCity,
             'Brasil',
         ].filter(Boolean);
         const addressStr = parts.join(', ');
@@ -60,7 +81,7 @@ async function processCollection(collection: string, addressFields: string[]) {
             ok++;
         } else {
             // Fallback: try with just city name
-            const cityOnly = [data.cityName, 'Brasil'].filter(Boolean).join(', ');
+            const cityOnly = [resolvedCity, 'Brasil'].filter(Boolean).join(', ');
             const fallback = cityOnly ? await geocodeAddress(cityOnly) : null;
             if (fallback) {
                 await db.collection(collection).doc(doc.id).update({ lat: fallback.lat, lng: fallback.lng });
@@ -83,7 +104,9 @@ async function processCollection(collection: string, addressFields: string[]) {
     console.log('=== Geocoding Retroativo ===');
     console.log('API Key:', GOOGLE_MAPS_API_KEY.slice(0, 10) + '...');
 
+    // users = líderes (role in master/sub/leader/lider)
     await processCollection('users', ['bairro', 'street', 'cityName', 'address']);
+    // members = apoiadores
     await processCollection('members', ['street', 'bairro', 'cityName', 'neighborhood', 'address']);
 
     console.log('\n=== Concluído ===');
