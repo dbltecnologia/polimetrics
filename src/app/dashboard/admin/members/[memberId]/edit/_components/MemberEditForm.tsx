@@ -19,6 +19,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
 import { AppUser } from '@/types/user';
 import { formatPhone } from '@/utils/formatters';
+import { AddressAutocomplete } from '@/components/ui/AddressAutocomplete';
 
 const formSchema = z.object({
     name: z.string().min(2, { message: 'O nome é obrigatório.' }),
@@ -26,6 +27,8 @@ const formSchema = z.object({
     cityId: z.string().optional(),
     bairro: z.string().optional(),
     street: z.string().optional(),
+    lat: z.number().optional(),
+    lng: z.number().optional(),
     votePotential: z.coerce.number().min(0).default(0),
     status: z.enum(['ativo', 'inativo', 'potencial']).default('ativo'),
     leaderId: z.string().optional(),
@@ -67,6 +70,8 @@ export function MemberEditForm({ member, leaders, cities, hideLeaderField = fals
             cityId: member.cityId || '',
             bairro: member.bairro || member.neighborhood || '',
             street: member.street || '',
+            lat: undefined as number | undefined,
+            lng: undefined as number | undefined,
             votePotential: member.votePotential || 0,
             status: (member.status as any) || 'ativo',
             leaderId: member.leaderId || '',
@@ -157,7 +162,19 @@ export function MemberEditForm({ member, leaders, cities, hideLeaderField = fals
                     <FormField control={form.control} name="bairro" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Bairro</FormLabel>
-                            <FormControl><Input placeholder="Ex: Centro, Asa Norte..." {...field} /></FormControl>
+                            <FormControl>
+                                <AddressAutocomplete
+                                    value={field.value || ''}
+                                    placeholder="Bairro ou endereço do apoiador..."
+                                    onSelect={(result) => {
+                                        form.setValue('bairro', result.neighborhood || result.street || result.formatted);
+                                        form.setValue('street', result.street);
+                                        form.setValue('lat', result.lat);
+                                        form.setValue('lng', result.lng);
+                                    }}
+                                />
+                            </FormControl>
+                            <p className="text-xs text-muted-foreground">Selecione uma sugestão para resolver a localização 📍</p>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -165,11 +182,12 @@ export function MemberEditForm({ member, leaders, cities, hideLeaderField = fals
                     <FormField control={form.control} name="street" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Rua / Endereço</FormLabel>
-                            <FormControl><Input placeholder="Ex: Rua das Flores, 123" {...field} /></FormControl>
+                            <FormControl><Input placeholder="Auto-preenchido ao selecionar bairro" {...field} readOnly /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
                 </div>
+
 
                 <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem>

@@ -24,6 +24,7 @@ import { updateLeader } from '@/services/admin/leaders/updateLeader';
 import { createCity } from "@/services/admin/cities/createCity";
 import { CheckCircle2, MessageCircle } from 'lucide-react';
 import { formatCPF, formatPhone } from '@/utils/formatters';
+import { AddressAutocomplete } from '@/components/ui/AddressAutocomplete';
 
 // Schema de validação unificado para criação e edição
 const formSchema = z.object({
@@ -40,10 +41,12 @@ const formSchema = z.object({
   password: z.string().optional(), // Opcional, pois só é necessário na criação
   cpf: z.string().optional(),
   bairro: z.string().optional(),
+  street: z.string().optional(),
   areaAtuacao: z.string().optional(),
   influencia: z.enum(['Baixo', 'Médio', 'Alto']).optional(),
-  lat: z.coerce.number().optional(),
-  lng: z.coerce.number().optional(),
+  // lat/lng are resolved automatically by geocoding — never shown to users
+  lat: z.number().optional(),
+  lng: z.number().optional(),
 });
 
 interface LeaderFormProps {
@@ -103,6 +106,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
       password: '',
       cpf: (leader as any)?.cpf || '',
       bairro: (leader as any)?.bairro || '',
+      street: (leader as any)?.street || '',
       areaAtuacao: (leader as any)?.areaAtuacao || '',
       influencia: (leader as any)?.influencia || undefined,
       lat: (leader as any)?.lat || undefined,
@@ -110,30 +114,8 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
     },
   });
 
-  const handleGeocode = async () => {
-    const bairroValue = form.getValues('bairro');
-    const cityId = form.getValues('cityId');
-    const cityName = cities.find(c => c.id === cityId)?.name || '';
-    const stateName = cities.find(c => c.id === cityId)?.state || 'Brasil';
-    const query = [bairroValue, cityName, stateName, 'Brasil'].filter(Boolean).join(', ');
-    if (!query.trim() || query.trim() === 'Brasil') {
-      toast({ title: 'Preencha o Município ou o Bairro antes de resolver a localização.', variant: 'destructive' });
-      return;
-    }
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`);
-      const data = await res.json();
-      if (data && data.length > 0) {
-        form.setValue('lat', parseFloat(data[0].lat));
-        form.setValue('lng', parseFloat(data[0].lon));
-        toast({ title: '📍 Localização resolvida com sucesso!' });
-      } else {
-        toast({ title: 'Localização não encontrada. Tente preencher o bairro com mais detalhes.', variant: 'destructive' });
-      }
-    } catch (e) {
-      toast({ title: 'Erro ao buscar localização. Verifique sua conexão.', variant: 'destructive' });
-    }
-  };
+  // Geocoding is now handled automatically: on save via updateLeader/addLeader
+  // and via AddressAutocomplete when user selects an address suggestion.
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -172,10 +154,11 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           notes: values.notes || '',
           cpf: values.cpf || '',
           bairro: values.bairro || '',
+          street: values.street || '',
           areaAtuacao: values.areaAtuacao || '',
           influencia: values.influencia || undefined,
-          lat: values.lat,
-          lng: values.lng,
+          // Pass lat/lng if resolved via Places Autocomplete; otherwise updateLeader auto-geocodes
+          ...(values.lat ? { lat: values.lat, lng: values.lng } : {}),
           ...(values.password && values.password.length >= 6 ? { password: values.password } : {}),
         });
       } else {
@@ -197,6 +180,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
         formData.append('password', values.password);
         formData.append('cpf', values.cpf || '');
         formData.append('bairro', values.bairro || '');
+        formData.append('street', (values as any).street || '');
         formData.append('areaAtuacao', values.areaAtuacao || '');
         if (values.influencia) formData.append('influencia', values.influencia);
         if (values.lat !== undefined) formData.append('lat', values.lat.toString());
@@ -451,11 +435,24 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
 
         <FormField control={form.control} name="bairro" render={({ field }) => (
           <FormItem>
-            <FormLabel>Bairro Principal</FormLabel>
-            <FormControl><Input placeholder="Ex: Centro, Cohab..." {...field} /></FormControl>
+            <FormLabel>Bairro Principal / Endereço</FormLabel>
+            <FormControl>
+              <AddressAutocomplete
+                value={field.value || ''}
+                placeholder="Digite o endereço ou bairro do líder..."
+                onSelect={(result) => {
+                  form.setValue('bairro', result.neighborhood || result.street || result.formatted);
+                  form.setValue('street', result.street);
+                  form.setValue('lat', result.lat);
+                  form.setValue('lng', result.lng);
+                }}
+              />
+            </FormControl>
+            <p className="text-xs text-muted-foreground">Selecione uma sugestão para resolver a localização automaticamente 📍</p>
             <FormMessage />
           </FormItem>
         )} />
+
 
         <FormField control={form.control} name="areaAtuacao" render={({ field }) => (
           <FormItem>
@@ -490,32 +487,6 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
             <FormMessage />
           </FormItem>
         )} />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField control={form.control} name="lat" render={({ field }) => (
-            <FormItem>
-              <FormLabel>Latitude (Lat)</FormLabel>
-              <FormControl><Input type="number" step="any" placeholder="-2.5..." {...field} value={field.value ?? ''} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-
-          <FormField control={form.control} name="lng" render={({ field }) => (
-            <FormItem>
-              <FormLabel>Longitude (Lng)</FormLabel>
-              <FormControl><Input type="number" step="any" placeholder="-44.2..." {...field} value={field.value ?? ''} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          className="gap-2 text-sm"
-          onClick={handleGeocode}
-        >
-          📍 Resolver Localização Automaticamente
-        </Button>
 
         <FormField control={form.control} name="notes" render={({ field }) => (
           <FormItem>
