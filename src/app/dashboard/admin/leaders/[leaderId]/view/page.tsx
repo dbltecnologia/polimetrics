@@ -5,6 +5,7 @@ import { getAllMembers } from '@/services/admin/members/getAllMembers';
 import MembersAdminTable from '@/components/admin/members/MembersAdminTable';
 import { CalendarDays, ChevronLeft, Users, Vote } from 'lucide-react';
 import Link from 'next/link';
+import { SendPasswordResetButton } from './_components/SendPasswordResetButton';
 
 export const revalidate = 0;
 
@@ -119,13 +120,18 @@ export default async function ViewLeaderPage({ params }: { params: Promise<{ lea
               </p>
             )}
           </div>
-          <div className="mt-6 flex gap-3">
-            <Link
-              href={`/dashboard/admin/leaders/${leaderId}`}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-[1px] hover:bg-primary/90"
-            >
-              Editar líder
-            </Link>
+          <div className="mt-6 flex flex-col gap-3">
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/dashboard/admin/leaders/${leaderId}`}
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-[1px] hover:bg-primary/90"
+              >
+                Editar líder
+              </Link>
+            </div>
+            {leader.email && (
+              <SendPasswordResetButton email={leader.email} />
+            )}
           </div>
         </section>
 
