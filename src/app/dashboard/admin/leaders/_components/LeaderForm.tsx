@@ -25,6 +25,7 @@ import { createCity } from "@/services/admin/cities/createCity";
 import { CheckCircle2, MessageCircle } from 'lucide-react';
 import { formatCPF, formatPhone } from '@/utils/formatters';
 import { AddressAutocomplete } from '@/components/ui/AddressAutocomplete';
+import { CepInput } from '@/components/ui/CepInput';
 
 // Schema base (campos sempre presentes)
 const baseSchema = z.object({
@@ -467,6 +468,19 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           </FormItem>
         )} />
 
+        {/* CEP — preenche automaticamente bairro e rua */}
+        <div>
+          <label className="text-sm font-medium">CEP <span className="text-muted-foreground font-normal">(opcional — preenche o endereço automaticamente)</span></label>
+          <div className="mt-1.5">
+            <CepInput
+              onResult={(cep) => {
+                if (cep.neighborhood) form.setValue('bairro', cep.neighborhood);
+                if (cep.street) form.setValue('street', cep.street);
+              }}
+            />
+          </div>
+        </div>
+
         <FormField control={form.control} name="bairro" render={({ field }) => (
           <FormItem>
             <FormLabel>Bairro Principal / Endereço</FormLabel>
@@ -482,7 +496,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
                 }}
               />
             </FormControl>
-            <p className="text-xs text-muted-foreground">Selecione uma sugestão para resolver a localização automaticamente 📍</p>
+            <p className="text-xs text-muted-foreground">Ou selecione uma sugestão do Google para resolver a localização automaticamente 📍</p>
             <FormMessage />
           </FormItem>
         )} />

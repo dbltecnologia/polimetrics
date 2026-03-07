@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { AppUser } from '@/types/user';
 import { formatPhone } from '@/utils/formatters';
 import { AddressAutocomplete } from '@/components/ui/AddressAutocomplete';
+import { CepInput } from '@/components/ui/CepInput';
 
 const formSchema = z.object({
     name: z.string().min(2, { message: 'O nome é obrigatório.' }),
@@ -158,6 +159,19 @@ export function MemberEditForm({ member, leaders, cities, hideLeaderField = fals
                     </FormItem>
                 )} />
 
+                {/* CEP */}
+                <div>
+                    <label className="text-sm font-medium">CEP <span className="text-muted-foreground font-normal">(opcional — preenche o endereço automaticamente)</span></label>
+                    <div className="mt-1.5">
+                        <CepInput
+                            onResult={(cep) => {
+                                if (cep.neighborhood) form.setValue('bairro', cep.neighborhood);
+                                if (cep.street) form.setValue('street', cep.street);
+                            }}
+                        />
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField control={form.control} name="bairro" render={({ field }) => (
                         <FormItem>
@@ -174,7 +188,7 @@ export function MemberEditForm({ member, leaders, cities, hideLeaderField = fals
                                     }}
                                 />
                             </FormControl>
-                            <p className="text-xs text-muted-foreground">Selecione uma sugestão para resolver a localização 📍</p>
+                            <p className="text-xs text-muted-foreground">Ou selecione uma sugestão do Google 📍</p>
                             <FormMessage />
                         </FormItem>
                     )} />
