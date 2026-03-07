@@ -18,13 +18,22 @@ if (!getApps().length) {
 }
 const db = getFirestore();
 
-async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+async function geocodeAddress(address: string, cityHint?: string): Promise<{ lat: number; lng: number } | null> {
     if (!address?.trim()) return null;
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}&language=pt-BR&region=BR`;
+    let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}&language=pt-BR&region=BR`;
+
+    if (cityHint?.trim()) {
+        url += `&components=administrative_area_level_2:${encodeURIComponent(cityHint.trim())}|country:BR`;
+    }
+
     try {
         const res = await fetch(url);
         const data = await res.json();
-        if (data.status !== 'OK' || !data.results?.length) return null;
+        if (data.status !== 'OK' || !data.results?.length) {
+            // fallback sem filtro de cidade
+            if (cityHint) return geocodeAddress(address);
+            return null;
+        }
         return data.results[0].geometry?.location ?? null;
     } catch {
         return null;
@@ -42,17 +51,18 @@ async function getCityName(cityId: string): Promise<string | null> {
     return citiesCache.get(cityId) || null;
 }
 
-async function processCollection(collection: string, addressFields: string[]) {
+// force=true re-geocodifica MESMO documentos que já têm lat/lng (corrige coordenadas erradas)
+async function processCollection(collection: string, addressFields: string[], force = false) {
     const snap = await db.collection(collection).get();
-    // Include docs with cityId but no lat too, since we can geocode from city
     const toGeocode = snap.docs.filter(d => {
         const data = d.data();
+        if (force) return addressFields.some(f => data[f]) || !!data.cityId;
         return typeof data.lat !== 'number' && (
             addressFields.some(f => data[f]) || !!data.cityId
         );
     });
 
-    console.log(`\n[${collection}] ${toGeocode.length} documentos sem geolocalização de ${snap.size} total`);
+    console.log(`\n[${collection}] ${toGeocode.length} documentos para geocodificar de ${snap.size} total ${force ? '(forçado)' : ''}`);
     let ok = 0, fail = 0;
 
     for (const doc of toGeocode) {
@@ -73,7 +83,8 @@ async function processCollection(collection: string, addressFields: string[]) {
         ].filter(Boolean);
         const addressStr = parts.join(', ');
 
-        const coords = await geocodeAddress(addressStr);
+        // Pass cityHint to avoid ambiguous geocoding (e.g. Botafogo → Rio instead of Mogi Guaçu)
+        const coords = await geocodeAddress(addressStr, resolvedCity || undefined);
 
         if (coords) {
             await db.collection(collection).doc(doc.id).update({ lat: coords.lat, lng: coords.lng });
@@ -101,13 +112,12 @@ async function processCollection(collection: string, addressFields: string[]) {
 }
 
 (async () => {
-    console.log('=== Geocoding Retroativo ===');
+    console.log('=== Geocoding Retroativo (FORÇADO — corrigindo coordenadas erradas) ===');
     console.log('API Key:', GOOGLE_MAPS_API_KEY.slice(0, 10) + '...');
 
-    // users = líderes (role in master/sub/leader/lider)
-    await processCollection('users', ['bairro', 'street', 'cityName', 'address']);
-    // members = apoiadores
-    await processCollection('members', ['street', 'bairro', 'cityName', 'neighborhood', 'address']);
+    // force=true: re-geocodifica TODOS, incluindo quem já tem lat/lng errado
+    await processCollection('users', ['bairro', 'street', 'cityName', 'address'], true);
+    await processCollection('members', ['street', 'bairro', 'cityName', 'neighborhood', 'address'], true);
 
     console.log('\n=== Concluído ===');
     process.exit(0);

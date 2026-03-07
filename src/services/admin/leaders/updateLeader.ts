@@ -34,9 +34,18 @@ export async function updateLeader(
 
     // Auto-geocode when address fields are present but lat/lng are missing
     let geoUpdate: { lat?: number; lng?: number } = {};
-    const addressParts = [firestoreData.address, firestoreData.bairro, (firestoreData as any).cityName].filter(Boolean);
+    const addressParts = [firestoreData.address, firestoreData.bairro].filter(Boolean);
     if (addressParts.length > 0 && !firestoreData.lat) {
-      const coords = await geocodeAddress(addressParts.join(', ') + ', Brasil');
+      // Resolve city name from cityId to avoid geocoding ambiguity
+      // (e.g. "Botafogo" exists in both Rio de Janeiro AND Mogi Guaçu)
+      let cityHint: string | undefined;
+      const cityIdToUse = firestoreData.cityId || (await firestore.collection('users').doc(id).get()).data()?.cityId;
+      if (cityIdToUse) {
+        const cityDoc = await firestore.collection('cities').doc(cityIdToUse).get();
+        cityHint = cityDoc.data()?.name as string | undefined;
+      }
+      const addressStr = [...addressParts, cityHint, 'Brasil'].filter(Boolean).join(', ');
+      const coords = await geocodeAddress(addressStr, cityHint);
       if (coords) geoUpdate = coords;
     }
 
