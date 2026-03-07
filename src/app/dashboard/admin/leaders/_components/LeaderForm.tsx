@@ -39,7 +39,7 @@ const baseSchema = z.object({
   experience: z.string().min(2, { message: 'Experiência na política é obrigatória.' }),
   notes: z.string().optional(),
   password: z.string().optional(),
-  cpf: z.string().min(11, { message: 'CPF é obrigatório.' }),
+  cpf: z.string().optional(),
   bairro: z.string().min(2, { message: 'Bairro / Endereço é obrigatório. Selecione uma sugestão do Google.' }),
   street: z.string().optional(),
   areaAtuacao: z.string().min(1, { message: 'Área de Atuação é obrigatória.' }),
