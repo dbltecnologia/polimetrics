@@ -44,7 +44,8 @@ const MEMBER_HIGHLIGHT_ICON = makeSvgMarker('#f59e0b', 30, false); // Gold highl
 export default function MapWrapper({ leaders, members = [], centerCity }: MapWrapperProps) {
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
-        googleMapsApiKey: GOOGLE_MAPS_API_KEY
+        googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+        libraries: ['places'],
     });
 
     const [map, setMap] = useState<google.maps.Map | null>(null);

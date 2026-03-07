@@ -27,17 +27,30 @@ export default function LeaderMapPage() {
     const [loading, setLoading] = useState(true);
     const [activeId, setActiveId] = useState<string | null>(null);
 
-    const { isLoaded } = useJsApiLoader({
+    const { isLoaded, loadError } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+        libraries: ['places'],
     });
 
     useEffect(() => {
+        // If userLoading just finished but there's no uid, stop waiting
+        if (!userLoading && !user?.uid) {
+            setLoading(false);
+            return;
+        }
         if (userLoading || !user?.uid) return;
+
+        // Safety timeout: if the fetch never resolves, unblock the spinner
+        const timeout = setTimeout(() => setLoading(false), 10000);
+
         fetch(`/api/leader/dashboard?uid=${user.uid}`)
             .then(r => r.json())
             .then(data => { setDashboardData(data); setLoading(false); })
-            .catch(() => setLoading(false));
+            .catch(() => setLoading(false))
+            .finally(() => clearTimeout(timeout));
+
+        return () => clearTimeout(timeout);
     }, [user, userLoading]);
 
     const leader = dashboardData?.leader;
@@ -69,6 +82,28 @@ export default function LeaderMapPage() {
                 <div className="flex flex-col items-center gap-3">
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                     <p className="text-sm text-muted-foreground">Carregando mapa da rede...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (loadError) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <div className="flex flex-col items-center gap-4 text-center p-6">
+                    <div className="bg-red-50 p-4 rounded-full">
+                        <MapPin className="w-8 h-8 text-red-400" />
+                    </div>
+                    <div>
+                        <p className="font-semibold text-slate-800">Erro ao carregar o mapa</p>
+                        <p className="text-sm text-muted-foreground mt-1">Verifique sua conexão e recarregue a página.</p>
+                    </div>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="text-sm text-primary underline"
+                    >
+                        Tentar novamente
+                    </button>
                 </div>
             </div>
         );
