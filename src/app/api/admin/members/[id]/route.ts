@@ -4,6 +4,19 @@ import { resolveUserRole } from '@/lib/user-role';
 import { firestore } from '@/lib/firebase-admin';
 import { geocodeAddress } from '@/lib/geocode';
 
+/** Resolve o nome da cidade a partir do cityId no Firestore */
+async function resolveCityName(cityId?: string): Promise<string | undefined> {
+    if (!cityId) return undefined;
+    try {
+        const snap = await firestore.collection('cities').doc(cityId).get();
+        if (!snap.exists) return undefined;
+        const data = snap.data();
+        return data?.name ? `${data.name}` : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
 export const dynamic = 'force-dynamic';
 
 const LEADER_ROLES = ['leader', 'lider', 'master', 'sub', 'admin'];
@@ -40,12 +53,19 @@ export async function PATCH(
 
         const body = await request.json();
 
-        // Auto-geocode when address/bairro is being updated and no lat/lng provided
+        // Auto-geocode quando bairro/endereço é atualizado e lat/lng não foi fornecido via autocomplete
         let geoUpdate: { lat?: number; lng?: number } = {};
-        const addressStr = body.bairro || body.address || body.neighborhood;
-        if (addressStr && body.lat === undefined) {
-            const coords = await geocodeAddress(`${addressStr}, Brasil`);
+        const addressStr = body.bairro || body.address || body.neighborhood || body.street;
+        const hasExplicitCoords = body.lat !== undefined && body.lat !== null;
+        if (addressStr && !hasExplicitCoords) {
+            const cityName = await resolveCityName(body.cityId);
+            const query = cityName
+                ? `${addressStr}, ${cityName}, Brasil`
+                : `${addressStr}, Brasil`;
+            const coords = await geocodeAddress(query, cityName);
             if (coords) geoUpdate = coords;
+        } else if (hasExplicitCoords) {
+            geoUpdate = { lat: body.lat, lng: body.lng };
         }
 
         const memberRef = firestore.collection('members').doc(memberId);
