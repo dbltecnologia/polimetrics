@@ -8,7 +8,7 @@ export interface Member {
     id: string;
     name: string;
     phone: string | null;
-    address: string; // Combinação de rua, cidade, estado
+    address: string;
     leaderName: string;
     status: 'ativo' | 'inativo' | 'potencial';
     leaderId: string | null;
@@ -16,7 +16,10 @@ export interface Member {
     cityName?: string | null;
     votePotential?: number;
     neighborhood?: string | null;
+    bairro?: string | null;
     street?: string | null;
+    lat?: number | null;
+    lng?: number | null;
 }
 
 function chunkArray<T>(items: T[], size: number) {
@@ -81,7 +84,11 @@ export async function getAllMembers(): Promise<Member[]> {
                 cityName: cityId ? (cityById.get(cityId) || null) : null,
                 votePotential,
                 neighborhood: data.neighborhood || data.bairro || null,
+                bairro: data.bairro || data.neighborhood || null,
                 street: data.street || data.rua || null,
+                // Geolocation — populated by geocoding on save
+                lat: typeof data.lat === 'number' ? data.lat : null,
+                lng: typeof data.lng === 'number' ? data.lng : null,
             } as Member;
         });
 

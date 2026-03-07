@@ -6,8 +6,11 @@ export interface Member {
   name: string;
   email?: string;
   whatsapp?: string;
+  phone?: string;
   cep?: string;
   address?: string;
+  street?: string;
+  neighborhood?: string;
   birthdate?: string;
   experience: string;
   votePotential: number;
@@ -18,4 +21,7 @@ export interface Member {
   instagram?: string;
   facebook?: string;
   createdAt: Timestamp;
+  // Geolocation — populated by geocoding on save (never entered manually)
+  lat?: number | null;
+  lng?: number | null;
 }
