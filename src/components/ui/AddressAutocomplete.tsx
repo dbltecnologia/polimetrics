@@ -97,19 +97,36 @@ export function AddressAutocomplete({
             autocompleteRef.current = ac;
         };
 
-        // If Google Maps is already loaded, initialize immediately
-        if (window.google?.maps?.places) {
-            initAutocomplete();
-        } else {
-            // Poll until the Maps script loads (it's loaded by MapWrapper via @react-google-maps/api)
-            const timer = setInterval(() => {
-                if (window.google?.maps?.places) {
-                    clearInterval(timer);
-                    initAutocomplete();
-                }
-            }, 300);
-            return () => clearInterval(timer);
-        }
+        const loadMapsAndInit = () => {
+            // Already loaded — just init
+            if (window.google?.maps?.places) {
+                initAutocomplete();
+                return;
+            }
+
+            // Script tag already injected? Wait for it via polling
+            const existing = document.getElementById('google-maps-places-script');
+            if (existing) {
+                const poll = setInterval(() => {
+                    if (window.google?.maps?.places) {
+                        clearInterval(poll);
+                        initAutocomplete();
+                    }
+                }, 200);
+                return;
+            }
+
+            // Inject the script ourselves (self-contained)
+            const script = document.createElement('script');
+            script.id = 'google-maps-places-script';
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&language=pt-BR`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => initAutocomplete();
+            document.head.appendChild(script);
+        };
+
+        loadMapsAndInit();
     }, [country, onSelect]);
 
     const iconMap = {
