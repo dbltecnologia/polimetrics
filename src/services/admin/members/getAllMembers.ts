@@ -43,7 +43,7 @@ export async function getAllMembers(): Promise<Member[]> {
         if (!snapshot || snapshot.empty) return [];
 
         const cities = await getAllCities().catch(() => []);
-        const cityById = new Map(cities.map(c => [c.id, `${c.name} - ${c.state}`]));
+        const cityById = new Map(cities.map(c => [c.id, c.name]));
 
         const leaderIds = [...new Set(snapshot.docs.map(doc => (doc.data() as any).leaderId).filter(Boolean))] as string[];
         const leaders: Record<string, string> = {};

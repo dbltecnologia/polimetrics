@@ -130,17 +130,18 @@ export function MapClient({ leaders, members, cities: allCities }: MapClientProp
         return stateCities.map(c => c.name).filter(Boolean).sort();
     }, [allCities, userState]);
 
-    // Neighborhoods: predefined defaults + real data from leaders/members + custom
+    // Neighborhoods: ONLY real data from leaders/members (no predefined lists)
     const availableNeighborhoods = useMemo(() => {
         const set = new Set<string>();
 
-        // 1. Predefined defaults for user's state
-        const defaults = DEFAULT_NEIGHBORHOODS[userState] || [];
-        defaults.forEach(n => set.add(n));
-
-        // 2. Real data from leaders/members (filtered by selected city if applicable)
-        const filteredLeaders = selectedCity === 'all' ? leaders : leaders.filter(l => (l as any).cityName === selectedCity);
-        const filteredMembers = selectedCity === 'all' ? members : members.filter(m => (m as any).cityName === selectedCity);
+        // Real data from leaders/members (filtered by selected city if applicable)
+        const norm = (v: string) => v.trim().toLowerCase();
+        const filteredLeaders = selectedCity === 'all'
+            ? leaders
+            : leaders.filter(l => norm((l as any).cityName || '') === norm(selectedCity));
+        const filteredMembers = selectedCity === 'all'
+            ? members
+            : members.filter(m => norm((m as any).cityName || '') === norm(selectedCity));
 
         filteredLeaders.forEach(l => {
             if ((l as any).bairro) set.add((l as any).bairro);
@@ -151,11 +152,11 @@ export function MapClient({ leaders, members, cities: allCities }: MapClientProp
             if ((m as any).bairro) set.add((m as any).bairro);
         });
 
-        // 3. User custom additions
+        // User custom additions
         customNeighborhoods.forEach(n => set.add(n));
 
         return Array.from(set).filter(Boolean).sort();
-    }, [leaders, members, selectedCity, userState, customNeighborhoods]);
+    }, [leaders, members, selectedCity, customNeighborhoods]);
 
     const handleAddNeighborhood = () => {
         const trimmed = newNeighborhood.trim();
@@ -172,12 +173,22 @@ export function MapClient({ leaders, members, cities: allCities }: MapClientProp
     let mappedMembers = members.filter(m => typeof (m as any).lat === 'number' && typeof (m as any).lng === 'number');
 
     if (selectedCity !== 'all') {
-        mappedLeaders = mappedLeaders.filter(l => (l as any).cityName === selectedCity);
-        mappedMembers = mappedMembers.filter(m => (m as any).cityName === selectedCity);
+        const normCity = selectedCity.trim().toLowerCase();
+        mappedLeaders = mappedLeaders.filter(l => ((l as any).cityName || '').trim().toLowerCase() === normCity);
+        mappedMembers = mappedMembers.filter(m => ((m as any).cityName || '').trim().toLowerCase() === normCity);
     }
     if (selectedNeighborhood !== 'all') {
-        mappedLeaders = mappedLeaders.filter(l => ((l as any).bairro === selectedNeighborhood || (l as any).neighborhood === selectedNeighborhood));
-        mappedMembers = mappedMembers.filter(m => ((m as any).neighborhood === selectedNeighborhood || (m as any).bairro === selectedNeighborhood));
+        const normHood = selectedNeighborhood.trim().toLowerCase();
+        mappedLeaders = mappedLeaders.filter(l => {
+            const b = ((l as any).bairro || '').trim().toLowerCase();
+            const n = ((l as any).neighborhood || '').trim().toLowerCase();
+            return b === normHood || n === normHood;
+        });
+        mappedMembers = mappedMembers.filter(m => {
+            const b = ((m as any).bairro || '').trim().toLowerCase();
+            const n = ((m as any).neighborhood || '').trim().toLowerCase();
+            return b === normHood || n === normHood;
+        });
     }
 
     const displayLeaders = filterType === 'all' || filterType === 'leaders' ? mappedLeaders : [];

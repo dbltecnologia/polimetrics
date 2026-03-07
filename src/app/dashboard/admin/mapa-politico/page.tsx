@@ -13,7 +13,7 @@ export default async function MapaPoliticoPage() {
         getAllCities()
     ]);
 
-    const cityById = new Map(cities.map(c => [c.id, `${c.name} - ${c.state}`]));
+    const cityById = new Map(cities.map(c => [c.id, c.name]));
 
     const leaders = rawLeaders.map(leader => ({
         ...leader,
