@@ -58,7 +58,7 @@ export function CityDeleteAction({ cityId, cityName }: { cityId: string; cityNam
                     <span className="sr-only">Excluir</span>
                 </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="mx-4 max-w-md w-[calc(100%-2rem)] sm:mx-auto sm:w-full">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Excluir Cidade?</AlertDialogTitle>
                     <AlertDialogDescription>

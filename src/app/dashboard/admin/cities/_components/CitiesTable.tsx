@@ -140,12 +140,12 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
             };
 
             return (
-              <Link
+              <div
                 key={city.id}
-                href={`/dashboard/admin/cities/${city.id}`}
-                className="block">
-
-                <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+                className="block cursor-pointer"
+                onClick={() => router.push(`/dashboard/admin/cities/${city.id}`)}
+              >
+                <Card className="hover:border-primary/50 transition-colors">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">{city.name} - {city.state}</CardTitle>
@@ -154,7 +154,7 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
                           type="button"
                           aria-label="Editar cidade"
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/dashboard/admin/cities/${city.id}`); }}
+                          onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/admin/cities/${city.id}`); }}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                           <span className="sr-only">Editar</span>
@@ -183,14 +183,13 @@ export function CitiesTable({ cities, overview }: CitiesTableProps) {
                     <div className="col-span-2 rounded-xl border bg-muted/30 p-3">
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Demandas</p>
                       <p className="mt-1 text-sm">
-                        <span className="font-semibold">{stats.demandasAbertas}</span> abertas ·{" "}
+                        <span className="font-semibold">{stats.demandasAbertas}</span> abertas &middot;{" "}
                         <span className="font-semibold">{stats.demandasTotal}</span> total
                       </p>
                     </div>
                   </CardContent>
                 </Card>
-
-              </Link>
+              </div>
             );
           })}
         </div>
