@@ -10,7 +10,7 @@ interface CreateCityData {
   longitude: number;
 }
 
-export async function createCity(data: CreateCityData): Promise<{ success: boolean; message: string }> {
+export async function createCity(data: CreateCityData): Promise<{ success: boolean; message: string; cityId?: string }> {
   const { name, state, latitude, longitude } = data;
 
   if (!name || !state || latitude === undefined || longitude === undefined) {
@@ -19,7 +19,7 @@ export async function createCity(data: CreateCityData): Promise<{ success: boole
 
   try {
     const newCityRef = firestore.collection('cities').doc();
-    
+
     await newCityRef.set({
       name,
       state,
@@ -30,10 +30,11 @@ export async function createCity(data: CreateCityData): Promise<{ success: boole
 
     revalidatePath('/dashboard/admin/cities');
 
-    return { success: true, message: 'Cidade criada com sucesso.' };
+    return { success: true, message: 'Cidade criada com sucesso.', cityId: newCityRef.id };
 
   } catch (error: any) {
     console.error("Erro ao criar nova cidade:", error);
     return { success: false, message: error.message || 'Falha ao criar a cidade.' };
   }
 }
+

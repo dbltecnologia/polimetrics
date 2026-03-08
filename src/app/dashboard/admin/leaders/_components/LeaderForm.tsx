@@ -153,11 +153,12 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
           longitude: values.lng || 0
         });
 
-        // Em um cenário real, o ideal seria o createCity retornar a ID para nós
-        // Como o backend atual não devolve a ID inserida, precisaremos de um workaround.
-        // Se a ID não for estritamente vazia no backend, podemos setar vazia ou depender de recarga.
-        toast({ title: "Cidade criada (será vinculada na próxima recarga ou se o backend suportar text match)" });
-        finalCityId = ''; // Ajuste no backend se a ID for rigorosamente exigida
+        if (!cityResult.success || !cityResult.cityId) {
+          throw new Error(cityResult.message || 'Falha ao criar o município.');
+        }
+
+        finalCityId = cityResult.cityId;
+        toast({ title: `Município "${newCityName}" criado e vinculado!` });
       }
 
       let result;
