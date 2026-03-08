@@ -1,11 +1,11 @@
 // Arquivo de configuração central para o Firebase
+// Projeto: polimetrics (cliente)
 export const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDej98FTdiwS8EKjytVnbPqCs-nP1CC9Og",
-  authDomain: "antoniofilho-ef6a2.firebaseapp.com",
-  databaseURL: "https://antoniofilho-ef6a2-default-rtdb.firebaseio.com",
-  projectId: "antoniofilho-ef6a2",
-  storageBucket: "antoniofilho-ef6a2.appspot.com",
-  messagingSenderId: "637424531884",
-  appId: "1:637424531884:web:7d4a895452c6faf9516209",
-  measurementId: "G-4WV3FP1MPY"
+  apiKey: "AIzaSyDx1cfLzmuI9GTw14TKia6VeSQP59Repyc",
+  authDomain: "polimetrics.firebaseapp.com",
+  projectId: "polimetrics",
+  storageBucket: "polimetrics.firebasestorage.app",
+  messagingSenderId: "75089387641",
+  appId: "1:75089387641:web:29cf6ed78bb335cb10b4a8",
+  measurementId: "G-KEF5MW7G7W"
 };
