@@ -6,16 +6,28 @@ import { useUser } from '@/contexts/UserContext';
 import { AddMemberForm } from '@/components/forms/AddMemberForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Vote, Phone, MapPin, Download, Trash2, Pencil } from 'lucide-react';
+import { Users, Vote, Phone, MapPin, Download, Trash2, Pencil, Loader2 } from 'lucide-react';
 import { LeaderOnboardingWizard } from '@/components/leader/LeaderOnboardingWizard';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function LeaderPanelPage() {
   const { user, loading: sessionLoading } = useSession();
   const { user: profile, loading: profileLoading } = useUser();
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loadingConfig, setLoadingConfig] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   const fetchDashboardData = async () => {
@@ -74,16 +86,23 @@ export default function LeaderPanelPage() {
   };
 
 
-  const handleDeleteMember = async (memberId: string, memberName: string) => {
-    if (!confirm(`Tem certeza que deseja excluir o apoiador "${memberName}"? Esta ação é irreversível.`)) return;
+  const handleDeleteMember = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/members/${memberId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Erro ao excluir');
-      toast({ title: 'Apoiador excluído com sucesso.' });
+      setIsDeleting(true);
+      const res = await fetch(`/api/admin/members/${deleteTarget.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Erro ao excluir');
+      }
+      toast({ title: `"${deleteTarget.name}" removido com sucesso.` });
+      setDeleteTarget(null);
       fetchDashboardData();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao excluir membro:', err);
-      toast({ title: 'Erro ao excluir apoiador.', variant: 'destructive' });
+      toast({ title: 'Erro ao excluir apoiador.', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -104,144 +123,168 @@ export default function LeaderPanelPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-2 md:p-6 max-w-7xl mx-auto">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">Minha Rede</h1>
-        <p className="text-muted-foreground">
-          Gerencie seus apoiadores, adicione novos integrantes e acompanhe seu alcance.
-        </p>
-      </div>
+    <>
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Apoiador?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir <strong>{deleteTarget?.name}</strong>?<br /><br />
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteMember}
+              disabled={isDeleting}
+              className="bg-rose-600 hover:bg-rose-700"
+            >
+              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Confirmar Exclusão
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <div className="flex flex-col gap-6 px-3 py-4 md:p-6 max-w-7xl mx-auto">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-bold tracking-tight">Minha Rede</h1>
+          <p className="text-muted-foreground">
+            Gerencie seus apoiadores, adicione novos integrantes e acompanhe seu alcance.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Apoiadores
-            </CardTitle>
-            <Users className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{members.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Na sua base
-            </p>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total de Apoiadores
+              </CardTitle>
+              <Users className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{members.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Na sua base
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Potencial de Votos
-            </CardTitle>
-            <Vote className="h-4 w-4 text-emerald-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-700">
-              {totalVotePotential.toLocaleString('pt-BR')}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Estimativa acumulada
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Potencial de Votos
+              </CardTitle>
+              <Vote className="h-4 w-4 text-emerald-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-emerald-700">
+                {totalVotePotential.toLocaleString('pt-BR')}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Estimativa acumulada
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Formulário de Adição */}
-        {isLeader && profile?.leader?.cityId && (
-          <div className="lg:col-span-1 space-y-4">
-            <Card className="shadow-sm border-primary/20 bg-primary/5">
-              <CardHeader className="pb-3 border-b border-primary/10">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
-                  Novo Apoiador
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <AddMemberForm
-                  leaderId={profile.leader.id}
-                  cityId={profile.leader.cityId}
-                  onSuccess={fetchDashboardData}
-                />
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Lista de Membros */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              Apoiadores Cadastrados
-              <span className="text-sm font-normal text-muted-foreground bg-slate-100 px-2 rounded-full">
-                {members.length} {members.length === 1 ? 'registro' : 'registros'}
-              </span>
-            </h2>
-            {members.length > 0 && (
-              <Button variant="outline" size="sm" onClick={exportToCSV} className="text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800">
-                <Download className="w-4 h-4 mr-2" />
-                Exportar Base CSV
-              </Button>
-            )}
-          </div>
-
-          {members.length === 0 ? (
-            <Card className="border-dashed bg-slate-50">
-              <CardContent className="flex flex-col items-center justify-center p-10 text-center text-muted-foreground">
-                <Users className="h-10 w-10 text-slate-300 mb-3" />
-                <p>Nenhum apoiador adicionado ainda.</p>
-                <p className="text-sm">Preencha o formulário ao lado para começar a montar sua rede.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {members.map((member: any) => (
-                <div key={member.id} className="rounded-lg border bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-slate-800 line-clamp-1 pr-2">{member.name}</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${member.status === 'ativo' ? 'bg-emerald-100 text-emerald-800' :
-                        member.status === 'inativo' ? 'bg-rose-100 text-rose-800' :
-                          'bg-amber-100 text-amber-800'
-                        }`}>
-                        {member.status || 'Potencial'}
-                      </span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-primary" asChild title="Editar Apoiador">
-                        <Link href={`/dashboard/leader-panel/edit/${member.id}`}>
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Link>
-                      </Button>
-                      <button
-                        onClick={() => handleDeleteMember(member.id, member.name)}
-                        className="text-slate-400 hover:text-rose-600 transition-colors"
-                        title="Excluir Apoiador"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1 mt-3">
-                    <div className="flex items-center text-xs text-slate-500 gap-2">
-                      <Phone className="h-3 w-3" />
-                      {member.phone || 'Sem telefone'}
-                    </div>
-                    {member.cityName && (
-                      <div className="flex items-center text-xs text-slate-500 gap-2">
-                        <MapPin className="h-3 w-3" />
-                        <span className="line-clamp-1">{member.cityName}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center text-xs font-medium text-emerald-600 gap-2 mt-2 bg-emerald-50 rounded p-1">
-                      <Vote className="h-3 w-3" />
-                      {member.votePotential || 0} votos
-                    </div>
-                  </div>
-                </div>
-              ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Formulário de Adição */}
+          {isLeader && profile?.leader?.cityId && (
+            <div className="lg:col-span-1 space-y-4">
+              <Card className="shadow-sm border-primary/20 bg-primary/5">
+                <CardHeader className="pb-3 border-b border-primary/10">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Users className="h-5 w-5 text-primary" />
+                    Novo Apoiador
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <AddMemberForm
+                    leaderId={profile.leader.id}
+                    cityId={profile.leader.cityId}
+                    onSuccess={fetchDashboardData}
+                  />
+                </CardContent>
+              </Card>
             </div>
           )}
+
+          {/* Lista de Membros */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                Apoiadores Cadastrados
+                <span className="text-sm font-normal text-muted-foreground bg-slate-100 px-2 rounded-full">
+                  {members.length} {members.length === 1 ? 'registro' : 'registros'}
+                </span>
+              </h2>
+              {members.length > 0 && (
+                <Button variant="outline" size="sm" onClick={exportToCSV} className="text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800">
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar Base CSV
+                </Button>
+              )}
+            </div>
+
+            {members.length === 0 ? (
+              <Card className="border-dashed bg-slate-50">
+                <CardContent className="flex flex-col items-center justify-center p-10 text-center text-muted-foreground">
+                  <Users className="h-10 w-10 text-slate-300 mb-3" />
+                  <p>Nenhum apoiador adicionado ainda.</p>
+                  <p className="text-sm">Preencha o formulário ao lado para começar a montar sua rede.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {members.map((member: any) => (
+                  <div key={member.id} className="rounded-lg border bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="font-semibold text-slate-800 line-clamp-1 pr-2">{member.name}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${member.status === 'ativo' ? 'bg-emerald-100 text-emerald-800' :
+                          member.status === 'inativo' ? 'bg-rose-100 text-rose-800' :
+                            'bg-amber-100 text-amber-800'
+                          }`}>
+                          {member.status || 'Potencial'}
+                        </span>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-primary" asChild title="Editar Apoiador">
+                          <Link href={`/dashboard/leader-panel/edit/${member.id}`}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Link>
+                        </Button>
+                        <button
+                          onClick={() => setDeleteTarget({ id: member.id, name: member.name })}
+                          className="text-slate-400 hover:text-rose-600 transition-colors"
+                          title="Excluir Apoiador"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-1 mt-3">
+                      <div className="flex items-center text-xs text-slate-500 gap-2">
+                        <Phone className="h-3 w-3" />
+                        {member.phone || 'Sem telefone'}
+                      </div>
+                      {member.cityName && (
+                        <div className="flex items-center text-xs text-slate-500 gap-2">
+                          <MapPin className="h-3 w-3" />
+                          <span className="line-clamp-1">{member.cityName}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center text-xs font-medium text-emerald-600 gap-2 mt-2 bg-emerald-50 rounded p-1">
+                        <Vote className="h-3 w-3" />
+                        {member.votePotential || 0} votos
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
