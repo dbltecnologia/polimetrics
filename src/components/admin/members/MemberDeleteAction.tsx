@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
 
-export function MemberDeleteAction({ memberId, memberName }: { memberId: string; memberName: string }) {
+export function MemberDeleteAction({ memberId, memberName, onDelete }: { memberId: string; memberName: string; onDelete?: () => void }) {
     const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
@@ -39,7 +39,11 @@ export function MemberDeleteAction({ memberId, memberName }: { memberId: string;
                 description: `"${memberName}" foi removido com sucesso.`,
             });
 
-            router.refresh();
+            if (onDelete) {
+                onDelete();
+            } else {
+                router.refresh();
+            }
         } catch (error: any) {
             toast({
                 variant: 'destructive',

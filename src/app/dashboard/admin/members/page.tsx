@@ -34,22 +34,23 @@ export default function AdminMembersPage() {
   const [selectedSub, setSelectedSub] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      try {
-        const [membersData, leadersData] = await Promise.all([
-          getAllMembers(),
-          getLeaders(),
-        ]);
-        setAllMembers(membersData);
-        setAllLeaders(leadersData);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setIsLoading(false);
-      }
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [membersData, leadersData] = await Promise.all([
+        getAllMembers(),
+        getLeaders(),
+      ]);
+      setAllMembers(membersData);
+      setAllLeaders(leadersData);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -333,7 +334,7 @@ export default function AdminMembersPage() {
       </div>
 
       {/* Lista mobile */}
-      <div className="mt-3 space-y-3 md:hidden">
+      <div className="mt-3 space-y-3 md:hidden px-1">
         {filteredMembers.map((member) => (
           <div
             key={member.id}
@@ -380,7 +381,7 @@ export default function AdminMembersPage() {
                   <span className="sr-only">Editar</span>
                 </Link>
               </Button>
-              <MemberDeleteAction memberId={member.id} memberName={member.name || 'Membro'} />
+              <MemberDeleteAction memberId={member.id} memberName={member.name || 'Membro'} onDelete={fetchData} />
             </div>
           </div>
         ))}

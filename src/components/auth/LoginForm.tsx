@@ -19,7 +19,7 @@ import Link from "next/link";
 import { signInWithEmailAndPassword, UserCredential } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { normalizeRole } from "@/lib/role-utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 const STATES = [
@@ -50,10 +50,20 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter(); // Instancia o router
 
+  const savedState = typeof window !== 'undefined'
+    ? (localStorage.getItem('polimetrics_last_state') || 'SP')
+    : 'SP';
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { email: "", password: "", state: "" },
+    defaultValues: { email: "", password: "", state: savedState },
   });
+
+  // Sincroniza o select com o valor do localStorage ao montar
+  useEffect(() => {
+    const stored = localStorage.getItem('polimetrics_last_state') || 'SP';
+    form.setValue('state', stored);
+  }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null);
@@ -153,7 +163,13 @@ export function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-blue-600">Estado de Atuação</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={(val) => {
+                  field.onChange(val);
+                  localStorage.setItem('polimetrics_last_state', val);
+                }}
+                value={field.value}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione seu estado" />
