@@ -21,6 +21,7 @@ import { useSession } from '@/context/session-context';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
+import { CepInput } from '@/components/ui/CepInput';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
@@ -216,21 +217,20 @@ export function AddMemberForm({ leaderId, cityId, onSuccess }: AddMemberFormProp
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="cep"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CEP (opcional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="65000-000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* CEP com busca automática ViaCEP */}
+        <div>
+          <label className="text-sm font-medium">CEP <span className="text-muted-foreground font-normal text-xs">(opcional — preenche bairro e endereço)</span></label>
+          <div className="mt-1.5">
+            <CepInput
+              onResult={(cep) => {
+                if (cep.neighborhood) form.setValue('bairro', cep.neighborhood);
+                if (cep.street) form.setValue('address', cep.street);
+              }}
+            />
+          </div>
+        </div>
 
+        <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="bairro"

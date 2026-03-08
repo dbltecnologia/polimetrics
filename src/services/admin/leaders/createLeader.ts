@@ -2,6 +2,7 @@
 
 import { auth, firestore } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
+import { geocodeAddress } from '@/lib/geocode';
 
 // Basic validation, can be improved with Zod
 const validateInput = (name: string, email: string, phone: string) => {
@@ -31,8 +32,24 @@ export async function addLeader(formData: FormData) {
     const influencia = (formData.get('influencia') as string) || null;
     const latStr = formData.get('lat') as string;
     const lngStr = formData.get('lng') as string;
-    const lat = latStr ? parseFloat(latStr) : null;
-    const lng = lngStr ? parseFloat(lngStr) : null;
+    let lat = latStr ? parseFloat(latStr) : null;
+    let lng = lngStr ? parseFloat(lngStr) : null;
+
+    // Se lat/lng não foi resolvido via autocomplete, geocodifica pelo bairro + cidade
+    if (!lat && bairro) {
+        try {
+            let cityName: string | undefined;
+            if (cityId) {
+                const citySnap = await firestore.collection('cities').doc(cityId).get();
+                if (citySnap.exists) cityName = citySnap.data()?.name;
+            }
+            const query = cityName ? `${bairro}, ${cityName}, Brasil` : `${bairro}, Brasil`;
+            const coords = await geocodeAddress(query, cityName);
+            if (coords) { lat = coords.lat; lng = coords.lng; }
+        } catch (geoErr) {
+            console.warn('[createLeader] Geocoding falhou (não bloqueia o cadastro):', geoErr);
+        }
+    }
 
     try {
         validateInput(name, email, phone);
