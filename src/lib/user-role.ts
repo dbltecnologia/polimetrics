@@ -30,7 +30,7 @@ export async function resolveUserRole({
   const docRole = (userData?.role as string | undefined)?.toLowerCase();
 
   const adminRoles = ['admin'];
-  const leaderRoles = ['leader', 'master', 'sub'];
+  const leaderRoles = ['leader', 'lider', 'master', 'sub'];
 
   const isAdmin =
     adminRoles.includes(rawClaimRole || '') ||
@@ -51,9 +51,9 @@ export async function resolveUserRole({
 
   const leaderSummary = leaderDoc.exists
     ? {
-        id: leaderDoc.id,
-        cityId: leaderData?.cityId as string | undefined,
-      }
+      id: leaderDoc.id,
+      cityId: leaderData?.cityId as string | undefined,
+    }
     : undefined;
 
   if (role === 'blocked') {
