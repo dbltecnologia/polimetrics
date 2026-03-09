@@ -8,7 +8,7 @@ export async function POST(
     { params }: { params: { leaderId: string } }
 ) {
     try {
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const sessionCookie = cookieStore.get('session')?.value;
         if (!sessionCookie) {
             return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
