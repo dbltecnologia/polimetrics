@@ -1,12 +1,11 @@
 
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase-admin';
+import { auth, firestore } from '@/lib/firebase-admin';
 import { resolveUserRole } from '@/lib/user-role';
 
 // Function to handle POST requests for user login.
 export async function POST(request: Request) {
   try {
-    // 1. Extract the ID token and selected state from the request body.
     const body = await request.json();
     const idToken = body.idToken;
     const selectedState = body.state as string | undefined;
@@ -15,25 +14,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'ID token not provided.' }, { status: 400 });
     }
 
-    // 2. Verify the ID token using the Firebase Admin SDK.
+    // 1. Verify the ID token using the Firebase Admin SDK.
     const decodedToken = await auth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
+
+    // 2. Check if the user's status is pending_verification
+    const userDoc = await firestore.collection('users').doc(uid).get();
+    const userStatus = userDoc.exists ? userDoc.data()?.status : undefined;
+
+    if (userStatus === 'pending_verification') {
+      return NextResponse.json(
+        { error: 'Sua conta está aguardando aprovação do administrador. Tente novamente em breve.' },
+        { status: 403 }
+      );
+    }
+
     const { role, name, leader } = await resolveUserRole({
       uid,
       customClaims: decodedToken.claims,
       fallbackName: decodedToken.name || '',
     });
 
-    // 4. Create a session cookie.
+    // 3. Create a session cookie.
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
 
-    // 5. Set the session cookie in the response headers.
+    // 4. Set the session cookie in the response headers.
     const isProduction = process.env.NODE_ENV === 'production';
     const options = {
       name: 'session',
       value: sessionCookie,
-      maxAge: expiresIn / 1000, // Next.js cookies expect maxAge in seconds
+      maxAge: expiresIn / 1000,
       httpOnly: true,
       secure: isProduction,
       sameSite: (isProduction ? 'none' : 'lax') as "lax" | "none" | "strict",
@@ -43,13 +54,13 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ status: 'success', role, name, leader }, { status: 200 });
     response.cookies.set(options);
 
-    // 6. Set the selected state cookie for server-side filtering
+    // 5. Set the selected state cookie for server-side filtering
     if (selectedState) {
       response.cookies.set({
         name: 'polimetrics_state',
         value: selectedState,
-        maxAge: expiresIn / 1000, // Next.js cookies expect maxAge in seconds
-        httpOnly: false, // readable by client too for display purposes
+        maxAge: expiresIn / 1000,
+        httpOnly: false,
         secure: isProduction,
         sameSite: (isProduction ? 'none' : 'lax') as "lax" | "none" | "strict",
         path: '/',

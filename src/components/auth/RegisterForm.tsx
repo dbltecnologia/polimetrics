@@ -57,38 +57,22 @@ export function RegisterForm() {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
-      // Role is now hardcoded to 'lider'
       await setDoc(doc(db, "users", user.uid), {
         name: values.name,
         email: values.email,
-        role: 'lider', // Hardcoded role
-        state: values.state, // Save state for filtering
+        role: 'lider',
+        state: values.state,
         createdAt: new Date(),
         totalPoints: 0,
-        status: 'ativo',
+        status: 'pending_verification', // aguarda aprovação do admin
       });
 
-      const idToken = await user.getIdToken();
-
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ idToken, state: values.state }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha ao criar a sessão no servidor após o registro.');
-      }
-
-      router.push('/dashboard/leader-panel');
+      // Não faz login — redireciona para tela de aguardo
+      router.push('/pending');
 
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
         setError("Este e-mail já está em uso.");
-      } else if (err.message === 'Falha ao criar a sessão no servidor após o registro.') {
-        setError("Sua conta foi criada, mas houve um erro ao iniciar sua sessão. Por favor, tente fazer login.");
       } else {
         setError("Ocorreu um erro ao criar a conta. Tente novamente.");
       }

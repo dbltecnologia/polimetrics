@@ -4,6 +4,7 @@ import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from './columns';
 import { LeaderDeleteAction } from './_components/LeaderDeleteAction';
+import { LeaderApproveAction } from './_components/LeaderApproveAction';
 import { Button } from "@/components/ui/button";
 import { PlusCircle, CalendarDays, Users, Eye, Pencil, BadgeCheck, Target, Users2 } from "lucide-react";
 import Link from "next/link";
@@ -39,12 +40,29 @@ type LeaderWithStats = AppUser & {
 };
 
 export default async function LeadersPage() {
-  const [leaders, membersSnapshot, chamadosSnapshot, cities] = await Promise.all([
+  const [leaders, membersSnapshot, chamadosSnapshot, cities, pendingSnapshot] = await Promise.all([
     getLeaders(),
     firestore.collection('members').select('leaderId', 'votePotential').get().catch(() => null),
     firestore.collection('chamados').select('leaderId', 'status').get().catch(() => null),
     getAllCities(),
+    firestore.collection('users')
+      .where('status', '==', 'pending_verification')
+      .where('role', '==', 'lider')
+      .get()
+      .catch(() => null),
   ]);
+
+  // Líderes pendentes de aprovação (cadastrados via auto-registro)
+  const pendingLeaders: LeaderWithStats[] = pendingSnapshot
+    ? pendingSnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+      memberCount: 0,
+      votePotential: 0,
+      cityName: null,
+      status: 'pending_verification',
+    } as unknown as LeaderWithStats))
+    : [];
 
   const cityById = new Map(cities.map((c) => [c.id, `${c.name} - ${c.state}`]));
 
@@ -91,6 +109,7 @@ export default async function LeadersPage() {
   const totalMasters = leaders.filter((l: AppUser) => l.role === 'master').length;
   const totalSubs = leaders.filter((l: AppUser) => l.role === 'sub').length;
   const totalLeaders = leaders.length;
+  const totalPending = pendingLeaders.length;
 
   return (
     <main className="max-w-6xl mx-auto">
@@ -219,32 +238,60 @@ export default async function LeadersPage() {
                   </div>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                  <span className={`rounded-full px-3 py-1 font-semibold ${status === 'inativo' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
-                    {status === 'inativo' ? 'Inativo' : 'Ativo'}
-                  </span>
+                  {status === 'pending_verification' ? (
+                    <span className="rounded-full px-3 py-1 font-semibold bg-amber-100 text-amber-800">
+                      ⏳ Aguardando aprovação
+                    </span>
+                  ) : (
+                    <span className={`rounded-full px-3 py-1 font-semibold ${status === 'inativo' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                      {status === 'inativo' ? 'Inativo' : 'Ativo'}
+                    </span>
+                  )}
                   <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
                     Demandas: {demands}
                   </span>
                 </div>
                 <div className="mt-3 flex items-center justify-end gap-2">
-                  <Button variant="outline" size="icon" asChild className="h-9 w-9">
-                    <Link href={`/dashboard/admin/leaders/${leaderId}`}>
-                      <Pencil className="h-4 w-4" />
-                      <span className="sr-only">Editar</span>
-                    </Link>
-                  </Button>
-                  <Button variant="secondary" size="icon" asChild className="h-9 w-9">
-                    <Link href={`/dashboard/admin/leaders/${leaderId}/view`}>
-                      <Eye className="h-4 w-4" />
-                      <span className="sr-only">Visualizar</span>
-                    </Link>
-                  </Button>
-                  <LeaderDeleteAction leaderId={leaderId} leaderName={leader.name || 'Líder Desconhecido'} />
+                  {status === 'pending_verification' ? (
+                    <LeaderApproveAction leaderId={leaderId} leaderName={leader.name || 'Líder'} />
+                  ) : (
+                    <>
+                      <Button variant="outline" size="icon" asChild className="h-9 w-9">
+                        <Link href={`/dashboard/admin/leaders/${leaderId}`}>
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Editar</span>
+                        </Link>
+                      </Button>
+                      <Button variant="secondary" size="icon" asChild className="h-9 w-9">
+                        <Link href={`/dashboard/admin/leaders/${leaderId}/view`}>
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">Visualizar</span>
+                        </Link>
+                      </Button>
+                      <LeaderDeleteAction leaderId={leaderId} leaderName={leader.name || 'Líder Desconhecido'} />
+                    </>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* Líderes pendentes de aprovação */}
+        {pendingLeaders.length > 0 && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+            <p className="text-sm font-semibold text-amber-800">⏳ Cadastros aguardando aprovação ({totalPending})</p>
+            {pendingLeaders.map((leader: any) => (
+              <div key={leader.id} className="flex items-center justify-between gap-3 rounded-lg bg-white border border-amber-100 px-3 py-2 shadow-sm">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{leader.name || 'Sem nome'}</p>
+                  <p className="text-xs text-muted-foreground">{leader.email} · {leader.state}</p>
+                </div>
+                <LeaderApproveAction leaderId={leader.id} leaderName={leader.name || 'Líder'} />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Tabela permanece para telas maiores */}
         <div className="hidden md:block">
