@@ -197,8 +197,8 @@ export function LoginForm() {
           {isLoading ? "Iniciando sessão..." : "Acessar"}
         </Button>
 
-        {/* Botões de Acesso Rápido para Testes */}
-        <div className="pt-4 border-t mt-6 border-slate-100 space-y-3">
+        {/* Botões de Acesso Rápido — ocultos em produção */}
+        {false && <div className="pt-4 border-t mt-6 border-slate-100 space-y-3">
           <p className="text-xs text-center text-slate-400 font-medium">✨ Acesso Rápido (Dev)</p>
           <div className="grid grid-cols-2 gap-2">
             <Button
@@ -228,7 +228,7 @@ export function LoginForm() {
               Acessar como Líder
             </Button>
           </div>
-        </div>
+        </div>}
 
       </form>
     </Form>
