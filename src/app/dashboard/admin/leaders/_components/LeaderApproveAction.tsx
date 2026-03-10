@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShieldCheck, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -15,7 +16,9 @@ export function LeaderApproveAction({
     onApproved?: () => void;
 }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [approved, setApproved] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
 
     const handleApprove = async () => {
         setIsLoading(true);
@@ -26,7 +29,9 @@ export function LeaderApproveAction({
                 throw new Error(data.error || 'Erro ao aprovar.');
             }
             toast({ title: 'Líder aprovado!', description: `${leaderName} agora tem acesso ao sistema.` });
+            setApproved(true);
             onApproved?.();
+            router.refresh(); // Força a Server Component a re-buscar os dados
         } catch (err: any) {
             toast({ variant: 'destructive', title: 'Erro', description: err.message });
         } finally {
@@ -38,12 +43,12 @@ export function LeaderApproveAction({
         <Button
             size="sm"
             variant="outline"
-            className="h-8 gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-xs"
+            className={`h-8 gap-1.5 text-xs ${approved ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'}`}
             onClick={handleApprove}
-            disabled={isLoading}
+            disabled={isLoading || approved}
         >
             {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-            Aprovar
+            {approved ? 'Aprovado ✓' : 'Aprovar'}
         </Button>
     );
 }
