@@ -175,8 +175,8 @@ export default async function ViewCityPage({ params }: { params: Promise<{ cityI
 
                 {/* Desempenho dos apoiadores por bairro */}
                 <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <h2 className="text-lg font-semibold text-foreground">Apoiadores por Bairro</h2>
-                    <p className="text-sm text-muted-foreground mb-4">Clique em um bairro para desdobrar as ruas.</p>
+                    <h2 className="text-lg font-semibold text-foreground mb-1">Apoiadores por Bairro</h2>
+                    <p className="text-sm text-muted-foreground mb-4">Clique em um bairro para ver as ruas.</p>
                     <div className="grid gap-3">
                         {neighborhoods.length > 0 ? (
                             neighborhoods.map((nb) => (
@@ -198,13 +198,39 @@ export default async function ViewCityPage({ params }: { params: Promise<{ cityI
                                 </Link>
                             ))
                         ) : (
-                            <div className="col-span-3 p-8 text-center text-muted-foreground">
+                            <p className="py-6 text-center text-sm text-muted-foreground">
                                 Nenhum bairro com apoiadores registrado nesta cidade.
-                            </div>
+                            </p>
                         )}
                     </div>
                 </section>
             </div>
+
+            {/* Lista nominal de apoiadores */}
+            {members.length > 0 && (
+                <div className="px-6 pb-8 md:px-8">
+                    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                        <h2 className="text-lg font-semibold text-foreground mb-4">
+                            Apoiadores desta Cidade ({members.length})
+                        </h2>
+                        <div className="divide-y divide-border">
+                            {members.map((m) => (
+                                <div key={m.id} className="flex items-center justify-between py-2.5 gap-2">
+                                    <div>
+                                        <p className="text-sm font-medium text-foreground">{m.name || 'Sem nome'}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {m.bairro || m.neighborhood || 'Bairro não informado'}
+                                        </p>
+                                    </div>
+                                    <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                                        {(Number(m.votePotential) || 0).toLocaleString('pt-BR')} pct
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                </div>
+            )}
         </main>
     );
 }

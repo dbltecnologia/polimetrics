@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function POST(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const cookieStore = await cookies();
@@ -26,7 +26,7 @@ export async function POST(
             return NextResponse.json({ error: 'Acesso negado.' }, { status: 403 });
         }
 
-        const { id: leaderId } = params;
+        const { id: leaderId } = await params;
         if (!leaderId) {
             return NextResponse.json({ error: 'leaderId obrigatório.' }, { status: 400 });
         }
