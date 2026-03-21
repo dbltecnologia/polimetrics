@@ -114,6 +114,24 @@ export default async function AIDashboardExecutivePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* BASE DE CONHECIMENTO */}
+      <Card className="shadow-sm border-primary/20">
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Brain className="h-5 w-5 text-primary" /> Base de Conhecimento (RAG)
+            </CardTitle>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/dashboard/admin/ai/knowledge">Gerenciar</Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4 text-sm text-muted-foreground">
+          Documentos e contextos que o Secretário Virtual usa para responder perguntas com precisão.
+          Adicione propostas, histórico do candidato, FAQs e realizações para enriquecer as respostas da IA.
+        </CardContent>
+      </Card>
     </div>
   );
 }

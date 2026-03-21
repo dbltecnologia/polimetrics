@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { CalendarClock, MessageSquare, User, Phone, Trophy, CalendarDays } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { CalendarClock, MessageSquare, User, Phone, Trophy, Search } from 'lucide-react';
 import { ChamadoActions } from './ChamadoActions';
 
 interface Chamado {
@@ -57,20 +58,70 @@ function getRemetente(c: Chamado | null | undefined): string {
 
 export function ChamadosList({ chamados }: { chamados: Chamado[] }) {
     const [selected, setSelected] = useState<Chamado | null>(null);
+    const [statusFilter, setStatusFilter] = useState<string>('todos');
+    const [search, setSearch] = useState('');
+
     const safeList = (chamados || []).filter((c): c is Chamado => !!c);
+    const filtered = safeList
+        .filter((c) => statusFilter === 'todos' || (c.status || 'aberto') === statusFilter)
+        .filter((c) => {
+            if (!search.trim()) return true;
+            const q = search.toLowerCase();
+            return (
+                (c.subject || '').toLowerCase().includes(q) ||
+                getRemetente(c).toLowerCase().includes(q) ||
+                (c.message || '').toLowerCase().includes(q)
+            );
+        });
+
+    const countByStatus = (s: string) =>
+        safeList.filter((c) => (c.status || 'aberto') === s).length;
+
+    const filterPills = [
+        { value: 'todos', label: `Todos (${safeList.length})` },
+        { value: 'aberto', label: `Abertos (${countByStatus('aberto')})`, cls: 'text-amber-700' },
+        { value: 'respondido', label: `Respondidos (${countByStatus('respondido')})`, cls: 'text-emerald-700' },
+        { value: 'fechado', label: `Fechados (${countByStatus('fechado')})`, cls: 'text-slate-600' },
+    ];
 
     return (
         <>
-            {/* Mobile */}
+            {/* Filtros */}
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
+                <div className="flex flex-wrap gap-1.5">
+                    {filterPills.map((p) => (
+                        <button
+                            key={p.value}
+                            onClick={() => setStatusFilter(p.value)}
+                            className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                                statusFilter === p.value
+                                    ? 'bg-primary text-white border-primary'
+                                    : `bg-white border-slate-200 ${p.cls || 'text-slate-700'} hover:border-primary/40`
+                            }`}
+                        >
+                            {p.label}
+                        </button>
+                    ))}
+                </div>
+                <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                        placeholder="Buscar chamado..."
+                        className="pl-8 h-8 text-xs"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+            </div>
             <div className="space-y-3 md:hidden">
-                {safeList.length === 0 && (
+                {filtered.length === 0 && (
                     <Card>
                         <CardContent className="p-4 text-sm text-muted-foreground">
-                            Nenhum chamado registrado.
+                            Nenhum chamado encontrado.
                         </CardContent>
                     </Card>
                 )}
-                {safeList.map((c) => (
+                {filtered.map((c) => (
                     <div
                         key={c.id}
                         className="rounded-xl border border-slate-200 bg-white px-3 py-3 shadow-sm cursor-pointer hover:border-primary/40 transition-colors"
@@ -112,8 +163,8 @@ export function ChamadosList({ chamados }: { chamados: Chamado[] }) {
                         <CardTitle>Chamados</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {safeList.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">Nenhum chamado registrado.</p>
+                        {filtered.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">Nenhum chamado encontrado.</p>
                         ) : (
                             <Table>
                                 <TableHeader>
@@ -127,7 +178,7 @@ export function ChamadosList({ chamados }: { chamados: Chamado[] }) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {safeList.map((c) => {
+                                    {filtered.map((c) => {
                                         const sc = statusConfig[c.status || 'aberto'] || statusConfig.aberto;
                                         return (
                                             <TableRow

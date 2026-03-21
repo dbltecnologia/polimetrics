@@ -86,7 +86,18 @@ export async function addLeader(formData: FormData) {
             createdAt: new Date(),
         });
 
-        // 3. Revalidate the leaders page to show the new leader
+        // 3. Dispara boas-vindas via WhatsApp (fire-and-forget — não bloqueia a resposta)
+        // Gap #5 fix: onUserCreated estava implementado no event-handler mas nunca era chamado.
+        try {
+            const { VirtualSecretaryEvents } = await import('@/services/ai/event-handler');
+            VirtualSecretaryEvents.onUserCreated(userRecord.uid).catch(err =>
+                console.warn('[createLeader] onUserCreated silencioso:', err)
+            );
+        } catch {
+            // import dinâmico falhou (sem env Chatwoot) — ignorar silenciosamente
+        }
+
+        // 4. Revalidate the leaders page to show the new leader
         revalidatePath('/dashboard/admin/leaders');
 
         return { success: true, message: 'Líder criado com sucesso!' };
