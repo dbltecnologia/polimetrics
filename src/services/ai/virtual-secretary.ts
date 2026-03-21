@@ -25,7 +25,8 @@ export class VirtualSecretary {
         // 3. Lógica de decisão (Fluxos)
         let response = '';
 
-        const state = conversationState ?? { step: 'start', history: [] };
+        // FIX #1: Injetar conversationId no state para que todos os sub-fluxos possam persistir o estado corretamente.
+        const state = { ...(conversationState ?? { step: 'start', history: [] }), conversationId };
         if (!user) {
             response = await this.handleNewLead(phone, name, content, state);
         } else if (state.step === 'waiting_poll_vote') {
@@ -44,19 +45,21 @@ export class VirtualSecretary {
         if (response) {
             await ChatwootService.sendMessage(conversationId, response);
             
-            // 5. Atualizar Engajamento
+            // 5. Atualizar Engajamento (passa o role para proteger status de líderes)
             if (user?.id) {
-                await this.updateEngagement(user.id);
+                await this.updateEngagement(user.id, user.role);
             }
         }
     }
 
-    private static async updateEngagement(userId: string) {
+    private static async updateEngagement(userId: string, userRole?: string) {
         const userRef = firestore.collection('users').doc(userId);
+        // FIX #4: Só atualizar status para usuários comuns — nunca sobrescrever o status de líderes/admins.
+        const isCommonUser = !userRole || userRole === 'citizen' || userRole === 'lead';
         await userRef.update({
             lastInteractedAt: new Date().toISOString(),
             engagementScore: FieldValue.increment(1),
-            status: 'engajado' // Se interagiu, está engajado
+            ...(isCommonUser ? { status: 'engajado' } : {}),
         });
     }
 

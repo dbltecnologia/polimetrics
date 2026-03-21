@@ -74,7 +74,9 @@ export class VirtualSecretaryEvents {
             };
 
             const statusText = statusMap[newStatus] || newStatus;
-            const message = `Olá ${user?.name}! Tenho novidades sobre sua demanda registrada: "${demand?.descricao?.slice(0, 50)}...".\n\nO status foi atualizado para: *${statusText}*.\n\nContinuaremos acompanhando!`;
+            // FIX #2: chamados do formulário usam `message`, via IA usam `descricao`, fallback para `subject`.
+            const descricao: string = demand?.message || demand?.descricao || demand?.subject || 'demanda registrada';
+            const message = `Olá ${user?.name}! Tenho novidades sobre sua demanda registrada: "${descricao.slice(0, 60)}...".\n\nO status foi atualizado para: *${statusText}*.\n\nContinuaremos acompanhando!`;
 
             await ChatwootService.sendMessage(conversationId, message);
 

@@ -4,6 +4,15 @@ import { VirtualSecretary } from '@/services/ai/virtual-secretary';
 export async function POST(req: NextRequest) {
     try {
         const payload = await req.json();
+
+        // FIX #3: Validação de segurança — garantir que o payload vem da conta Chatwoot configurada.
+        const expectedAccountId = process.env.CHATWOOT_ACCOUNT_ID;
+        const payloadAccountId = payload.account?.id?.toString();
+        if (expectedAccountId && payloadAccountId && payloadAccountId !== expectedAccountId) {
+            console.warn('[CHATWOOT_WEBHOOK_SECURITY] account_id inválido:', payloadAccountId);
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const event = payload.event;
 
         // Só processamos mensagens criadas (recebidas)
@@ -16,9 +25,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: 'Not an incoming message' });
         }
 
-        // Processar via Secretário Virtual
-        // O processMessage é async, mas não precisamos esperar a resposta final do processamento
-        // para dar o OK ao Chatwoot (evita timeout)
+        // Processar via Secretário Virtual de forma assíncrona (evita timeout no Chatwoot)
         VirtualSecretary.processMessage(payload).catch(err => {
             console.error('[CHATWOOT_WEBHOOK_ERROR]:', err);
         });
