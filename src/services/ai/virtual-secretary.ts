@@ -1,4 +1,5 @@
 import { firestore } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { generateText } from './providers';
 import { ChatwootService } from '../chatwootService';
 import { AppUser } from '@/types/user';
@@ -24,18 +25,19 @@ export class VirtualSecretary {
         // 3. Lógica de decisão (Fluxos)
         let response = '';
 
+        const state = conversationState ?? { step: 'start', history: [] };
         if (!user) {
-            response = await this.handleNewLead(phone, name, content, conversationState);
-        } else if (conversationState.step === 'waiting_poll_vote') {
-            response = await this.handlePollVote(user, content, conversationState);
-        } else if (conversationState.step === 'waiting_mission_acceptance') {
-            response = await this.handleMissionAcceptance(user, content, conversationState);
-        } else if (conversationState.step === 'waiting_mission_proof') {
-            response = await this.handleMissionProof(user, content, conversationState);
+            response = await this.handleNewLead(phone, name, content, state);
+        } else if (state.step === 'waiting_poll_vote') {
+            response = await this.handlePollVote(user, content, state);
+        } else if (state.step === 'waiting_mission_acceptance') {
+            response = await this.handleMissionAcceptance(user, content, state);
+        } else if (state.step === 'waiting_mission_proof') {
+            response = await this.handleMissionProof(user, content, state);
         } else if (user.status === 'lead' || !user.profile?.isProfileComplete) {
-            response = await this.handleQualification(user, content, conversationState);
+            response = await this.handleQualification(user, content, state);
         } else {
-            response = await this.handleMainFlow(user, content, conversationState);
+            response = await this.handleMainFlow(user, content, state);
         }
 
         // 4. Enviar resposta via Chatwoot
@@ -53,7 +55,7 @@ export class VirtualSecretary {
         const userRef = firestore.collection('users').doc(userId);
         await userRef.update({
             lastInteractedAt: new Date().toISOString(),
-            engagementScore: firestore.FieldValue.increment(1),
+            engagementScore: FieldValue.increment(1),
             status: 'engajado' // Se interagiu, está engajado
         });
     }

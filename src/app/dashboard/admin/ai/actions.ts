@@ -3,6 +3,7 @@
 import { firestore } from '@/lib/firebase-admin';
 import { VirtualSecretaryEvents } from '@/services/ai/event-handler';
 import { ContentAlignmentService } from '@/services/ai/content-alignment-service';
+import { MissionService } from '@/services/ai/mission-service';
 import { revalidatePath } from 'next/cache';
 
 /**
@@ -10,7 +11,7 @@ import { revalidatePath } from 'next/cache';
  */
 export async function triggerPollBatchAction(pollId: string, filters: { bairro?: string; role?: string }) {
     try {
-        let query: any = firestore.collection('users');
+        let query: FirebaseFirestore.Query = firestore.collection('users');
 
         if (filters.bairro && filters.bairro !== 'all') {
             query = query.where('bairro', '==', filters.bairro);
@@ -20,7 +21,7 @@ export async function triggerPollBatchAction(pollId: string, filters: { bairro?:
         }
 
         const snapshot = await query.get();
-        const promises = snapshot.docs.map(doc => 
+        const promises = snapshot.docs.map((doc) =>
             VirtualSecretaryEvents.triggerPollForUser(doc.id, pollId)
         );
 
@@ -32,14 +33,30 @@ export async function triggerPollBatchAction(pollId: string, filters: { bairro?:
     }
 }
 
-import { MissionService } from '@/services/ai/mission-service';
+/**
+ * Envia mensagens de alinhamento político semanal para um grupo de usuários
+ */
+export async function sendAlignmentBatchAction(topic: string, filters: { bairro?: string; role?: string }) {
+    try {
+        const cleanFilters = {
+            bairro: filters.bairro && filters.bairro !== 'all' ? filters.bairro : undefined,
+            role: filters.role && filters.role !== 'all' ? filters.role : undefined,
+        };
+
+        await ContentAlignmentService.batchSendAlignment(cleanFilters, topic);
+        revalidatePath('/dashboard/admin/ai');
+        return { success: true };
+    } catch (error: any) {
+        return { error: error.message };
+    }
+}
 
 /**
  * Dispara uma missão para todos os usuários que correspondem aos filtros
  */
 export async function triggerMissionBatchAction(missionId: string, filters: { bairro?: string; role?: string }) {
     try {
-        let query: any = firestore.collection('users');
+        let query: FirebaseFirestore.Query = firestore.collection('users');
 
         if (filters.bairro && filters.bairro !== 'all') {
             query = query.where('bairro', '==', filters.bairro);
@@ -49,7 +66,7 @@ export async function triggerMissionBatchAction(missionId: string, filters: { ba
         }
 
         const snapshot = await query.get();
-        const promises = snapshot.docs.map(doc => 
+        const promises = snapshot.docs.map((doc) =>
             MissionService.triggerMissionForUser(doc.id, missionId)
         );
 

@@ -1,4 +1,5 @@
 import { firestore } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { ChatwootService } from '../chatwootService';
 import { AppUser } from '@/types/user';
 
@@ -22,7 +23,7 @@ export class MissionService {
             const contactId = await ChatwootService.findOrCreateContact(phone, user?.name);
             const conversationId = await ChatwootService.findOrCreateConversation(contactId, phone);
 
-            const message = `🚀 *NOVA MISSÃO DISPONÍVEL*\n\nOlá ${user?.name}, temos um desafio para você fortalecer nossa base em ${user?.bairro}!\n\n*Missão:* ${mission.title}\n*O que fazer:* ${mission.description}\n*Recompensa:* 🏆 ${mission.rewardPoints} pontos\n\nVocê aceita este desafio? Responda *SIM* para começar!`;
+            const message = `🚀 *NOVA MISSÃO DISPONÍVEL*\n\nOlá ${user?.name}, temos um desafio para você fortalecer nossa base em ${user?.bairro}!\n\n*Missão:* ${mission?.title ?? ''}\n*O que fazer:* ${mission?.description ?? ''}\n*Recompensa:* 🏆 ${mission?.rewardPoints ?? 0} pontos\n\nVocê aceita este desafio? Responda *SIM* para começar!`;
 
             await ChatwootService.sendMessage(conversationId, message);
 
@@ -58,8 +59,8 @@ export class MissionService {
 
         // 2. Atualizar pontos do usuário
         await firestore.collection('users').doc(userId).update({
-            totalPoints: firestore.FieldValue.increment(points),
-            engagementScore: firestore.FieldValue.increment(10) // Bônus de engajamento
+            totalPoints: FieldValue.increment(points),
+            engagementScore: FieldValue.increment(10) // Bônus de engajamento
         });
 
         return { success: true, points };

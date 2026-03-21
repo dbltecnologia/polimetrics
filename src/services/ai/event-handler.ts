@@ -2,7 +2,6 @@ import { firestore } from '@/lib/firebase-admin';
 import { ChatwootService } from '../chatwootService';
 
 export class VirtualSecretaryEvents {
-...
     /**
      * Dispara uma pesquisa específica para um usuário
      */
@@ -42,8 +41,8 @@ export class VirtualSecretaryEvents {
             console.error('[TRIGGER_POLL_ERROR]:', error);
         }
     }
-}
 
+    /**
      * Notifica o usuário sobre a mudança de status de uma demanda
      */
     static async onDemandStatusChanged(demandId: string, newStatus: string) {
