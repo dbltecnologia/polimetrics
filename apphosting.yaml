@@ -21,3 +21,52 @@ env:
     availability:
       - BUILD
       - RUNTIME
+
+  # Firebase Web Config (necessário para autenticação no cliente)
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: NEXT_PUBLIC_FIREBASE_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # === SECRETÁRIO VIRTUAL IA ===
+
+  # Gemini (Google AI) — provedor principal de texto
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
+    availability:
+      - RUNTIME
+
+  # OpenAI — fallback de texto/imagem
+  - variable: OPENAI_API_KEY
+    secret: OPENAI_API_KEY
+    availability:
+      - RUNTIME
+
+  # ElevenLabs — síntese de voz
+  - variable: ELEVENLABS_API_KEY
+    secret: ELEVENLABS_API_KEY
+    availability:
+      - RUNTIME
+
+  # === CHATWOOT / WHATSAPP ===
+
+  - variable: CHATWOOT_BASE_URL
+    secret: CHATWOOT_BASE_URL
+    availability:
+      - RUNTIME
+
+  - variable: CHATWOOT_API_TOKEN
+    secret: CHATWOOT_API_TOKEN
+    availability:
+      - RUNTIME
+
+  - variable: CHATWOOT_ACCOUNT_ID
+    secret: CHATWOOT_ACCOUNT_ID
+    availability:
+      - RUNTIME
+
+  - variable: CHATWOOT_INBOX_ID
+    secret: CHATWOOT_INBOX_ID
+    availability:
+      - RUNTIME

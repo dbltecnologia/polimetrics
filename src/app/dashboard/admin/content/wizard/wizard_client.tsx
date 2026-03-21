@@ -203,16 +203,30 @@ export default function WizardClient() {
           <div className="space-y-6 pt-4">
             <div className="space-y-2">
               <Label>Briefing e posts</Label>
-              <Textarea value={resp.text || ''} onChange={(e) => setResp({ ...resp, text: e.target.value })} rows={12} />
+              {resp.text ? (
+                <Textarea value={resp.text} onChange={(e) => setResp({ ...resp, text: e.target.value })} rows={12} />
+              ) : (
+                <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
+                  ⚠️ A IA não retornou texto. Tente novamente ou revise os parâmetros.
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label>Arte gerada</Label>
-              <img src={resp.image?.imageUrl} alt="Arte gerada" className="w-full rounded-md border" />
-              <p className="text-xs text-muted-foreground">Prompt: {resp.image?.promptUsed}</p>
-              <a href={resp.image?.imageUrl} download="arte-campanha.png" className="text-sm text-blue-600 hover:underline">
-                Baixar imagem
-              </a>
+              {resp.image?.imageUrl ? (
+                <>
+                  <img src={resp.image.imageUrl} alt="Arte gerada" className="w-full rounded-md border" />
+                  <p className="text-xs text-muted-foreground">Prompt: {resp.image.promptUsed}</p>
+                  <a href={resp.image.imageUrl} download="arte-campanha.png" className="text-sm text-blue-600 hover:underline">
+                    Baixar imagem
+                  </a>
+                </>
+              ) : (
+                <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-muted-foreground">
+                  ℹ️ Imagem não gerada (verifique a chave OPENAI_API_KEY ou GEMINI_API_KEY nas configurações de ambiente).
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -222,14 +236,22 @@ export default function WizardClient() {
 
             <div className="space-y-2">
               <Label>Áudio gerado</Label>
-              <audio controls src={`data:audio/mp3;base64,${resp.voiceAudioBase64}`} className="w-full" />
-              <a
-                href={`data:audio/mp3;base64,${resp.voiceAudioBase64}`}
-                download="convite-campanha.mp3"
-                className="text-sm text-blue-600 hover:underline"
-              >
-                Baixar áudio
-              </a>
+              {resp.voiceAudioBase64 ? (
+                <>
+                  <audio controls src={`data:audio/mp3;base64,${resp.voiceAudioBase64}`} className="w-full" />
+                  <a
+                    href={`data:audio/mp3;base64,${resp.voiceAudioBase64}`}
+                    download="convite-campanha.mp3"
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Baixar áudio
+                  </a>
+                </>
+              ) : (
+                <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-muted-foreground">
+                  ℹ️ Áudio não gerado (verifique a chave ELEVENLABS_API_KEY nas configurações de ambiente).
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

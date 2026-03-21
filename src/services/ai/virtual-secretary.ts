@@ -16,6 +16,13 @@ export class VirtualSecretary {
         const phone = sender.phone_number.replace(/\D/g, '');
         const name = sender.name;
 
+        // IMPROVEMENT #14: Rate limiting — max 10 msgs / phone / 60s (anti-bot, anti-loop)
+        const isRateLimited = await this.checkRateLimit(phone);
+        if (isRateLimited) {
+            console.warn(`[VirtualSecretary] Rate limit atingido para o número ${phone}. Mensagem ignorada.`);
+            return;
+        }
+
         // 1. Identificar usuário no Firestore
         let user = await this.findUserByPhone(phone);
 
@@ -52,6 +59,41 @@ export class VirtualSecretary {
         }
     }
 
+    /**
+     * IMPROVEMENT #14: Rate limiting via Firestore.
+     * Conta as mensagens do número nos últimos RATE_WINDOW_MS ms.
+     * Retorna true se o limite foi atingido (mensagem deve ser descartada).
+     */
+    private static readonly RATE_LIMIT_MAX = 10;
+    private static readonly RATE_WINDOW_MS = 60_000; // 60 segundos
+
+    private static async checkRateLimit(phone: string): Promise<boolean> {
+        try {
+            const windowStart = new Date(Date.now() - this.RATE_WINDOW_MS).toISOString();
+            const rateLimitRef = firestore.collection('ai_rate_limits').doc(phone);
+
+            return await firestore.runTransaction(async (tx) => {
+                const doc = await tx.get(rateLimitRef);
+                const data = doc.data() ?? { timestamps: [] };
+                // Filtrar apenas timestamps dentro da janela
+                const recent: string[] = (data.timestamps as string[]).filter(
+                    (ts: string) => ts > windowStart
+                );
+                if (recent.length >= this.RATE_LIMIT_MAX) {
+                    return true; // Limite atingido
+                }
+                // Adicionar timestamp atual
+                recent.push(new Date().toISOString());
+                tx.set(rateLimitRef, { timestamps: recent }, { merge: false });
+                return false;
+            });
+        } catch (err) {
+            // Em caso de erro no rate limit, permitir a mensagem (fail-open)
+            console.warn('[VirtualSecretary] checkRateLimit falhou silenciosamente:', err);
+            return false;
+        }
+    }
+
     private static async updateEngagement(userId: string, userRole?: string) {
         const userRef = firestore.collection('users').doc(userId);
         // FIX #4: Só atualizar status para usuários comuns — nunca sobrescrever o status de líderes/admins.
@@ -73,12 +115,12 @@ export class VirtualSecretary {
         return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as AppUser;
     }
 
-    private static async getConversationState(conversationId: number) {
+    private static async getConversationState(conversationId: number): Promise<Record<string, any> & { step: string; history: any[] }> {
         const doc = await firestore.collection('ai_conversations').doc(conversationId.toString()).get();
         if (!doc.exists) {
             return { step: 'start', history: [] };
         }
-        return doc.data();
+        return (doc.data() ?? { step: 'start', history: [] }) as Record<string, any> & { step: string; history: any[] };
     }
 
     private static async updateConversationState(conversationId: number, state: any) {
