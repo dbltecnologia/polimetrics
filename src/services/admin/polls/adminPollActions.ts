@@ -49,7 +49,7 @@ export async function closePoll(pollId: string) {
         await firestore.collection('polls').doc(pollId).update({
             status: 'closed'
         });
-        revalidatePath('/dashboard/admin/minivotacoes');
+        revalidatePath('/dashboard/admin/votacoes');
         revalidatePath('/dashboard/chamados');
         return { success: true };
     } catch (error) {

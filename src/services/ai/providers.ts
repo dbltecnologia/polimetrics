@@ -254,6 +254,13 @@ export async function generateVoice({
     }),
   });
 
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => `status ${resp.status}`);
+    console.error('[generateVoice] ElevenLabs error:', errText);
+    addLog({ type: 'voice', provider: 'elevenlabs', model, status: 'error', message: errText.slice(0, 200), promptSnippet: text.slice(0, 120) });
+    return { audioBase64: Buffer.from('').toString('base64') };
+  }
+
   const arrayBuffer = await resp.arrayBuffer();
   const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
   addLog({ type: 'voice', provider: 'elevenlabs', model, status: 'ok', promptSnippet: text.slice(0, 120) });

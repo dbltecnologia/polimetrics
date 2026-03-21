@@ -148,7 +148,13 @@ export class VirtualSecretary {
             return `A opção ${content} não é válida. Por favor, escolha um número de 1 a ${poll?.options.length}.`;
         }
 
-        // Registrar o voto no Firestore
+        // FIX #4: Detectar voto duplicado e avisar o usuário antes de sobrescrever
+        const alreadyVotedOptionId: string | undefined = poll?.votedBy?.[user.id];
+        const alreadyVotedOption = alreadyVotedOptionId
+            ? poll?.options.find((o: any) => o.id === alreadyVotedOptionId)
+            : null;
+
+        // Registrar / atualizar o voto no Firestore
         await firestore.collection('polls').doc(pollId).update({
             [`votedBy.${user.id}`]: option.id
         });
@@ -156,6 +162,9 @@ export class VirtualSecretary {
         // Voltar ao fluxo principal
         await this.updateConversationState(state.conversationId, { step: 'main', activePollId: null });
 
+        if (alreadyVotedOption) {
+            return `Seu voto foi atualizado! Anteriormente você havia escolhido *${alreadyVotedOption.text}* e agora está votando em *${option.text}*. ✅\n\nObrigado por participar!`;
+        }
         return `Voto registrado com sucesso: *${option.text}*!\n\nMuito obrigado por participar. Sua voz fortalece nosso projeto. 🚀`;
     }
 
@@ -175,6 +184,11 @@ export class VirtualSecretary {
      * Fluxo de Prova de Conclusão da Missão
      */
     private static async handleMissionProof(user: AppUser, content: string, state: any) {
+        // FIX: Guard contra state corrompido — activeMissionId pode ser null se o estado foi sobrescrito
+        if (!state.activeMissionId) {
+            await this.updateConversationState(state.conversationId, { step: 'main', activeMissionId: null });
+            return `Obrigado pelo seu empenho, ${user.name}! Não encontrei uma missão ativa para registrar. Se isso parece um erro, entre em contato com a equipe.`;
+        }
         const res = await MissionService.completeMission(user.id, state.activeMissionId, content);
         await this.updateConversationState(state.conversationId, { step: 'main', activeMissionId: null });
         
