@@ -13,13 +13,33 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AdminSidebar } from "@/app/dashboard/admin/_components/AdminSidebar";
-import { CircleUser, FileText, Home, LogOut, Menu, Users, MessageSquare } from "lucide-react";
+import { CircleUser, Home, LogOut, MapPin, Menu, Users, MessageSquare } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useLogout } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState, useEffect } from 'react';
+
+const STATES = [
+    { label: '🇧🇷 Brasil (Todos)', value: 'BR' },
+    { label: 'São Paulo', value: 'SP' },
+    { label: 'Rio de Janeiro', value: 'RJ' },
+    { label: 'Minas Gerais', value: 'MG' },
+    { label: 'Paraná', value: 'PR' },
+    { label: 'Distrito Federal', value: 'DF' },
+    { label: 'Bahia', value: 'BA' },
+    { label: 'Rio Grande do Sul', value: 'RS' },
+    { label: 'Santa Catarina', value: 'SC' },
+    { label: 'Ceará', value: 'CE' },
+    { label: 'Pernambuco', value: 'PE' },
+    { label: 'Goiás', value: 'GO' },
+    { label: 'Pará', value: 'PA' },
+    { label: 'Maranhão', value: 'MA' },
+    { label: 'Outro', value: 'OUTRO' },
+];
 
 const leaderMobileLinks = [
     { href: '/dashboard', icon: Home, label: 'Início' },
@@ -79,6 +99,20 @@ const Header = () => {
     const avatarSrc = profile?.image || (profile as any)?.avatarUrl || (profile as any)?.avatar || '/PoliMetrics.png';
     const avatarAlt = profile?.name ? `Avatar de ${profile.name}` : 'Logo PoliMetrics';
 
+    const [selectedState, setSelectedState] = useState<string>('BR');
+
+    useEffect(() => {
+        const stored = localStorage.getItem('polimetrics_state') || 'BR';
+        setSelectedState(stored);
+    }, []);
+
+    const handleStateChange = (value: string) => {
+        setSelectedState(value);
+        localStorage.setItem('polimetrics_state', value);
+        // Dispatch event so other components can react to the state change
+        window.dispatchEvent(new CustomEvent('polimetrics:stateChange', { detail: { state: value } }));
+    };
+
     return (
         <header className="flex h-14 items-center justify-end gap-4 border-b bg-background px-6 sticky top-0 z-10">
             <Sheet>
@@ -97,6 +131,24 @@ const Header = () => {
                     )}
                 </SheetContent>
             </Sheet>
+
+            {profile?.role === 'admin' && (
+                <div className="hidden md:flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Select value={selectedState} onValueChange={handleStateChange}>
+                        <SelectTrigger className="h-8 w-[180px] text-xs border-slate-200 bg-white">
+                            <SelectValue placeholder="Filtrar por estado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {STATES.map(s => (
+                                <SelectItem key={s.value} value={s.value} className="text-xs">
+                                    {s.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
 
             {profile?.role === 'leader' && (
                 <Button variant="ghost" size="sm" className="hidden lg:flex" asChild>

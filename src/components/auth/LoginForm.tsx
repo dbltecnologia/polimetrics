@@ -14,56 +14,27 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
 import { signInWithEmailAndPassword, UserCredential } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { normalizeRole } from "@/lib/role-utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
-
-const STATES = [
-  { label: 'São Paulo', value: 'SP' },
-  { label: 'Rio de Janeiro', value: 'RJ' },
-  { label: 'Minas Gerais', value: 'MG' },
-  { label: 'Paraná', value: 'PR' },
-  { label: 'Distrito Federal', value: 'DF' },
-  { label: 'Bahia', value: 'BA' },
-  { label: 'Rio Grande do Sul', value: 'RS' },
-  { label: 'Santa Catarina', value: 'SC' },
-  { label: 'Ceará', value: 'CE' },
-  { label: 'Pernambuco', value: 'PE' },
-  { label: 'Goiás', value: 'GO' },
-  { label: 'Pará', value: 'PA' },
-  { label: 'Maranhão', value: 'MA' },
-  { label: 'Outro', value: 'OUTRO' },
-];
 
 const formSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
   password: z.string().min(1, { message: "A senha é obrigatória." }),
-  state: z.string().min(1, { message: "Selecione o estado de atuação." }),
 });
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter(); // Instancia o router
-
-  const savedState = typeof window !== 'undefined'
-    ? (localStorage.getItem('polimetrics_last_state') || 'SP')
-    : 'SP';
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { email: "", password: "", state: savedState },
+    defaultValues: { email: "", password: "" },
   });
-
-  // Sincroniza o select com o valor do localStorage ao montar
-  useEffect(() => {
-    const stored = localStorage.getItem('polimetrics_last_state') || 'SP';
-    form.setValue('state', stored);
-  }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null);
@@ -78,7 +49,7 @@ export function LoginForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ idToken, state: values.state }),
+        body: JSON.stringify({ idToken }),
       });
 
       if (!response.ok) {
@@ -109,18 +80,6 @@ export function LoginForm() {
       setIsLoading(false);
     }
   }
-
-  const fillDemoCredentials = (role: 'admin' | 'lider') => {
-    if (role === 'admin') {
-      form.setValue('email', 'admin@polimetrics.com.br');
-      form.setValue('password', 'password123');
-      form.setValue('state', 'SP');
-    } else {
-      form.setValue('email', 'lider@polimetrics.com.br');
-      form.setValue('password', 'password123');
-      form.setValue('state', 'SP');
-    }
-  };
 
   return (
     <Form {...form}>
@@ -157,35 +116,6 @@ export function LoginForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="state"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-blue-600">Estado de Atuação</FormLabel>
-              <Select
-                onValueChange={(val) => {
-                  field.onChange(val);
-                  localStorage.setItem('polimetrics_last_state', val);
-                }}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione seu estado" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {STATES.map(s => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {error && (
           <div className="bg-red-50 text-red-700 p-3 rounded-md text-center text-sm font-medium">
             {error}
@@ -196,39 +126,6 @@ export function LoginForm() {
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isLoading ? "Iniciando sessão..." : "Acessar"}
         </Button>
-
-        {/* Botões de Acesso Rápido — ocultos em produção */}
-        {false && <div className="pt-4 border-t mt-6 border-slate-100 space-y-3">
-          <p className="text-xs text-center text-slate-400 font-medium">✨ Acesso Rápido (Dev)</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="text-xs border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-              onClick={() => {
-                fillDemoCredentials('admin');
-                setTimeout(() => form.handleSubmit(onSubmit)(), 100);
-              }}
-              disabled={isLoading}
-            >
-              Acessar como Admin
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="text-xs border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-              onClick={() => {
-                fillDemoCredentials('lider');
-                setTimeout(() => form.handleSubmit(onSubmit)(), 100);
-              }}
-              disabled={isLoading}
-            >
-              Acessar como Líder
-            </Button>
-          </div>
-        </div>}
 
       </form>
     </Form>
