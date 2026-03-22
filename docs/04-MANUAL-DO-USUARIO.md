@@ -1,29 +1,92 @@
-# Manual Operacional Rápido (Guia do Usuário)
+# Manual Operacional — Polimetrics v2.0
 
-Este manual destina-se às equipes que atuarão no dia a dia da ferramenta. A interface foi construída com foco na usabilidade "mobile-first" para líderes em campo e densidade de informações em desktop para os administradores.
-
----
-
-## Parte A: Manual do Administrador (Coordenador/Candidato)
-
-O Administrador tem visão global do projeto. Ele opera tudo o que está abrigado na URL `/dashboard/admin`.
-
-* **1. Dashboard Central:** A tela principal (home administrativa). Seus KPIs superiores reportam o volume bruto (Cidades, Líderes, Apoiadores, Potencial de Votos Ativos e Demandas Ativas). À esquerda, o balanço de potencial por bairros (Gráfico de Barras) traduz onde a força está concentrada geo-estrategicamente.
-* **2. Gestão de Líderes:** Vá em `Líderes Políticos` no sidebar. Para adicionar um novo arregimentador, preencha o formulário contendo Nome, Tipo de Líder (Master, Sub), a Cidade onde ele milita e o Nível de Influência. Crie a senha inicial do Líder.
-* **3. Gestão de Chamados e Demandas:** Pelo menu lateral, a seção `Demandas (Chamados)` agrupa as Propostas enviadas através dos Gabinetes Virtuais de todos os líderes de toda a base, consolidando a "ouvidoria" do mandato. Cada demanda possui status editável. Trate as demandas com celeridade para manter a rede fiel.
-* **4. Criar Minivotações:** Acesse `Minivotações` no side-nav. Clique em **Nova Votação**. Escreva o Título (ex.: "Pauta da Reunião de Domingo") e pule linha para criar Opções ("Opção A", "Opção B", etc). As opções viram botões simultaneamente nos smartphones dos líderes credenciados à rede. Encerre votações obsoletas com o botão "Encerrar".
-* **5. Mapa Interativo:** Visualize a expansão da rede arrastando e ampliando o mapa. Utilize os modais interativos para descobrir instantaneamente os líderes geolocalizados e sua influência no bairro.
-* **6. Histórico de Eleições:** Na seção de Análise, registre as quantias passadas de votos para alimentar os gráficos comparativos da aplicação, forjando visões realistas de "Crescimento da Base atual" vs "Votações passadas".
+> Este manual destina-se às equipes que operam a plataforma no dia a dia.  
+> A interface foi construída **mobile-first** para líderes em campo e com densidade de informações em desktop para administradores.
 
 ---
 
-## Parte B: Manual do Líder (Cliente / Cabo Eleitoral local)
+## PARTE A — Manual do Administrador (Coordenador / Candidato)
 
-O Líder recebe as credenciais criadas pelo Admin (email e senha gerada provisoriamente) e tem acesso seguro ao portal do Líder através de `/dashboard`.
+O Administrador tem visão global do projeto e opera tudo em `/dashboard/admin`.
 
-* **1. Início e Atalhos Rápidos:** O Líder visualiza em seu celular o Dashboard Limpo, possuindo atalhos imediatos e grandes cartões para orientar o dia a dia.
-* **2. Adicionar Apoiadores à sua Célula:** Sempre que o líder fecha apoio com um cidadão comum na rua, ele cadastra esse apoiador vinculando-o diretamente a si e ao bairro de atuação.
-* **3. Gabinete Virtual (A Ponte com o Candidato):** É a principal ferramenta do Líder. Possui duas abas fundamentais:
-   - **Propostas:** Um formulário robusto ("Nova Proposta") para levantar questões crônicas, solicitar reuniões ou reportar fatos no bairro.
-   - **Minivotações:** Quando o Coordenador dispara uma pauta sensível, o Líder vota através dessa aba e visualiza o resultado em gráficos de barra na hora.
-* **4. Seu Perfil e Cadastro de Cidade:**  O líder atualiza constantemente o seu Cadastro, preenchendo as redes sociais e, sobretudo, vinculando sua atuação a uma "Cidade" e "Coordenadas" específicas, sem o qual o Admin ficará cego sobre sua posição.
+### 1. Dashboard Central
+A tela inicial apresenta os KPIs de topo: **Cidades, Líderes, Apoiadores, Potencial de Votos e Demandas Abertas**. O gráfico lateral mostra engajamento/votos por bairro, revelando onde a força está concentrada e onde há buracos na rede.
+
+### 2. Gestão de Líderes
+Acesse **Líderes** no sidebar. Para cadastrar um novo articulador:
+1. Clique em **Novo Líder**
+2. Preencha: nome, cidade, bairro, telefone (com DDD), nível de influência e área de atuação
+3. Salve — o sistema cria as credenciais e **envia automaticamente uma mensagem de boas-vindas pelo WhatsApp**
+
+### 3. Gestão de Demandas (Chamados)
+A seção **Chamados** é a ouvidoria do mandato. Agrupa demandas enviadas pelos líderes (via painel ou via WhatsApp pelo Secretário Virtual).
+- Altere o status (Aberto → Em Andamento → Atendido) clicando na linha da demanda
+- O líder recebe **notificação automática via WhatsApp** quando o status muda
+
+### 4. Minivotações
+1. Acesse **Votações** → **Nova Votação**
+2. Escreva o título e adicione as opções
+3. Clique em **Disparar via WhatsApp** para enviar a pesquisa para o grupo desejado
+4. Líderes recebem a enquete no WhatsApp e respondem com um número
+5. Resultados aparecem em tempo real. Use **Encerrar** para congelar os votos
+
+### 5. Centro de Comando IA (`/admin/ai`)
+- **Pesquisas:** Selecione uma votação e um grupo de usuários → dispara pesquisa em massa
+- **Alinhamento:** Gera mensagem política via IA → envia para líderes selecionados
+- **Missões:** Lança um desafio de gamificação (ex: "recrute 5 apoiadores") → líderes recebem pelo WhatsApp, ganham pontos ao concluir
+- **Base de Conhecimento:** Cadastre snippets sobre o projeto (propostas, biografia, FAQ) para que o Secretário Virtual use em suas respostas
+
+### 6. Geração de Conteúdo (`/admin/content`)
+1. Clique em **Novo Conteúdo** → Wizard é aberto
+2. Descreva o tema da campanha
+3. O sistema gera texto (Gemini/GPT), imagem (DALL-E) e áudio (ElevenLabs)
+4. Salve o kit gerado → disponível para consulta e distribuição posterior
+
+### 7. Mapa Político
+Visualize a cobertura territorial. Pinos representam líderes geocodificados. Clique em um pino para ver: nome, bairro, influência e número de apoiadores. Identifique bairros sem cobertura para orientar novos recrutamentos.
+
+### 8. Histórico Eleitoral
+Insira dados de eleições passadas para gerar gráficos históricos comparativos. Use-o para justificar metas de crescimento e identificar regiões com maior potencial de virada.
+
+---
+
+## PARTE B — Manual do Líder (Cabo Eleitoral)
+
+O Líder acessa o sistema com as credenciais geradas pelo admin pelo link do sistema (URL de produção).
+
+### 1. Dashboard Inicial
+Exibe métricas rápidas: membros na rede, chamados abertos e atividades recentes. Atalhos grandes para todas as áreas (mobile-first).
+
+### 2. Cadastrar Apoiadores
+Na rua, ao fechar apoio com um cidadão:
+1. Acesse **Minha Rede** → **Novo Apoiador**
+2. Preencha nome, telefone e bairro
+3. O apoiador é vinculado automaticamente ao líder e aparece no dashboard do admin
+
+### 3. Registrar Demandas
+Acesse **Chamados** → **Nova Demanda**. Descreva o problema ou proposta do bairro. O coordenador receberá e atualizará o status. Você será notificado pelo WhatsApp quando houver novidades.
+
+### 4. Secretário Virtual (WhatsApp)
+O número de WhatsApp do projeto está disponível para qualquer líder. O Secretário responde automaticamente:
+- Dúvidas sobre propostas e o projeto
+- Registra demandas mencionadas
+- Participa de pesquisas enviadas pelo admin
+- Aceita missões de gamificação e registra conclusão
+
+### 5. Perfil
+Acesse **Perfil** e mantenha suas coordenadas geográficas atualizadas — isso garante que você apareça corretamente no Mapa Político.
+
+---
+
+## PARTE C — Secretário Virtual IA (Referência Rápida)
+
+| Situação | O que o Secretário faz |
+|---|---|
+| Número nunca cadastrado | Cria lead + pergunta bairro e área |
+| Usuário pergunta sobre o projeto | Responde com base de conhecimento + Gemini |
+| Usuário menciona problema | Cria chamado automaticamente + confirma |
+| Admin dispara pesquisa | Líder recebe pergunta + responde com número |
+| Admin dispara missão | Líder recebe desafio + aceita/recusa + envia prova |
+| Status de chamado muda | Líder recebe notificação automática |
+
+> **Número de WhatsApp:** Configurado no Chatwoot (perguntar ao administrador técnico)
