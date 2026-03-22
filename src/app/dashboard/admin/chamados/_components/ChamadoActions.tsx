@@ -12,10 +12,12 @@ import {
 import { deleteChamadoAction, updateChamadoStatusAction } from "../actions";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export function ChamadoActions({ id, currentStatus }: { id: string, currentStatus?: string }) {
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
+    const router = useRouter();
 
     const status = currentStatus || 'aberto';
 
@@ -27,6 +29,7 @@ export function ChamadoActions({ id, currentStatus }: { id: string, currentStatu
                     toast({ title: "Erro", description: res.error, variant: "destructive" });
                 } else {
                     toast({ title: "Chamado Removido", description: "O chamado foi excluído com sucesso." });
+                    router.refresh();
                 }
             });
         }
@@ -39,6 +42,7 @@ export function ChamadoActions({ id, currentStatus }: { id: string, currentStatu
                 toast({ title: "Erro", description: res.error, variant: "destructive" });
             } else {
                 toast({ title: "Status Atualizado", description: "O status do chamado foi atualizado." });
+                router.refresh();
             }
         });
     };
@@ -51,7 +55,7 @@ export function ChamadoActions({ id, currentStatus }: { id: string, currentStatu
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="aberto">Aberto</SelectItem>
-                    <SelectItem value="em andamento">Em Andamento</SelectItem>
+                    <SelectItem value="em_andamento">Em Andamento</SelectItem>
                     <SelectItem value="concluido">Concluído</SelectItem>
                 </SelectContent>
             </Select>

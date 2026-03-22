@@ -47,6 +47,9 @@ const formatDate = (value: any) => {
 
 const statusConfig: Record<string, { label: string; className: string }> = {
     aberto: { label: 'Aberto', className: 'bg-amber-50 text-amber-700 border border-amber-200' },
+    em_andamento: { label: 'Em Andamento', className: 'bg-blue-50 text-blue-700 border border-blue-200' },
+    concluido: { label: 'Concluído', className: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
+    // Legacy support
     respondido: { label: 'Respondido', className: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
     fechado: { label: 'Fechado', className: 'bg-slate-100 text-slate-700 border border-slate-200' },
 };
