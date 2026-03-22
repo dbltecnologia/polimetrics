@@ -1,4 +1,5 @@
 import { getZApiUrl, ZApiInstanceType } from '@/lib/zapi-config';
+import { ChatwootService } from './chatwootService';
 
 interface SendTextMessageOptions {
     phone: string;
@@ -13,29 +14,6 @@ interface ZApiResponse {
 }
 
 /**
- * Formata o número de telefone para o padrão esperado pela Z-API
- * @param phone - Número de telefone (com ou sem DDD)
- */
-function formatWhatsAppNumber(phone: string): string {
-    // Remove tudo que não for número
-    let cleaned = phone.replace(/\D/g, '');
-
-    // Se começar com 0, remove
-    if (cleaned.startsWith('0')) {
-        cleaned = cleaned.substring(1);
-    }
-
-    // Se não tiver o código do país (55), adiciona
-    if (cleaned.length <= 11 && !cleaned.startsWith('55')) {
-        cleaned = '55' + cleaned;
-    }
-
-    // Z-API prefere o número completo sem o 9 extra (dependendo da região)
-    // mas geralmente aceita o número como está se estiver com o 55
-    return cleaned;
-}
-
-/**
  * Envia uma mensagem de texto simples via WhatsApp
  */
 export async function sendWhatsAppMessage({ 
@@ -45,7 +23,7 @@ export async function sendWhatsAppMessage({
 }: SendTextMessageOptions): Promise<{ success: boolean; data?: ZApiResponse; error?: any }> {
     try {
         const url = getZApiUrl(instanceType, 'send-text');
-        const formattedPhone = formatWhatsAppNumber(phone);
+        const formattedPhone = ChatwootService.normalizeBrazilianPhone(phone);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -90,7 +68,7 @@ export async function sendWhatsAppImage({
 }) {
     try {
         const url = getZApiUrl(instanceType, 'send-image');
-        const formattedPhone = formatWhatsAppNumber(phone);
+        const formattedPhone = ChatwootService.normalizeBrazilianPhone(phone);
 
         const response = await fetch(url, {
             method: 'POST',

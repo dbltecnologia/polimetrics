@@ -47,7 +47,40 @@ Configure no Firebase App Hosting (ou `.env.local` para desenvolvimento):
 
 ---
 
-## 3. Configuração do Chatwoot
+## 3. Normalização de Telefone Brasileiro (Regra dos 12 Dígitos)
+
+> **Fonte:** Auditado contra o código-fonte do fork `fazer-ai/chatwoot` (método `send_on_whatsapp_service.rb` + `whatsapp_baileys_service.rb`)
+
+O Baileys constrói o JID do WhatsApp a partir do `phone_number` do contato no Chatwoot:
+```
+contact.phone_number → strip non-digits → "556183013768" → + "@s.whatsapp.net"
+```
+
+Se o número tiver **13 dígitos** (o "9 extra" de celulares brasileiros pós-2012), o JID fica inválido e a mensagem **não é entregue silenciosamente**.
+
+| Formato | Dígitos | JID gerado | Entrega |
+|---|---|---|---|
+| `+5561992856186` | 13 | `5561992856186@s.whatsapp.net` | ❌ JID inexistente |
+| `+556192856186` | 12 | `556192856186@s.whatsapp.net` | ✅ Correto |
+
+A função `ChatwootService.normalizeBrazilianPhone(phone)` implementa essa regra e é usada em **todas as partes do sistema** (Chatwoot + Z-API):
+
+```typescript
+// 55 + DDD(2) + 9 + número(8) = 13 dígitos → strip do 9 extra
+// "5561992856186" → "556192856186"
+if (digits.length === 13 && digits[4] === '9') {
+    digits = digits.slice(0, 4) + digits.slice(5);
+}
+```
+
+> ⚠️ **Regras de formato por contexto:**
+> - `phone_number` do **contato Chatwoot**: usa `+` → `+556192856186` (E.164)
+> - `source_id` da **conversa Chatwoot**: **sem** `+` → `556192856186` (regex `/^\d{1,15}$/`)
+> - **Z-API** (`whatsappService.ts`): mesma normalização de 12 dígitos
+
+---
+
+## 4. Configuração do Chatwoot
 
 ### 3.1 Webhook
 
@@ -124,11 +157,11 @@ Abstração sobre a API REST do Chatwoot. Métodos principais:
 
 | Método | Descrição |
 |---|---|
-| `sendMessage(conversationId, content)` | Envia mensagem de texto (outgoing) |
-| `findOrCreateContact(phone, name)` | Busca por telefone; cria se não existir |
-| `findOrCreateConversation(contactId, phone)` | Reutiliza conversa aberta ou cria nova |
-
-> **Formatação de telefone:** `findOrCreateContact` sempre formata com `+55` antes de criar. A busca usa o número limpo (só dígitos).
+| `normalizeBrazilianPhone(phone)` | Normaliza para 12 dígitos — strip do 9 extra, DDI 55, sem `+` |
+| `sendMessage(conversationId, content)` | Envia mensagem de texto outgoing (`private: false`) |
+| `findOrCreateContact(phone, name)` | Busca por 12 dígitos; cria com E.164 (`+digits`) se não existir |
+| `findOrCreateConversation(contactId, phone)` | Usa `/contacts/{id}/conversations` (mais preciso que `/filter`); cria com `source_id` sem `+` |
+| `updateContactAttributes(contactId, attrs)` | Enriquece contato no Chatwoot com `bairro`, `areaAtuacao`, `role` (CRM sync) |
 
 ### 5.2 `VirtualSecretary` (`src/services/ai/virtual-secretary.ts`)
 
