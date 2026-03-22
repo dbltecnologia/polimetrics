@@ -6,6 +6,20 @@ import { ContentAlignmentService } from '@/services/ai/content-alignment-service
 import { MissionService } from '@/services/ai/mission-service';
 import { revalidatePath } from 'next/cache';
 
+/** Executa fn em chunks para não ultrapassar o rate-limit do Chatwoot */
+async function chunkBatch<T>(items: T[], fn: (item: T) => Promise<any>, chunkSize = 10) {
+    const results: any[] = [];
+    for (let i = 0; i < items.length; i += chunkSize) {
+        const chunk = items.slice(i, i + chunkSize);
+        const chunkResults = await Promise.all(chunk.map(fn));
+        results.push(...chunkResults);
+        if (i + chunkSize < items.length) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+    }
+    return results;
+}
+
 /**
  * Dispara uma pesquisa para todos os usuários que correspondem aos filtros
  */
@@ -21,11 +35,10 @@ export async function triggerPollBatchAction(pollId: string, filters: { bairro?:
         }
 
         const snapshot = await query.get();
-        const promises = snapshot.docs.map((doc) =>
+        await chunkBatch(snapshot.docs, (doc) =>
             VirtualSecretaryEvents.triggerPollForUser(doc.id, pollId)
         );
 
-        await Promise.all(promises);
         revalidatePath('/dashboard/admin/ai');
         return { success: true, count: snapshot.size };
     } catch (error: any) {
@@ -66,11 +79,10 @@ export async function triggerMissionBatchAction(missionId: string, filters: { ba
         }
 
         const snapshot = await query.get();
-        const promises = snapshot.docs.map((doc) =>
+        await chunkBatch(snapshot.docs, (doc) =>
             MissionService.triggerMissionForUser(doc.id, missionId)
         );
 
-        await Promise.all(promises);
         revalidatePath('/dashboard/admin/ai');
         return { success: true, count: snapshot.size };
     } catch (error: any) {

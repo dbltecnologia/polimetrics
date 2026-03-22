@@ -63,7 +63,8 @@ export class ContentAlignmentService {
     }
 
     /**
-     * Disparo em massa (Batch) para um grupo ou bairro específico
+     * Disparo em massa (Batch) para um grupo ou bairro específico.
+     * Usa chunks de 10 para evitar ultrapassar o rate-limit do Chatwoot.
      */
     static async batchSendAlignment(filters: { bairro?: string; role?: string }, weekTopic: string) {
         let query: any = firestore.collection('users');
@@ -72,12 +73,23 @@ export class ContentAlignmentService {
         if (filters.role) query = query.where('role', '==', filters.role);
 
         const snapshot = await query.get();
-        const results = [];
+        const docs = snapshot.docs;
 
-        for (const doc of snapshot.docs) {
-            results.push(this.sendWeeklyAlignment(doc.id, weekTopic));
+        const CHUNK_SIZE = 10;
+        const results: any[] = [];
+
+        for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
+            const chunk = docs.slice(i, i + CHUNK_SIZE);
+            const chunkResults = await Promise.all(
+                chunk.map((doc: any) => this.sendWeeklyAlignment(doc.id, weekTopic))
+            );
+            results.push(...chunkResults);
+            // Pequena pausa entre chunks para não sobrecarregar a API do Chatwoot
+            if (i + CHUNK_SIZE < docs.length) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
         }
 
-        return Promise.all(results);
+        return results;
     }
 }

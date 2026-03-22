@@ -2,21 +2,11 @@ export const dynamic = 'force-dynamic';
 
 import { AdminHeader } from '@/app/dashboard/admin/_components/AdminHeader';
 import { ContentTable } from '@/components/content/ContentTable';
-
-async function loadContent() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/content`, {
-    cache: 'no-store',
-    credentials: 'include',
-  });
-  if (!res.ok) {
-    return [];
-  }
-  const data = await res.json().catch(() => ({ items: [] }));
-  return data.items || [];
-}
+import { getContentList } from '@/services/admin/contentService';
 
 export default async function ContentListPage() {
-  const items = await loadContent();
+  // Direct service call instead of self-fetch (self-fetches break on App Hosting without NEXT_PUBLIC_BASE_URL)
+  const items = await getContentList().catch(() => []);
 
   return (
     <div className="p-3 md:p-8 space-y-6">

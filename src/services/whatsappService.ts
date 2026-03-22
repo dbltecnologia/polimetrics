@@ -104,7 +104,12 @@ export async function sendWhatsAppImage({
             }),
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            console.error('Erro ao enviar imagem via Z-API:', data);
+            return { success: false, error: data };
+        }
+        return { success: true, data };
     } catch (error) {
         console.error('Erro ao enviar imagem via Z-API:', error);
         return { success: false, error };

@@ -55,7 +55,7 @@ export default function WizardClient() {
   const [loading, setLoading] = useState(false);
   const [resp, setResp] = useState<WizardResponse | null>(null);
   const [saving, setSaving] = useState(false);
-  const [debug, setDebug] = useState<string>('');
+
 
   const applyPreset = (preset: typeof quickPresets[number]) => {
     setObjective(preset.objective);
@@ -89,7 +89,6 @@ export default function WizardClient() {
       }
       const data = await res.json();
       setResp(data);
-      setDebug(JSON.stringify(data, null, 2));
       toast({ title: 'Kit gerado', description: 'Briefing, arte e áudio prontos.' });
     } catch (err: any) {
       toast({ title: 'Erro', description: err?.message || 'Não foi possível gerar.', variant: 'destructive' });
@@ -254,10 +253,6 @@ export default function WizardClient() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label>Depuração da resposta (json)</Label>
-              <Textarea value={debug} readOnly rows={8} />
-            </div>
           </div>
         )}
       </CardContent>
