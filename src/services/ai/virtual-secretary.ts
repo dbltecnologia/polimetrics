@@ -4,7 +4,7 @@ import { generateText } from './providers';
 import { MessagingHub } from '../messaging/messaging-hub';
 import { AppUser } from '@/types/user';
 import { KnowledgeBaseService } from './knowledge-base-service';
-import { MissionService } from './mission-service';
+
 
 export class VirtualSecretary {
     /**
@@ -38,10 +38,6 @@ export class VirtualSecretary {
             response = await this.handleNewLead(phone, name, content, state);
         } else if (state.step === 'waiting_poll_vote') {
             response = await this.handlePollVote(user, content, state);
-        } else if (state.step === 'waiting_mission_acceptance') {
-            response = await this.handleMissionAcceptance(user, content, state);
-        } else if (state.step === 'waiting_mission_proof') {
-            response = await this.handleMissionProof(user, content, state);
         } else if (user.status === 'lead' || !user.profile?.isProfileComplete) {
             response = await this.handleQualification(user, content, state);
         } else {
@@ -173,32 +169,6 @@ export class VirtualSecretary {
         return `Voto registrado com sucesso: *${option.text}*!\n\nMuito obrigado por participar. Sua voz fortalece nosso projeto. 🚀`;
     }
 
-    /**
-     * Fluxo de Aceitação de Missão
-     */
-    private static async handleMissionAcceptance(user: AppUser, content: string, state: any) {
-        if (content.toLowerCase().includes('sim')) {
-            await this.updateConversationState(state.conversationId, { step: 'waiting_mission_proof' });
-            return `Excelente, ${user.name}! Desafio aceito. Quando você concluir a missão, me envie um pequeno texto descrevendo o que fez ou uma foto. Estou aguardando!`;
-        }
-        await this.updateConversationState(state.conversationId, { step: 'main', activeMissionId: null });
-        return `Tudo bem, ${user.name}. Fica para a próxima! Posso te ajudar com algo mais?`;
-    }
-
-    /**
-     * Fluxo de Prova de Conclusão da Missão
-     */
-    private static async handleMissionProof(user: AppUser, content: string, state: any) {
-        // FIX: Guard contra state corrompido — activeMissionId pode ser null se o estado foi sobrescrito
-        if (!state.activeMissionId) {
-            await this.updateConversationState(state.conversationId, { step: 'main', activeMissionId: null });
-            return `Obrigado pelo seu empenho, ${user.name}! Não encontrei uma missão ativa para registrar. Se isso parece um erro, entre em contato com a equipe.`;
-        }
-        const res = await MissionService.completeMission(user.id, state.activeMissionId, content);
-        await this.updateConversationState(state.conversationId, { step: 'main', activeMissionId: null });
-        
-        return `🎉 *PARABÉNS!* Missão concluída com sucesso.\nVocê acaba de ganhar *${res?.points} pontos* e subiu no nosso ranking de liderança. Continue assim!`;
-    }
 
     /**
      * Fluxo para novos contatos (Leads)
