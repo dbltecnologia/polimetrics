@@ -1,5 +1,5 @@
 import { firestore } from '@/lib/firebase-admin';
-import { ChatwootService } from '../chatwootService';
+import { MessagingHub } from '../messaging/messaging-hub';
 
 export class EngagementService {
     /**
@@ -30,19 +30,14 @@ export class EngagementService {
 
         if (!adminPhone) return;
 
-        const contactId = await ChatwootService.findOrCreateContact(adminPhone, admin.name);
-        const conversationId = await ChatwootService.findOrCreateConversation(contactId, adminPhone);
+        const alertMessage = `⚠️ *Alerta de Engajamento*\nExistem ${inactiveHighInfluenceLeaders.size} líderes de Alta Influência sem interação há mais de 30 dias. Acesse o painel para verificar.`;
 
-        let alertMessage = `⚠️ *Alerta de Engajamento:*\nIdentifiquei ${inactiveHighInfluenceLeaders.size} líderes de *influência alta* inativos há mais de 30 dias:\n\n`;
-
-        inactiveHighInfluenceLeaders.forEach(doc => {
-            const data = doc.data();
-            alertMessage += `• ${data.name} (${data.bairro})\n`;
+        await MessagingHub.sendText({
+            phone: adminPhone,
+            message: alertMessage,
+            provider: 'zapi',
+            zapiInstance: 'reports'
         });
-
-        alertMessage += `\nSugestão: Deseja que eu envie uma mensagem motivacional automática para eles?`;
-
-        await ChatwootService.sendMessage(conversationId, alertMessage);
     }
 
     /**
@@ -55,12 +50,15 @@ export class EngagementService {
 
         if (!phone) return;
 
-        const contactId = await ChatwootService.findOrCreateContact(phone, user?.name);
-        const conversationId = await ChatwootService.findOrCreateConversation(contactId, phone);
+        const userName = user?.name || 'Cidadão';
+        const message = `Olá, ${userName}! Sentimos sua falta no projeto. Como estão as demandas no seu bairro? Mande uma mensagem caso precise de algo!`;
 
-        const message = `Olá ${user?.name}! Faz um tempo que não conversamos. Como estão as coisas no bairro ${user?.bairro || 'seu bairro'}? Alguma nova demanda que gostaria de registrar? Estamos aqui para ouvir!`;
-
-        await ChatwootService.sendMessage(conversationId, message);
+        await MessagingHub.sendText({
+            phone,
+            message,
+            provider: 'zapi',
+            zapiInstance: 'campaigns'
+        });
         
         // Marcar que enviamos o nudge
         await firestore.collection('users').doc(userId).update({

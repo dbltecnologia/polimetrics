@@ -1,6 +1,6 @@
 import { firestore } from '@/lib/firebase-admin';
 import { generateText } from './providers';
-import { ChatwootService } from '../chatwootService';
+import { MessagingHub } from '../messaging/messaging-hub';
 import { AppUser } from '@/types/user';
 
 export class ContentAlignmentService {
@@ -41,11 +41,12 @@ export class ContentAlignmentService {
 
             const alignmentMessage = await generateText({ prompt, provider: 'gemini' });
 
-            // 2. Enviar via Chatwoot
-            const contactId = await ChatwootService.findOrCreateContact(phone, user.name);
-            const conversationId = await ChatwootService.findOrCreateConversation(contactId, phone);
-
-            await ChatwootService.sendMessage(conversationId, `✨ *MENSAGEM DE ALINHAMENTO*\n\n${alignmentMessage}`);
+            await MessagingHub.sendText({
+                phone,
+                message: `✨ *MENSAGEM DE ALINHAMENTO*\n\n${alignmentMessage}`,
+                provider: 'zapi',
+                zapiInstance: 'campaigns'
+            });
 
             // 3. Registrar no log de atividades
             await firestore.collection('activities').add({

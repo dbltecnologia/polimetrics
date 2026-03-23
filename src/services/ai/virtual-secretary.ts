@@ -1,7 +1,7 @@
 import { firestore } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { generateText } from './providers';
-import { ChatwootService } from '../chatwootService';
+import { MessagingHub } from '../messaging/messaging-hub';
 import { AppUser } from '@/types/user';
 import { KnowledgeBaseService } from './knowledge-base-service';
 import { MissionService } from './mission-service';
@@ -50,7 +50,12 @@ export class VirtualSecretary {
 
         // 4. Enviar resposta via Chatwoot
         if (response) {
-            await ChatwootService.sendMessage(conversationId, response);
+            await MessagingHub.sendText({
+                phone,
+                message: response,
+                provider: 'chatwoot',
+                contactName: name
+            });
             
             // 5. Atualizar Engajamento (passa o role para proteger status de líderes)
             if (user?.id) {

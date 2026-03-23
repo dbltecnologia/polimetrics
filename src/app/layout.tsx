@@ -7,8 +7,8 @@ import { UserProvider } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Mapa Político",
-  description: "Plataforma para líderes políticos gerenciarem suas bases, missões e comunicação.",
+  title: "ZERO1DOSVOTOS",
+  description: "Inteligência de Campanha — Plataforma para líderes políticos gerenciarem suas bases, missões e comunicação.",
 };
 
 export default function RootLayout({

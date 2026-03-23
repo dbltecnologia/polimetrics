@@ -127,9 +127,12 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
       <div className="flex h-20 items-center border-b border-primary-dark px-6">
         <Link href="/dashboard/admin" className="flex items-center gap-3">
           <div className="bg-white p-1.5 rounded-lg shadow-sm flex items-center justify-center">
-            <Image src="/PoliMetrics.png" alt="Logo PoliMetrics" width={32} height={32} className="object-contain mix-blend-multiply" />
+            <Image src="/PoliMetrics.png" alt="Logo ZERO1DOSVOTOS" width={32} height={32} className="object-contain mix-blend-multiply" />
           </div>
-          <span className="text-xl font-bold text-neutral-white tracking-wide">PoliMetrics</span>
+          <div className="flex flex-col">
+            <span className="text-sm font-black text-neutral-white tracking-wider leading-tight">ZERO1DOSVOTOS</span>
+            <span className="text-[9px] font-medium text-neutral-white/50 tracking-widest uppercase leading-tight">Inteligência de Campanha</span>
+          </div>
         </Link>
       </div>
 

@@ -1,6 +1,6 @@
 import { firestore } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { ChatwootService } from '../chatwootService';
+import { MessagingHub } from '../messaging/messaging-hub';
 import { AppUser } from '@/types/user';
 
 export class MissionService {
@@ -20,12 +20,17 @@ export class MissionService {
 
             if (!phone) return;
 
-            const contactId = await ChatwootService.findOrCreateContact(phone, user?.name);
-            const conversationId = await ChatwootService.findOrCreateConversation(contactId, phone);
-
             const message = `🚀 *NOVA MISSÃO DISPONÍVEL*\n\nOlá ${user?.name}, temos um desafio para você fortalecer nossa base em ${user?.bairro}!\n\n*Missão:* ${mission?.title ?? ''}\n*O que fazer:* ${mission?.description ?? ''}\n*Recompensa:* 🏆 ${mission?.rewardPoints ?? 0} pontos\n\nVocê aceita este desafio? Responda *SIM* para começar!`;
 
-            await ChatwootService.sendMessage(conversationId, message);
+            const sendResult = await MessagingHub.sendText({
+                phone,
+                message,
+                provider: 'chatwoot',
+                contactName: user?.name
+            });
+
+            const conversationId = sendResult.conversationId;
+            if (!conversationId) return;
 
             // Registrar estado da missão na conversa
             await firestore.collection('ai_conversations').doc(conversationId.toString()).set({

@@ -1,5 +1,5 @@
 import { firestore } from '@/lib/firebase-admin';
-import { ChatwootService } from '../chatwootService';
+import { MessagingHub } from '../messaging/messaging-hub';
 
 export class VirtualSecretaryEvents {
     /**
@@ -18,18 +18,23 @@ export class VirtualSecretaryEvents {
 
             if (!phone || poll?.status !== 'active') return;
 
-            const contactId = await ChatwootService.findOrCreateContact(phone, user?.name);
-            const conversationId = await ChatwootService.findOrCreateConversation(contactId, phone);
-
-            // Montar as opções
-            let optionsText = "";
-            poll.options.forEach((opt: any, index: number) => {
-                optionsText += `${index + 1}️⃣ ${opt.text}\n`;
+            // Montar as opcoes numeradas da pesquisa
+            let optionsText = '';
+            (poll.options as any[]).forEach((opt, index) => {
+                optionsText += `${index + 1}\u{FE0F}\u{20E3} ${opt.text}\n`;
             });
 
             const message = `🗳️ *PESQUISA IMPORTANTE*\n\nOlá ${user?.name}, sua opinião é fundamental para o nosso projeto!\n\n*${poll.title}*\n${poll.description}\n\n${optionsText}\nResponda apenas com o *NÚMERO* da sua escolha.`;
 
-            await ChatwootService.sendMessage(conversationId, message);
+            const sendResult = await MessagingHub.sendText({
+                phone,
+                message,
+                provider: 'chatwoot',
+                contactName: user?.name
+            });
+
+            const conversationId = sendResult.conversationId;
+            if (!conversationId) return;
 
             // Atualizar estado da conversa para "esperando_voto"
             await firestore.collection('ai_conversations').doc(conversationId.toString()).set({
@@ -62,9 +67,8 @@ export class VirtualSecretaryEvents {
             if (!phone) return;
 
             // 1. Localizar ou criar conversa no Chatwoot
-            const contactId = await ChatwootService.findOrCreateContact(phone, user?.name);
-            const conversationId = await ChatwootService.findOrCreateConversation(contactId, phone);
-
+            // Z-API handles it directly, no need for conversation logic
+            
             // 2. Enviar mensagem de atualização
             const statusMap: Record<string, string> = {
                 'aberto': 'Aberto (Em Análise)',
@@ -78,7 +82,12 @@ export class VirtualSecretaryEvents {
             const descricao: string = demand?.message || demand?.descricao || demand?.subject || 'demanda registrada';
             const message = `Olá ${user?.name}! Tenho novidades sobre sua demanda registrada: "${descricao.slice(0, 60)}...".\n\nO status foi atualizado para: *${statusText}*.\n\nContinuaremos acompanhando!`;
 
-            await ChatwootService.sendMessage(conversationId, message);
+            await MessagingHub.sendText({
+                phone,
+                message,
+                provider: 'zapi',
+                zapiInstance: 'reports'
+            });
 
         } catch (error) {
             console.error('[EVENT_HANDLER_ERROR]:', error);
@@ -96,12 +105,14 @@ export class VirtualSecretaryEvents {
 
             if (!phone) return;
 
-            const contactId = await ChatwootService.findOrCreateContact(phone, user?.name);
-            const conversationId = await ChatwootService.findOrCreateConversation(contactId, phone);
-
             const message = `Olá ${user?.name}! Sou o Secretário Virtual do projeto político. É um prazer ter você conosco!\n\nAqui pelo WhatsApp você poderá:\n✅ Registrar demandas do seu bairro\n✅ Receber notícias e convites\n✅ Participar de pesquisas de opinião\n\nComo posso te ajudar agora?`;
 
-            await ChatwootService.sendMessage(conversationId, message);
+            await MessagingHub.sendText({
+                phone,
+                message,
+                provider: 'zapi',
+                zapiInstance: 'campaigns'
+            });
         } catch (error) {
             console.error('[USER_CREATED_EVENT_ERROR]:', error);
         }

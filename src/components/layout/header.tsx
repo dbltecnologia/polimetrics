@@ -64,9 +64,9 @@ const MobileNavigation = ({ items }: { items: typeof leaderMobileLinks | typeof 
             <div className="flex h-20 items-center border-b border-primary-dark px-6">
                 <Link href="/dashboard" className="flex items-center gap-3">
                     <div className="bg-white p-1.5 rounded-lg shadow-sm flex items-center justify-center">
-                        <Image src="/PoliMetrics.png" alt="PoliMetrics" width={32} height={32} className="object-contain mix-blend-multiply" />
+                        <Image src="/PoliMetrics.png" alt="ZERO1DOSVOTOS" width={32} height={32} className="object-contain mix-blend-multiply" />
                     </div>
-                    <span className="text-xl font-bold text-neutral-white tracking-wide">PoliMetrics</span>
+                    <span className="text-xl font-bold text-neutral-white tracking-wide">ZERO1DOSVOTOS</span>
                 </Link>
             </div>
             <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
@@ -97,7 +97,7 @@ const Header = () => {
     const { user: profile } = useUser();
     const { handleLogout, isLoggingOut } = useLogout();
     const avatarSrc = profile?.image || (profile as any)?.avatarUrl || (profile as any)?.avatar || '/PoliMetrics.png';
-    const avatarAlt = profile?.name ? `Avatar de ${profile.name}` : 'Logo PoliMetrics';
+    const avatarAlt = profile?.name ? `Avatar de ${profile.name}` : 'Logo ZERO1DOSVOTOS';
 
     const [selectedState, setSelectedState] = useState<string>('BR');
 
