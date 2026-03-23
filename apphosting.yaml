@@ -56,7 +56,7 @@ env:
   # URL PÚBLICA DO APP (usada em links internos e callbacks)
   # ============================================================
   - variable: NEXT_PUBLIC_API_URL
-    value: "https://zero1dosvotos.web.app"
+    value: "https://app.zero1dosvotos.com.br"
     availability:
       - BUILD
       - RUNTIME
