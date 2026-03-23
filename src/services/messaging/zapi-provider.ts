@@ -1,4 +1,4 @@
-import { getZApiUrl, ZApiInstanceType } from '@/lib/zapi-config';
+import { getZApiUrl, getZApiConfig, ZApiInstanceType } from '@/lib/zapi-config';
 
 interface SendTextMessageOptions {
     phone: string;
@@ -40,10 +40,12 @@ export class ZApiProvider {
             const url = getZApiUrl(instanceType, 'send-text');
             const formattedPhone = this.normalizePhone(phone);
 
+            const config = getZApiConfig(instanceType);
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Client-Token': config.clientToken,
                 },
                 body: JSON.stringify({
                     phone: formattedPhone,
@@ -83,10 +85,12 @@ export class ZApiProvider {
             const url = getZApiUrl(instanceType, 'send-image');
             const formattedPhone = this.normalizePhone(phone);
 
+            const config = getZApiConfig(instanceType);
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Client-Token': config.clientToken,
                 },
                 body: JSON.stringify({
                     phone: formattedPhone,

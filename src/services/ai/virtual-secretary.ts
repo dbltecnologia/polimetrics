@@ -12,9 +12,12 @@ export class VirtualSecretary {
      */
     static async processMessage(payload: any) {
         const { content, conversation, sender } = payload;
+        // Z-API usa o próprio número como conversationId; Chatwoot usa integer.
         const conversationId = conversation.id;
         const phone = sender.phone_number.replace(/\D/g, '');
         const name = sender.name;
+        // Detectar o provedor de origem para rotear a resposta corretamente
+        const replyProvider: 'zapi' | 'chatwoot' = payload._source === 'zapi' ? 'zapi' : 'chatwoot';
 
         // IMPROVEMENT #14: Rate limiting — max 10 msgs / phone / 60s (anti-bot, anti-loop)
         const isRateLimited = await this.checkRateLimit(phone);
@@ -44,14 +47,23 @@ export class VirtualSecretary {
             response = await this.handleMainFlow(user, content, state);
         }
 
-        // 4. Enviar resposta via Chatwoot
+        // 4. Enviar resposta pelo mesmo canal que recebeu
         if (response) {
-            await MessagingHub.sendText({
-                phone,
-                message: response,
-                provider: 'chatwoot',
-                contactName: name
-            });
+            if (replyProvider === 'zapi') {
+                await MessagingHub.sendText({
+                    phone,
+                    message: response,
+                    provider: 'zapi',
+                    zapiInstance: 'campaigns',
+                });
+            } else {
+                await MessagingHub.sendText({
+                    phone,
+                    message: response,
+                    provider: 'chatwoot',
+                    contactName: name,
+                });
+            }
             
             // 5. Atualizar Engajamento (passa o role para proteger status de líderes)
             if (user?.id) {
