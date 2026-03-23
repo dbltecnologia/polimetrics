@@ -8,64 +8,106 @@ runConfig:
   # memoryMiB: 512
 
 # Environment variables and secrets.
+# Secrets são gerenciados pelo Google Secret Manager.
+# Para criar: firebase apphosting:secrets:set NOME_DA_VARIAVEL
 env:
-  # Firebase Admin SDK (service account JSON armazenado no Secret Manager)
+
+  # ============================================================
+  # FIREBASE ADMIN SDK
+  # ============================================================
+  # Service account JSON completo (base64 ou raw JSON)
   - variable: FIREBASE_SERVICE_ACCOUNT_KEY
     secret: FIREBASE_SERVICE_ACCOUNT_KEY
     availability:
       - RUNTIME
 
-  # Google Maps API Key (necessária para geocoding no server-side)
-  - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    secret: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    availability:
-      - BUILD
-      - RUNTIME
-
-  # Firebase Web Config (necessário para autenticação no cliente)
+  # ============================================================
+  # FIREBASE WEB (CLIENT-SIDE)
+  # ============================================================
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     secret: NEXT_PUBLIC_FIREBASE_API_KEY
     availability:
       - BUILD
       - RUNTIME
 
-  # === SECRETÁRIO VIRTUAL IA ===
+  # ============================================================
+  # GOOGLE MAPS
+  # ============================================================
+  - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    secret: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
 
-  # Gemini (Google AI) — provedor principal de texto
+  # Coordenadas padrão do mapa (centro do mapa político)
+  - variable: NEXT_PUBLIC_MAP_DEFAULT_LAT
+    value: "-15.7942"   # Brasília — ajuste para sua região
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_MAP_DEFAULT_LNG
+    value: "-47.8825"   # Brasília — ajuste para sua região
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # ============================================================
+  # URL PÚBLICA DO APP (usada em links internos e callbacks)
+  # ============================================================
+  - variable: NEXT_PUBLIC_API_URL
+    value: "https://zero1dosvotos.web.app"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # ============================================================
+  # SECRETÁRIO VIRTUAL — IA
+  # ============================================================
+
+  # Gemini (Google AI) — provedor principal de geração de texto
   - variable: GEMINI_API_KEY
     secret: GEMINI_API_KEY
     availability:
       - RUNTIME
 
-  # OpenAI — fallback de texto/imagem
+  # Modelo Gemini a usar (opcional — padrão: gemini-1.5-flash)
+  - variable: GEMINI_TEXT_MODEL
+    value: "gemini-1.5-flash"
+    availability:
+      - RUNTIME
+
+  # OpenAI — fallback de geração de texto
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
     availability:
       - RUNTIME
 
-  # ElevenLabs — síntese de voz
-  - variable: ELEVENLABS_API_KEY
-    secret: ELEVENLABS_API_KEY
-    availability:
-      - RUNTIME
+  # ============================================================
+  # CHATWOOT (canal de atendimento WhatsApp)
+  # ============================================================
 
-  # === CHATWOOT / WHATSAPP ===
-
+  # URL da instância Chatwoot (ex: https://app.chatwoot.com)
   - variable: CHATWOOT_BASE_URL
     secret: CHATWOOT_BASE_URL
     availability:
       - RUNTIME
 
-  - variable: CHATWOOT_API_TOKEN
-    secret: CHATWOOT_API_TOKEN
+  # API Access Token do usuário no Chatwoot
+  # (Perfil → Access Token)
+  - variable: CHATWOOT_API_ACCESS_TOKEN
+    secret: CHATWOOT_API_ACCESS_TOKEN
     availability:
       - RUNTIME
 
+  # ID da conta no Chatwoot (aparece na URL: /app/accounts/XXXX)
   - variable: CHATWOOT_ACCOUNT_ID
     secret: CHATWOOT_ACCOUNT_ID
     availability:
       - RUNTIME
 
+  # ID da inbox WhatsApp no Chatwoot
+  # (Configurações → Inboxes → ID)
   - variable: CHATWOOT_INBOX_ID
     secret: CHATWOOT_INBOX_ID
     availability:
