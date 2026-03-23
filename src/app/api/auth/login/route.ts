@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     // 5. Set the selected state cookie for server-side filtering
     if (selectedState) {
       response.cookies.set({
-        name: 'polimetrics_state',
+        name: 'zero1dosvotos_state',
         value: selectedState,
         maxAge: expiresIn / 1000,
         httpOnly: false,

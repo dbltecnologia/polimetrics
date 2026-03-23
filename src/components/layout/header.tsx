@@ -64,7 +64,7 @@ const MobileNavigation = ({ items }: { items: typeof leaderMobileLinks | typeof 
             <div className="flex h-20 items-center border-b border-primary-dark px-6">
                 <Link href="/dashboard" className="flex items-center gap-3">
                     <div className="bg-white p-1.5 rounded-lg shadow-sm flex items-center justify-center">
-                        <Image src="/PoliMetrics.png" alt="ZERO1DOSVOTOS" width={32} height={32} className="object-contain mix-blend-multiply" />
+                        <Image src="/Zero1DosVotos.png" alt="ZERO1DOSVOTOS" width={32} height={32} className="object-contain mx-blend-multiply" />
                     </div>
                     <span className="text-xl font-bold text-neutral-white tracking-wide">ZERO1DOSVOTOS</span>
                 </Link>
@@ -96,21 +96,21 @@ const Header = () => {
     const { user } = useSession();
     const { user: profile } = useUser();
     const { handleLogout, isLoggingOut } = useLogout();
-    const avatarSrc = profile?.image || (profile as any)?.avatarUrl || (profile as any)?.avatar || '/PoliMetrics.png';
+    const avatarSrc = profile?.image || (profile as any)?.avatarUrl || (profile as any)?.avatar || '/Zero1DosVotos.png';
     const avatarAlt = profile?.name ? `Avatar de ${profile.name}` : 'Logo ZERO1DOSVOTOS';
 
     const [selectedState, setSelectedState] = useState<string>('BR');
 
     useEffect(() => {
-        const stored = localStorage.getItem('polimetrics_state') || 'BR';
+        const stored = localStorage.getItem('zero1dosvotos_state') || 'BR';
         setSelectedState(stored);
     }, []);
 
     const handleStateChange = (value: string) => {
         setSelectedState(value);
-        localStorage.setItem('polimetrics_state', value);
+        localStorage.setItem('zero1dosvotos_state', value);
         // Dispatch event so other components can react to the state change
-        window.dispatchEvent(new CustomEvent('polimetrics:stateChange', { detail: { state: value } }));
+        window.dispatchEvent(new CustomEvent('zero1dosvotos:stateChange', { detail: { state: value } }));
     };
 
     return (

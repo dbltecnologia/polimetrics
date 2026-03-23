@@ -83,7 +83,7 @@ const DEFAULT_NEIGHBORHOODS: Record<string, string[]> = {
 
 function getStateCookie(): string {
     if (typeof document === 'undefined') return '';
-    const match = document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/);
+    const match = document.cookie.match(/(?:^|; )zero1dosvotos_state=([^;]*)/);
     return match ? decodeURIComponent(match[1]) : '';
 }
 

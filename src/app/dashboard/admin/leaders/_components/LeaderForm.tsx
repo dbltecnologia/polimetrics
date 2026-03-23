@@ -95,7 +95,7 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
   // isEditing declared above (before formSchema)
 
   useEffect(() => {
-    const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/) : null;
+    const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )zero1dosvotos_state=([^;]*)/) : null;
     const cookieState = match ? decodeURIComponent(match[1]) : undefined;
 
     if (!isEditing && cookieState && !selectedState) {
@@ -240,10 +240,10 @@ export function LeaderForm({ leader, cities = [], leaders = [] }: LeaderFormProp
   }
 
   if (createdLeader) {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://polimetrics.web.app';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://zero1dosvotos.web.app';
     const loginUrl = `${origin}/login`;
     const panelUrl = `${origin}/dashboard/leader-panel`;
-    const message = `Olá, ${createdLeader.name}! Seu acesso à plataforma PoliMetrics foi criado.\n\n🔐 *Acesso:* ${loginUrl}\n📧 *Login:* ${createdLeader.email}\n🔑 *Senha:* ${createdLeader.password}\n\n👥 *Para cadastrar sua célula de apoiadores, acesse:*\n${panelUrl}\n\nGuarde bem essas informações!`;
+    const message = `Olá, ${createdLeader.name}! Seu acesso à plataforma Zero1DosVotos foi criado.\n\n🔐 *Acesso:* ${loginUrl}\n📧 *Login:* ${createdLeader.email}\n🔑 *Senha:* ${createdLeader.password}\n\n👥 *Para cadastrar sua célula de apoiadores, acesse:*\n${panelUrl}\n\nGuarde bem essas informações!`;
     const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
     const copyLink = () => { navigator.clipboard.writeText(panelUrl); toast({ title: 'Link copiado!' }); };
 

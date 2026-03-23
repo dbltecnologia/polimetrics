@@ -17,9 +17,9 @@ export default function LoginPage() {
       <Card className="w-full max-w-md p-6 sm:p-8 border shadow-lg rounded-lg bg-card">
         <CardHeader className="text-center pb-4">
           <div className="flex justify-center mb-4">
-            <Image src="/PoliMetrics.png" alt="Logo PoliMetrics" width={180} height={180} className="object-contain" />
+            <Image src="/Zero1DosVotos.png" alt="Logo Zero1DosVotos" width={180} height={180} className="object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">PoliMetrics</h1>
+          <h1 className="text-2xl font-bold text-foreground">Zero1DosVotos</h1>
           <CardDescription className="text-muted-foreground pt-1">
             Acesse sua área para continuar.
           </CardDescription>

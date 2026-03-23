@@ -65,7 +65,7 @@ export function LeaderOnboardingWizard({ profile, hasIncompleteProfile, onComple
     return (
         <div className="max-w-4xl mx-auto w-full space-y-6">
             <div className="text-center space-y-2 mb-8">
-                <h1 className="text-2xl font-bold tracking-tight">Bem-vindo(a) ao PoliMetrics!</h1>
+                <h1 className="text-2xl font-bold tracking-tight">Bem-vindo(a) ao Zero1DosVotos!</h1>
                 <p className="text-muted-foreground max-w-xl mx-auto">
                     Para ativar seu painel de liderança e começar a gerenciar sua rede de contatos, precisamos que conclua estas etapas iniciais.
                 </p>

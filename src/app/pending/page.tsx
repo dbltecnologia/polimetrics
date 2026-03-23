@@ -10,7 +10,7 @@ export default function PendingPage() {
             <Card className="w-full max-w-md p-6 sm:p-8 border shadow-lg rounded-lg bg-card text-center">
                 <CardHeader className="pb-4">
                     <div className="flex justify-center mb-4">
-                        <Image src="/PoliMetrics.png" alt="Logo PoliMetrics" width={120} height={120} className="object-contain" />
+                        <Image src="/Zero1DosVotos.png" alt="Logo Zero1DosVotos" width={120} height={120} className="object-contain" />
                     </div>
                     <div className="flex justify-center mb-3">
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">

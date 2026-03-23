@@ -37,7 +37,7 @@ const STATE_LABELS: Record<string, string> = {
 
 function getStateCookie(): string | undefined {
   if (typeof document === 'undefined') return undefined;
-  const match = document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/);
+  const match = document.cookie.match(/(?:^|; )zero1dosvotos_state=([^;]*)/);
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
@@ -127,7 +127,7 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
       <div className="flex h-20 items-center border-b border-primary-dark px-6">
         <Link href="/dashboard/admin" className="flex items-center gap-3">
           <div className="bg-white p-1.5 rounded-lg shadow-sm flex items-center justify-center">
-            <Image src="/PoliMetrics.png" alt="Logo ZERO1DOSVOTOS" width={32} height={32} className="object-contain mix-blend-multiply" />
+            <Image src="/Zero1DosVotos.png" alt="Logo ZERO1DOSVOTOS" width={32} height={32} className="object-contain mix-blend-multiply" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-black text-neutral-white tracking-wider leading-tight">ZERO1DOSVOTOS</span>

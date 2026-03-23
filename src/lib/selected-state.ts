@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 
-const COOKIE_NAME = 'polimetrics_state';
+const COOKIE_NAME = 'zero1dosvotos_state';
 
 /**
  * Returns the state selected at login time, read from a cookie.

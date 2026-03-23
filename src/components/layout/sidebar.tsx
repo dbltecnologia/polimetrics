@@ -50,9 +50,9 @@ const Sidebar = () => {
                 <div className="flex h-20 items-center border-b border-primary-dark px-6">
                     <Link href="/dashboard" className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-slate-200/50">
-                            <Image src="/PoliMetrics.png" alt="PoliMetrics Logo" width={32} height={32} className="object-contain" />
+                            <Image src="/Zero1DosVotos.png" alt="Zero1DosVotos Logo" width={32} height={32} className="object-contain" />
                         </div>
-                        <span className="text-xl font-bold text-neutral-white">PoliMetrics</span>
+                        <span className="text-xl font-bold text-neutral-white">Zero1DosVotos</span>
                     </Link>
                 </div>
                 <div className="flex flex-1 flex-col justify-between p-4">

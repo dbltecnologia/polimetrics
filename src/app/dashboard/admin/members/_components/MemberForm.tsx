@@ -60,7 +60,7 @@ export function MemberForm({ leaders }: MemberFormProps) {
     : cities;
 
   useEffect(() => {
-    const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )polimetrics_state=([^;]*)/) : null;
+    const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )zero1dosvotos_state=([^;]*)/) : null;
     const cookieState = match ? decodeURIComponent(match[1]) : undefined;
     if (cookieState && !selectedState) {
       setSelectedState(cookieState);
