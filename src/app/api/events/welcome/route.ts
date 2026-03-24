@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'userId é obrigatório' }, { status: 400 });
         }
 
-        EventHandler.sendWelcomeMessage(userId).catch(
+        VirtualSecretaryEvents.onUserCreated(userId).catch(
             (err) => console.error('[WELCOME_EVENT_ERROR]:', err)
         );
 
