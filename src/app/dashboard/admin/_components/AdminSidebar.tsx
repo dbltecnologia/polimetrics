@@ -7,12 +7,14 @@ import {
   LayoutDashboard,
   Users,
   Target,
-  Trophy,
   LogOut,
   FileText,
   Vote,
   TrendingUp,
   MapPin,
+  Bot,
+  BookOpen,
+  MessageSquareMore,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useLogout } from '@/hooks/use-auth';
@@ -55,6 +57,11 @@ const mainLinks = [
   { name: 'Chamados', href: '/dashboard/admin/chamados', icon: FileText },
   { name: 'Minivotações', href: '/dashboard/admin/votacoes', icon: Vote },
   { name: 'Eleições e Análise', href: '/dashboard/admin/eleicoes', icon: TrendingUp },
+];
+
+const aiLinks = [
+  { name: 'Conversas IA', href: '/dashboard/admin/ai/conversations', icon: MessageSquareMore },
+  { name: 'Base de Conhecimento', href: '/dashboard/admin/ai/knowledge', icon: BookOpen },
 ];
 
 
@@ -171,6 +178,19 @@ export function AdminSidebar({ variant = 'desktop' }: AdminSidebarProps) {
               <li key={link.name}>{renderLink(link)}</li>
             ))}
           </ul>
+
+          {/* Secretário Virtual */}
+          <div className="pt-3">
+            <div className="flex items-center gap-2 px-3 py-1.5">
+              <Bot className="h-3.5 w-3.5 text-neutral-white/40" />
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-white/40">Secretário Virtual</p>
+            </div>
+            <ul className="space-y-1">
+              {aiLinks.map((link) => (
+                <li key={link.name}>{renderLink(link)}</li>
+              ))}
+            </ul>
+          </div>
         </nav>
         <nav>
           <ul className="space-y-1">

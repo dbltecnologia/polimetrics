@@ -42,6 +42,12 @@ export function ChamadoActions({ id, currentStatus }: { id: string, currentStatu
                 toast({ title: "Erro", description: res.error, variant: "destructive" });
             } else {
                 toast({ title: "Status Atualizado", description: "O status do chamado foi atualizado." });
+                // Disparar notificação WhatsApp de forma silenciosa
+                fetch('/api/events/demand-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chamadoId: id, newStatus }),
+                }).catch(() => {}); // fail silently
                 router.refresh();
             }
         });
