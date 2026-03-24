@@ -6,7 +6,29 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
-## [1.0.0] - 2026-02-20 - Lançamento Oficial (Bootstrap)
+## [2.1.0] - 2026-03-24 - Secretário Virtual Completo
+
+Integração completa do Secretário Virtual via WhatsApp (Z-API), com fluxos automáticos de atendimento, qualificação de leads, registro de demandas e monitoramento em tempo real pelo painel administrativo.
+
+### Adicionado
+- **Secretário Virtual IA:** Bot WhatsApp via Z-API com fluxo completo: qualificação de lead (bairro + área de atuação) → RAG com base de conhecimento → registro automático de demandas.
+- **Webhook Z-API:** Endpoint `POST /api/webhooks/zapi` para receber e processar mensagens recebidas no WhatsApp.
+- **Painel "Conversas IA":** Nova página `/dashboard/admin/ai/conversations` para monitorar todas as conversas ativas com o bot em tempo real.
+- **Notificação automática de chamados:** Ao mudar status de um chamado no Kanban, o cidadão recebe WhatsApp automático com a atualização.
+- **Boas-vindas automáticas:** Ao criar um novo líder, ele recebe mensagem de boas-vindas via WhatsApp automaticamente.
+- **Menu "Secretário Virtual"** na sidebar admin com links para Conversas IA e Base de Conhecimento.
+- **API `/api/events/demand-status`** e **`/api/events/welcome`** para disparar eventos de notificação.
+- **Rate limiting** por número de telefone (10 msgs/60s) via Firestore.
+- **Quick Report IA:** Administradores podem pedir relatórios rápidos (líderes, demandas abertas) diretamente pelo WhatsApp.
+
+### Corrigido
+- `apphosting.yaml`: variáveis Chatwoot convertidas de `secret:` para `value:` (evitando erro de Secret Manager).
+- `ZAPI_CLIENT_TOKEN` criado como secret no Google Secret Manager com permissão ao backend.
+- Correção de nome de classe (`EventHandler` → `VirtualSecretaryEvents`) e método (`sendWelcomeMessage` → `onUserCreated`) no endpoint de boas-vindas.
+
+---
+
+## [2.0.0] - 2026-02-20 - Lançamento Oficial (Bootstrap)
 
 Este é o marco oficial de fundação do sistema **PoliMetrics** (anteriormente Mapa Político). O sistema foi completamente polido, refatorado e higienizado para atuar como um SaaS estratégico de Business Intelligence para campanhas e mandatos políticos.
 
