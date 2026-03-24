@@ -84,31 +84,45 @@ env:
       - RUNTIME
 
   # ============================================================
-  # CHATWOOT (canal de atendimento WhatsApp)
+  # CHATWOOT (canal de atendimento — opcional, fallback)
+  # Estas variáveis são configuradas como env vars simples no painel Firebase.
+  # NÃO usar secret: pois não estão no Secret Manager.
   # ============================================================
 
-  # URL da instância Chatwoot (ex: https://app.chatwoot.com)
   - variable: CHATWOOT_BASE_URL
-    secret: CHATWOOT_BASE_URL
+    value: "CHATWOOT_BASE_URL_PLACEHOLDER"
     availability:
       - RUNTIME
 
-  # API Access Token do usuário no Chatwoot
-  # (Perfil → Access Token)
   - variable: CHATWOOT_API_ACCESS_TOKEN
-    secret: CHATWOOT_API_ACCESS_TOKEN
+    value: "CHATWOOT_API_ACCESS_TOKEN_PLACEHOLDER"
     availability:
       - RUNTIME
 
-  # ID da conta no Chatwoot (aparece na URL: /app/accounts/XXXX)
   - variable: CHATWOOT_ACCOUNT_ID
-    secret: CHATWOOT_ACCOUNT_ID
+    value: "CHATWOOT_ACCOUNT_ID_PLACEHOLDER"
     availability:
       - RUNTIME
 
-  # ID da inbox WhatsApp no Chatwoot
-  # (Configurações → Inboxes → ID)
   - variable: CHATWOOT_INBOX_ID
-    secret: CHATWOOT_INBOX_ID
+    value: "CHATWOOT_INBOX_ID_PLACEHOLDER"
+    availability:
+      - RUNTIME
+
+  # ============================================================
+  # Z-API (canal WhatsApp principal)
+  # ============================================================
+  - variable: ZAPI_INSTANCE_ID
+    value: "3F0842389FC5B298B5B66A3076259B07"
+    availability:
+      - RUNTIME
+
+  - variable: ZAPI_TOKEN
+    value: "9F04D61967A6EE06600B72FC"
+    availability:
+      - RUNTIME
+
+  - variable: ZAPI_CLIENT_TOKEN
+    secret: ZAPI_CLIENT_TOKEN
     availability:
       - RUNTIME
